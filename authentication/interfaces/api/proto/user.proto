@@ -1,0 +1,84 @@
+syntax = "proto3";
+package pb;
+
+
+// import "google/api/annotations.proto";
+// import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "./pb";
+// option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+//     info: {
+//       title: "Authentication";
+//       version: "1.0";
+//       contact: {
+//         name: "JobPortal";
+//         url: "jobs.demola.dev";
+//         email: "hello@demola.dev";
+//       };
+//     };
+//     security_definitions: {
+//       security: {
+//         key: "bearer"
+//         value: {
+//           type: TYPE_API_KEY
+//           in: IN_HEADER
+//           name: "Authorization Bearer"
+//           description: "Authentication token, prefixed by Bearer: Bearer <token>"
+//         }
+//       }
+//     }
+//     security: {
+//       security_requirement: {
+//         key: "bearer"
+  
+//       }
+//     };
+//   };
+  
+
+service AuthService {
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc Register (RegisterRequest) returns (RegisterResponse);
+    rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
+}
+
+message User {
+    string email = 1;
+    string full_name = 2;
+    google.protobuf.Timestamp password_changed_at = 3;
+    google.protobuf.Timestamp created_at = 4;
+}
+
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    User user = 1;
+    string access_token = 2;
+    string refresh_token = 3;
+}
+
+message RegisterRequest {
+    string email = 1;
+    string password = 2;
+    string full_name = 3;
+}
+
+message RegisterResponse {
+    User user = 1;
+    string access_token = 2;
+    string refresh_token = 3;
+}
+
+message RefreshTokenRequest {
+    string token = 1;
+}
+
+message RefreshTokenResponse {
+    string token = 1;
+}
+

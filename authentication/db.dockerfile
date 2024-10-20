@@ -1,5 +1,7 @@
-FROM postgres:10.3
+FROM postgres:13-alpine
 
-COPY up.sql /docker-entrypoint-initdb.d/1.sql
+ENV POSTGRES_DB=mydb
+ENV POSTGRES_USER=myuser
+ENV POSTGRES_PASSWORD=mypassword
 
-CMD ["postgres"]
+EXPOSE 5432

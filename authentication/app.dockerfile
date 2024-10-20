@@ -1,36 +1,33 @@
-# Stage 1: Build the Go service
-FROM golang:1.22-alpine AS build
+# Use official Golang image as the base
+FROM golang:1.19-alpine as builder
 
-# Install necessary build tools
-RUN apk --no-cache add gcc g++ make ca-certificates
+WORKDIR /app
 
-# Set the working directory
-WORKDIR /go/src/job_portal
-
-# Copy go.mod, go.sum, and vendor directory
+# Copy go.mod and go.sum to the container
 COPY go.mod go.sum ./
-COPY vendor vendor
+RUN go mod download
 
-# Copy the service code
-COPY account account
+# Copy the source code to the container
+COPY . .
 
-# Build the service
-RUN GO111MODULE=on go build -mod vendor -o ./bin/app ./authentication/cmd/authentication
+# Build the Go app
+RUN go build -o /authentication ./cmd/authentication/main.go
 
-# Stage 2: Final image with minimal dependencies
-FROM alpine:3.18
+# Use a minimal image for the final executable
+FROM alpine:latest
 
-# Install required certificates for TLS connections
-RUN apk --no-cache add ca-certificates
+WORKDIR /
 
-# Set the working directory
-WORKDIR /usr/bin
+# Copy the compiled Go binary from the builder stage
+COPY --from=builder /authentication .
 
-# Copy the compiled binary from the build stage
-COPY --from=build /go/src/job_portal/bin/app .
+# Install golang-migrate CLI tool
+RUN apk add --no-cache curl \
+    && curl -L https://github.com/golang-migrate/migrate/releases/download/v4.15.2/migrate.linux-amd64.tar.gz | tar xvz \
+    && mv migrate /usr/local/bin/
 
-# Expose the port the service listens on
-EXPOSE 8080
+# Copy migrations
+COPY ./db/migrations /migrations
 
-# Run the service
-CMD ["./app"]
+# Run the migrations and start the app
+CMD migrate -path /migrations -database "${DB_URL}" up && ./authentication
