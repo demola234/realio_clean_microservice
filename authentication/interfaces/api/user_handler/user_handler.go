@@ -48,6 +48,11 @@ func (h *UserHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 		return nil, status.Errorf(500, "failed to generate token")
 	}
 
+	refreshToken, err := h.userUsecase.GenerateToken(ctx, user.Email)
+	if err != nil {
+		return nil, status.Errorf(500, "failed to generate token")
+	}
+
 	return &pb.LoginResponse{
 		User: &pb.User{
 			Email:             user.Email,
@@ -55,7 +60,8 @@ func (h *UserHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 			PasswordChangedAt: timestamppb.New(user.PasswordChangedAt),
 			CreatedAt:         timestamppb.New(user.CreatedAt),
 		},
-		AccessToken: token,
+		AccessToken:  token,
+		RefreshToken: refreshToken,
 	}, nil
 }
 

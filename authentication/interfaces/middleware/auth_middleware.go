@@ -3,10 +3,11 @@ package middleware
 import (
 	"errors"
 	"fmt"
+	interfaces "job_portal/authentication/interfaces/error"
+	token "job_portal/authentication/interfaces/middleware/token_maker"
+
 	"net/http"
 	"strings"
-	interfaces "job_portal/authentication/interfaces/error"
-	token "job_portal/shared/middleware"
 
 	"github.com/gin-gonic/gin"
 )

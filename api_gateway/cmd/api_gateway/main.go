@@ -2,9 +2,9 @@ package main
 
 import (
 	"job_portal/api_gateway/config"
-	"job_portal/api_gateway/internal/handler"
 	"job_portal/api_gateway/interfaces/grpc_clients"
-	"job_portal/api_gateway/routes"
+	"job_portal/api_gateway/internal/handler"
+	auth "job_portal/api_gateway/routes"
 	"log"
 	"net/http"
 

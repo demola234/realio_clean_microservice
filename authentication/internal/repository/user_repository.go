@@ -4,23 +4,35 @@ import (
 	"context"
 	"fmt"
 	db "job_portal/authentication/db/sqlc" // SQLC generated code for interacting with the database
+	token "job_portal/authentication/interfaces/middleware/token_maker"
 	"job_portal/authentication/internal/domain/entity"
 	"job_portal/authentication/pkg/utils"
-	token "job_portal/shared/middleware"
+	"log"
 	"time"
 )
 
 // UserRepository implements the AuthRepository interface.
 // This struct interacts with the database using SQLC-generated code.
 type UserRepository struct {
-	store      db.Store 
-	tokenMaker token.Maker
+	store db.Store
 }
 
 // CreateToken implements repository.UserRepository.
 func (r *UserRepository) CreateToken(ctx context.Context, email string) (string, error) {
+	// // Load configuration
+	// configs, err := config.LoadConfig("...")
+	// if err != nil {
+	// 	log.Fatalf("Failed to load env file: %v", err)
+	// }
+
+	tokenMaker, err := token.NewTokenMaker("beb4118e1bdc8020df695ceec7e464a5")
+	if err != nil {
+		log.Fatalf("Failed to load env file")
+
+	}
+
 	duration := time.Hour * 24
-	accessToken, _, err := r.tokenMaker.CreateToken(email, duration)
+	accessToken, _, err := tokenMaker.CreateToken(email, duration)
 	if err != nil {
 		return "", fmt.Errorf("some went wrong: %d", err)
 	}

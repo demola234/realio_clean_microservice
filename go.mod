@@ -1,8 +1,8 @@
 module job_portal
 
-go 1.22.5
+go 1.22
 
-toolchain go1.23.2
+// toolchain go1.23
 
 require (
 	github.com/gin-gonic/gin v1.10.0
@@ -66,3 +66,5 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace google.golang.org/grpc => github.com/grpc/grpc-go v1.67.1

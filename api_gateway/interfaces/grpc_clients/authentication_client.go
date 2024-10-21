@@ -16,7 +16,7 @@ func NewAuthenticationClient(address string) (*AuthenticationClient, error) {
 	// Create a context with a timeout to avoid indefinite dialing attempts.
 
 	// Use grpc.DialContext with context and a proper timeout.
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to gRPC server: %w", err)
 	}
