@@ -18,9 +18,9 @@ type UserRepository struct {
 // CreateToken implements repository.UserRepository.
 func (r *UserRepository) CreateToken(ctx context.Context, email string) (string, error) {
 	// duration := time.Hour * 24
-	// accessToken, accessPayload, err := r.tokenMaker.CreateToken(email, duration)
+	// accessToken, _, err := r.tokenMaker.CreateToken(email, duration)
 	// if err != nil {
-	// 	return "", nil, fmt.Errorf("some went wrong: %d", err)
+	// 	return "", fmt.Errorf("some went wrong: %d", err)
 	// }
 
 	return "accessToken", nil

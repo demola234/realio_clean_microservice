@@ -13,7 +13,6 @@ type Payload struct {
 func NewPayload(username string, duration time.Duration) (*Payload, error) {
 
 	payload := &Payload{
-
 		Email:     username,
 		IssuedAt:  time.Now(),
 		ExpiredAt: time.Now().Add(duration),

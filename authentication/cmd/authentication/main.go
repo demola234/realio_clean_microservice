@@ -7,8 +7,8 @@ import (
 
 	"job_portal/authentication/config"
 	db "job_portal/authentication/db/sqlc"
-	grpcHandler "job_portal/authentication/interfaces/api/user_handler"
 	pb "job_portal/authentication/interfaces/api/grpc"
+	grpcHandler "job_portal/authentication/interfaces/api/user_handler"
 	"job_portal/authentication/internal/repository"
 	usercase "job_portal/authentication/internal/usecase"
 
@@ -45,7 +45,7 @@ func main() {
 	authService := grpcHandler.NewUserHandler(userUsecase)
 
 	// Start gRPC server
-	lis, err := net.Listen("tcp", configs.GRPCServerAddress)
+	lis, err := net.Listen("tcp", "0.0.0.0:9090") // Listen on all network interfaces
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
