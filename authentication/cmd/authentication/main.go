@@ -45,7 +45,7 @@ func main() {
 	authService := grpcHandler.NewUserHandler(userUsecase)
 
 	// Start gRPC server
-	lis, err := net.Listen("tcp", "0.0.0.0:9090")
+	lis, err := net.Listen("tcp", configs.GRPCServerAddress)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

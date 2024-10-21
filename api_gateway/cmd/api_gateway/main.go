@@ -19,7 +19,7 @@ func main() {
 	}
 
 	// Initialize gRPC client
-	authClient, err := grpc_clients.NewAuthenticationClient("0.0.0.0:9090")
+	authClient, err := grpc_clients.NewAuthenticationClient(configs.AuthenticationGRPCAddress)
 	if err != nil {
 		log.Fatalf("Failed to connect to Authentication service: %v", err)
 	}

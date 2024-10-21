@@ -4,10 +4,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-
 type Config struct {
-	Port          string `mapstructure:"API_GATEWAY_PORT"`
-	AuthenticationGRPCAddress          string `mapstructure:"AUTH_GRPC_ADDRESS"`
+	Port                      string `mapstructure:"API_GATEWAY_PORT"`
+	AuthenticationGRPCAddress string `mapstructure:"AUTH_GRPC_ADDRESS"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
