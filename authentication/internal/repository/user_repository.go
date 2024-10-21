@@ -2,28 +2,30 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	db "job_portal/authentication/db/sqlc" // SQLC generated code for interacting with the database
 	"job_portal/authentication/internal/domain/entity"
 	"job_portal/authentication/pkg/utils"
 	token "job_portal/shared/middleware"
+	"time"
 )
 
 // UserRepository implements the AuthRepository interface.
 // This struct interacts with the database using SQLC-generated code.
 type UserRepository struct {
-	store      db.Store // SQLC store for interacting with the database.
+	store      db.Store 
 	tokenMaker token.Maker
 }
 
 // CreateToken implements repository.UserRepository.
 func (r *UserRepository) CreateToken(ctx context.Context, email string) (string, error) {
-	// duration := time.Hour * 24
-	// accessToken, _, err := r.tokenMaker.CreateToken(email, duration)
-	// if err != nil {
-	// 	return "", fmt.Errorf("some went wrong: %d", err)
-	// }
+	duration := time.Hour * 24
+	accessToken, _, err := r.tokenMaker.CreateToken(email, duration)
+	if err != nil {
+		return "", fmt.Errorf("some went wrong: %d", err)
+	}
 
-	return "accessToken", nil
+	return accessToken, nil
 }
 
 // NewUserRepository creates a new instance of UserRepository.

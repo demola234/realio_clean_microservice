@@ -2,8 +2,9 @@ package main
 
 import (
 	"job_portal/api_gateway/config"
-	"job_portal/api_gateway/interfaces/grpc_clients"
 	"job_portal/api_gateway/internal/handler"
+	"job_portal/api_gateway/interfaces/grpc_clients"
+	"job_portal/api_gateway/routes"
 	"log"
 	"net/http"
 
@@ -40,14 +41,12 @@ func main() {
 		})
 	}
 
-	// Define routes
-	v1.POST("/register", authHandler.Register)
-	v1.POST("/login", authHandler.Login)
+	// Define authentication routes
+	auth.RegisterRoutes(v1, authHandler)
 
 	// Start the HTTP server
 	log.Printf("Starting API Gateway at %s...", configs.Port)
 	if err := router.Run(configs.Port); err != nil {
 		log.Fatalf("Could not start server: %v", err)
 	}
-
 }
