@@ -52,3 +52,9 @@ func main() {
 		log.Fatalf("Could not start server: %v", err)
 	}
 }
+
+
+//  Logger - ZeroLogger
+//  Monitoring - Prometheus
+//  Monitoring Visualization - Grafana
+//  
