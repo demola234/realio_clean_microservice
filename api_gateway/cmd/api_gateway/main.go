@@ -3,6 +3,7 @@ package main
 import (
 	"job_portal/api_gateway/config"
 	"job_portal/api_gateway/interfaces/grpc_clients"
+	middleware "job_portal/api_gateway/interfaces/middleware"
 	"job_portal/api_gateway/internal/handler"
 	auth "job_portal/api_gateway/routes"
 	"log"
@@ -26,6 +27,7 @@ func main() {
 
 	// Create a new Gin router
 	router := gin.Default()
+	router.Use(middleware.RateLimitMiddleware())
 
 	// Initialize handlers
 	authHandler := handler.NewAuthHandler(authClient)
