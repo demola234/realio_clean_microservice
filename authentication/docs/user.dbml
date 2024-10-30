@@ -1,0 +1,35 @@
+Project realio_user {
+    database_type: 'PostgreSQL'
+}
+
+Table users {
+    id          UUID         [pk, unique, note: "Primary key"]
+    name        String       [not null, note: "User's full name"]
+    email       String       [unique, not null, note: "User's email (unique)"]
+    password    String       [not null, note: "Hashed password"]
+    role        Enum         [not null, default: 'buyer', note: "Role of the user: buyer, seller, agent, admin"]
+    phone       String       [note: "Contact number"]
+    created_at  Timestamp    [default: `now()`, note: "Timestamp of registration"]
+    updated_at  Timestamp    [default: `now()`, note: "Timestamp of last update"]
+}
+
+Enum role {
+    buyer
+    seller
+    agent
+    admin
+}
+
+Table sessions {
+    session_id    UUID         [pk, unique, note: "Unique identifier for each session."]
+    user_id       UUID         [ref: > users.id, not null, note: "Foreign key linking to the user table (identifies the user)."]
+    token         VARCHAR(255) [not null, note: "The session token, which can be a JWT or another token format."]
+    created_at    TIMESTAMP    [default: `now()`, not null, note: "Timestamp of when the session was created."]
+    expires_at    TIMESTAMP    [not null, note: "Timestamp of when the session expires."]
+    last_activity TIMESTAMP    [not null, note: "Tracks the last activity time for session timeout checks."]
+    ip_address    VARCHAR(45)  [note: "The IP address from which the session was initiated."]
+    user_agent    VARCHAR(255) [note: "The user agent (browser or device info) for the session."]
+    is_active     BOOLEAN      [default: true, not null, note: "Indicates whether the session is currently active."]
+    revoked_at    TIMESTAMP    [note: "Timestamp for when the session was revoked, if applicable."]
+    device_info   JSON         [note: "Stores additional device details if needed."]
+}
