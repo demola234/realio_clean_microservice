@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"job_portal/api_gateway/interfaces/grpc_clients"
 	errorResponse "job_portal/api_gateway/interfaces/error_response"
+	"job_portal/api_gateway/interfaces/grpc_clients"
 	pb "job_portal/authentication/interfaces/api/grpc"
 
 	"github.com/gin-gonic/gin"
@@ -14,8 +14,6 @@ import (
 type AuthHandler struct {
 	AuthClient *grpc_clients.AuthenticationClient
 }
-
-
 
 func NewAuthHandler(authClient *grpc_clients.AuthenticationClient) *AuthHandler {
 	return &AuthHandler{AuthClient: authClient}
@@ -51,4 +49,68 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
+}
+
+func (h *AuthHandler) GetUser(c *gin.Context) {
+	userID := c.Query("userID")
+
+	res, err := h.AuthClient.Client.GetUser(context.Background(), &pb.GetUserRequest{UserId: userID})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+
+}
+
+func (h *AuthHandler) VerifyUser(c *gin.Context) {
+	var req pb.VerifyUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse.ErrInvalidRequest)
+		return
+	}
+
+	res, err := h.AuthClient.Client.VerifyUser(context.Background(), &req)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+
+}
+
+func (h *AuthHandler) ResendOtp(c *gin.Context) {
+	var req pb.ResendOtpRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse.ErrInvalidRequest)
+		return
+	}
+
+	res, err := h.AuthClient.Client.ResendOtp(context.Background(), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *AuthHandler) Logout(c *gin.Context) {
+	var req pb.LogOutRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse.ErrInvalidRequest)
+		return
+	}
+
+	res, err := h.AuthClient.Client.LogOut(context.Background(), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+
 }

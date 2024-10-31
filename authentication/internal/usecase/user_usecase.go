@@ -9,7 +9,9 @@ import (
 	"job_portal/authentication/internal/domain/repository"
 	"job_portal/authentication/pkg/utils"
 	"job_portal/authentication/pkg/val"
+	"time"
 
+	"github.com/google/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 )
 
@@ -19,10 +21,15 @@ var (
 
 // UserUsecase defines the interface for user-related business logic.
 type UserUsecase interface {
-	RegisterUser(ctx context.Context, fullName, password, email string) (*entity.User, error)
+	RegisterUser(ctx context.Context, fullName string, password string, email string, role string, phone string) (*entity.User, *entity.Session, error)
 	LoginUser(ctx context.Context, password, email string) (*entity.User, error)
 	ChangePassword(ctx context.Context, currentPassword, newPassword, id string) error
+	GetSession(ctx context.Context, id string) (*entity.Session, error)
 	GenerateToken(ctx context.Context, email string) (string, error)
+	ResendOtp(ctx context.Context, email string) error
+	GetUser(ctx context.Context, userId string) (*entity.User, error)
+	LogOut(ctx context.Context, userId string) error
+	VerifyOtp(ctx context.Context, email string, otp string) (bool, error)
 }
 
 // userUsecase implements the UserUsecase interface.
@@ -45,46 +52,66 @@ func (u *userUsecase) GenerateToken(ctx context.Context, email string) (string, 
 }
 
 // RegisterUser registers a new user.
-func (u *userUsecase) RegisterUser(ctx context.Context, fullName string, password string, email string) (*entity.User, error) {
-	// // Validate user input
+func (u *userUsecase) RegisterUser(ctx context.Context, fullName, password, email, role, phone string) (*entity.User, *entity.Session, error) {
+	// Validate user input (uncomment if needed)
 	// violations := validateCreateUser(fullName, password, email)
 	// if violations != nil {
-	// 	return nil, interfaces.InvalidArgErr(violations)
+	// 	return nil, nil, interfaces.InvalidArgErr(violations)
 	// }
 
+	// Check if user with the same email already exists
+	existingUser, err := u.repo.GetUserByEmail(ctx, email)
+	if err == nil && existingUser != nil {
+		return nil, nil, fmt.Errorf("user with email %s already exists", email)
+	}
+
+	// Generate a new token for the session
 	token, err := u.repo.CreateToken(ctx, email)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate token for email %s: %w", email, err)
+		return nil, nil, fmt.Errorf("failed to generate token for email %s: %w", email, err)
 	}
 
-	refreshToken, err := u.repo.CreateToken(ctx, email)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate token for email %s: %w", email, err)
-	}
-
-	// Create a new user entity
+	// Create a new user entity with a unique ID
 	user := &entity.User{
-		Email:        email,
-		FullName:     fullName,
-		Password:     password,
-		AccessToken:  token,
-		RefreshToken: refreshToken,
+		ID:       uuid.New(),
+		Email:    email,
+		FullName: fullName,
+		Password: password,
+		Role:     role,
+		Phone:    phone,
 	}
 
-	// Check if user already exists
-	repoUser, _ := u.repo.GetUserByEmail(ctx, email)
+	// Gather metadata for session
+	metaData := utils.ExtractMetaData(ctx)
 
-	if repoUser != nil {
-		return nil, ErrUserAlreadyExists
+	// Create a new session entity with a unique ID and expiration time
+	session := &entity.Session{
+		SessionID:    uuid.New(),
+		UserID:       user.ID,
+		Token:        token,
+		CreatedAt:    time.Now().UTC(),
+		ExpiresAt:    time.Now().Add(24 * time.Hour).UTC(), // Set to UTC
+		LastActivity: time.Now().UTC(),
+		IpAddress:    metaData.ClientIP,
+		UserAgent:    metaData.UserAgent,
+		IsActive:     true,
+		Otp:          utils.RandomOtp(),
+		OTPVerified:  false,
+		OtpExpiresAt: time.Now().Add(5 * time.Minute),
+		OtpAttempts:  0,
 	}
 
-	// Create the user
-	err = u.repo.CreateUser(ctx, user)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create user: %w", err)
+	// Save user in the repository
+	if err := u.repo.CreateUser(ctx, user); err != nil {
+		return nil, nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	return user, nil
+	// Save session in the repository
+	if err := u.repo.CreateSession(ctx, session); err != nil {
+		return nil, nil, fmt.Errorf("failed to create session: %w", err)
+	}
+
+	return user, session, nil
 }
 
 // LoginUser authenticates a user by email and password.
@@ -92,14 +119,29 @@ func (u *userUsecase) LoginUser(ctx context.Context, password string, email stri
 	// Retrieve user by email
 	user, err := u.repo.GetUserByEmail(ctx, email)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve user by email %s: %w", email, err)
+		return nil, fmt.Errorf("failed to retrieve user: %w", err)
 	}
 
 	// Check if the provided password matches the stored hash
 	err = utils.CheckPassword(password, user.Password)
 	if err != nil {
-		return nil, fmt.Errorf("invalid credentials password incorrect %s: %w", email, err)
+		return nil, err
 	}
+
+	// session, err := u.repo.GetUserSession(ctx, user.ID)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to retrieve user session: %w", err)
+	// }
+
+	// // Check if the user is active
+	// if !session.IsActive {
+	// 	return nil, fmt.Errorf("user is not active")
+	// }
+
+	// Check if user is verified
+	// if !session.OTPVerified {
+	// 	return nil, fmt.Errorf("user is not verified: %+v", session)
+	// }
 
 	return user, nil
 }
@@ -123,6 +165,21 @@ func (u *userUsecase) ChangePassword(ctx context.Context, currentPassword string
 		return fmt.Errorf("failed to hash new password: %w", err)
 	}
 
+	session, err := u.repo.GetUserSession(ctx, user.ID)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve user session: %w", err)
+	}
+
+	// Check if the user is active
+	if !session.IsActive {
+		return fmt.Errorf("user is not active")
+	}
+
+	// Check if user is verified
+	if !session.OTPVerified {
+		return fmt.Errorf("user is not verified")
+	}
+
 	// Update the password in the repository
 	err = u.repo.UpdatePassword(ctx, email, hashedPassword)
 	if err != nil {
@@ -130,6 +187,113 @@ func (u *userUsecase) ChangePassword(ctx context.Context, currentPassword string
 	}
 
 	return nil
+}
+
+// GetUser implements UserUsecase.
+func (u *userUsecase) GetUser(ctx context.Context, userId string) (*entity.User, error) {
+	// Retrieve user by email
+	user, err := u.repo.GetUserByID(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve user by userId %s: %w", userId, err)
+	}
+
+	return user, nil
+}
+
+// LogOut implements UserUsecase.
+func (u *userUsecase) LogOut(ctx context.Context, userId string) error {
+	// Retrieve user by email
+	err := u.repo.DeleteSession(ctx, userId)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve user by userId %s: %w", userId, err)
+	}
+
+	return nil
+}
+
+// ResendOtp implements UserUsecase.
+func (u *userUsecase) ResendOtp(ctx context.Context, email string) error {
+	// Retrieve user by email
+	user, err := u.repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve user by email %s: %w", email, err)
+	}
+
+	//
+
+	// Retrieve user by email
+	err = u.repo.UpdateOtp(ctx, &entity.UpdateOtp{
+		Otp:          utils.RandomOtp(),
+		Email:        user.Email,
+		OtpExpiresAt: time.Now().Add(time.Minute * 10),
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to update otp: %w", err)
+	}
+
+	return nil
+}
+
+// GetSession implements UserUsecase.
+func (u *userUsecase) GetSession(ctx context.Context, id string) (*entity.Session, error) {
+	userId, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse user ID: %w", err)
+	}
+	// Retrieve user by email
+	session, err := u.repo.GetUserSession(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve user by userId %s: %w", id, err)
+	}
+
+	return session, nil
+
+}
+
+// VerifyOtp implements UserUsecase.
+func (u *userUsecase) VerifyOtp(ctx context.Context, email string, otp string) (bool, error) {
+	// Retrieve user by email
+	user, err := u.repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve user by email %s: %w", email, err)
+	}
+
+	session, err := u.repo.GetUserSession(ctx, user.ID)
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve user session: %w", err)
+	}
+
+	otpUpdate, err := u.repo.GetOtp(ctx, user.ID.String())
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve user session: %w", err)
+	}
+
+	if otpUpdate.Otp != otp {
+		return false, fmt.Errorf("invalid otp %s: %s", otp, otpUpdate.Otp)
+	}
+
+	if session.OtpExpiresAt.After(time.Now()) {
+		return false, fmt.Errorf("otp expired")
+	}
+
+	if session.OtpAttempts >= 10 {
+		return false, fmt.Errorf("otp attempts exceeded")
+	}
+
+	// Update the password in the repository
+	err = u.repo.UpdateOtp(ctx, &entity.UpdateOtp{
+		OtpAttempts: session.OtpAttempts + 1,
+		Email:       user.Email,
+		OTPVerified: true,
+	})
+
+	if err != nil {
+		return false, fmt.Errorf("failed to update password: %w", err)
+	}
+
+	return true, nil
+
 }
 
 // validateCreateUser checks if the provided inputs are valid.

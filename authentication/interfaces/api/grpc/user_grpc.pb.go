@@ -19,18 +19,26 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Login_FullMethodName        = "/pb.AuthService/Login"
-	AuthService_Register_FullMethodName     = "/pb.AuthService/Register"
-	AuthService_RefreshToken_FullMethodName = "/pb.AuthService/RefreshToken"
+	AuthService_Login_FullMethodName      = "/pb.AuthService/Login"
+	AuthService_Register_FullMethodName   = "/pb.AuthService/Register"
+	AuthService_VerifyUser_FullMethodName = "/pb.AuthService/VerifyUser"
+	AuthService_ResendOtp_FullMethodName  = "/pb.AuthService/ResendOtp"
+	AuthService_GetUser_FullMethodName    = "/pb.AuthService/GetUser"
+	AuthService_LogOut_FullMethodName     = "/pb.AuthService/LogOut"
 )
 
 // AuthServiceClient is the client API for AuthService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// AuthService defines authentication-related RPCs.
 type AuthServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
-	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
+	VerifyUser(ctx context.Context, in *VerifyUserRequest, opts ...grpc.CallOption) (*VerifyUserResponse, error)
+	ResendOtp(ctx context.Context, in *ResendOtpRequest, opts ...grpc.CallOption) (*ResendOtpResponse, error)
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	LogOut(ctx context.Context, in *LogOutRequest, opts ...grpc.CallOption) (*LogOutResponse, error)
 }
 
 type authServiceClient struct {
@@ -61,10 +69,40 @@ func (c *authServiceClient) Register(ctx context.Context, in *RegisterRequest, o
 	return out, nil
 }
 
-func (c *authServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error) {
+func (c *authServiceClient) VerifyUser(ctx context.Context, in *VerifyUserRequest, opts ...grpc.CallOption) (*VerifyUserResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RefreshTokenResponse)
-	err := c.cc.Invoke(ctx, AuthService_RefreshToken_FullMethodName, in, out, cOpts...)
+	out := new(VerifyUserResponse)
+	err := c.cc.Invoke(ctx, AuthService_VerifyUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) ResendOtp(ctx context.Context, in *ResendOtpRequest, opts ...grpc.CallOption) (*ResendOtpResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResendOtpResponse)
+	err := c.cc.Invoke(ctx, AuthService_ResendOtp_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserResponse)
+	err := c.cc.Invoke(ctx, AuthService_GetUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) LogOut(ctx context.Context, in *LogOutRequest, opts ...grpc.CallOption) (*LogOutResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LogOutResponse)
+	err := c.cc.Invoke(ctx, AuthService_LogOut_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,10 +112,15 @@ func (c *authServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRe
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
+//
+// AuthService defines authentication-related RPCs.
 type AuthServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
-	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
+	VerifyUser(context.Context, *VerifyUserRequest) (*VerifyUserResponse, error)
+	ResendOtp(context.Context, *ResendOtpRequest) (*ResendOtpResponse, error)
+	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+	LogOut(context.Context, *LogOutRequest) (*LogOutResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -94,8 +137,17 @@ func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*Lo
 func (UnimplementedAuthServiceServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
+func (UnimplementedAuthServiceServer) VerifyUser(context.Context, *VerifyUserRequest) (*VerifyUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyUser not implemented")
+}
+func (UnimplementedAuthServiceServer) ResendOtp(context.Context, *ResendOtpRequest) (*ResendOtpResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResendOtp not implemented")
+}
+func (UnimplementedAuthServiceServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+}
+func (UnimplementedAuthServiceServer) LogOut(context.Context, *LogOutRequest) (*LogOutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LogOut not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -154,20 +206,74 @@ func _AuthService_Register_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_RefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RefreshTokenRequest)
+func _AuthService_VerifyUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).RefreshToken(ctx, in)
+		return srv.(AuthServiceServer).VerifyUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_RefreshToken_FullMethodName,
+		FullMethod: AuthService_VerifyUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).RefreshToken(ctx, req.(*RefreshTokenRequest))
+		return srv.(AuthServiceServer).VerifyUser(ctx, req.(*VerifyUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_ResendOtp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResendOtpRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).ResendOtp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_ResendOtp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).ResendOtp(ctx, req.(*ResendOtpRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GetUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetUser(ctx, req.(*GetUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_LogOut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogOutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).LogOut(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_LogOut_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).LogOut(ctx, req.(*LogOutRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -188,8 +294,20 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AuthService_Register_Handler,
 		},
 		{
-			MethodName: "RefreshToken",
-			Handler:    _AuthService_RefreshToken_Handler,
+			MethodName: "VerifyUser",
+			Handler:    _AuthService_VerifyUser_Handler,
+		},
+		{
+			MethodName: "ResendOtp",
+			Handler:    _AuthService_ResendOtp_Handler,
+		},
+		{
+			MethodName: "GetUser",
+			Handler:    _AuthService_GetUser_Handler,
+		},
+		{
+			MethodName: "LogOut",
+			Handler:    _AuthService_LogOut_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

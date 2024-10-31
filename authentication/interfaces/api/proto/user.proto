@@ -1,56 +1,39 @@
 syntax = "proto3";
 package pb;
 
-
-// import "google/api/annotations.proto";
-// import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "./grpc";
-// option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-//     info: {
-//       title: "Authentication";
-//       version: "1.0";
-//       contact: {
-//         name: "JobPortal";
-//         url: "jobs.demola.dev";
-//         email: "hello@demola.dev";
-//       };
-//     };
-//     security_definitions: {
-//       security: {
-//         key: "bearer"
-//         value: {
-//           type: TYPE_API_KEY
-//           in: IN_HEADER
-//           name: "Authorization Bearer"
-//           description: "Authentication token, prefixed by Bearer: Bearer <token>"
-//         }
-//       }
-//     }
-//     security: {
-//       security_requirement: {
-//         key: "bearer"
-  
-//       }
-//     };
-//   };
-  
+option go_package = "./pb";
 
+// AuthService defines authentication-related RPCs.
 service AuthService {
     rpc Login (LoginRequest) returns (LoginResponse);
     rpc Register (RegisterRequest) returns (RegisterResponse);
-    rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
+    rpc VerifyUser (VerifyUserRequest) returns (VerifyUserResponse);
+    rpc ResendOtp (ResendOtpRequest) returns (ResendOtpResponse);
+    rpc GetUser (GetUserRequest) returns (GetUserResponse);
+    rpc LogOut (LogOutRequest) returns (LogOutResponse);
 }
 
+// User entity with core user details.
 message User {
-    string email = 1;
-    string full_name = 2;
-    google.protobuf.Timestamp password_changed_at = 3;
-    google.protobuf.Timestamp created_at = 4;
+    string user_id = 1;
+    string email = 2;
+    string full_name = 3;
+    string password = 4;
+    string role = 5;
+    string phone = 6;
+    google.protobuf.Timestamp updated_at = 7;
+    google.protobuf.Timestamp created_at = 8;
 }
 
+// Session entity containing token information.
+message Session {
+    string token = 1;
+    google.protobuf.Timestamp expires_at = 2;
+}
 
+// Login RPC messages.
 message LoginRequest {
     string email = 1;
     string password = 2;
@@ -58,27 +41,55 @@ message LoginRequest {
 
 message LoginResponse {
     User user = 1;
-    string access_token = 2;
-    string refresh_token = 3;
+    Session session = 2;
 }
 
+// Register RPC messages.
 message RegisterRequest {
     string email = 1;
     string password = 2;
     string full_name = 3;
+    string role = 4;
+    string phone = 5;
 }
 
 message RegisterResponse {
     User user = 1;
-    string access_token = 2;
-    string refresh_token = 3;
 }
 
-message RefreshTokenRequest {
-    string token = 1;
+// VerifyUser RPC messages.
+message VerifyUserRequest {
+    string email = 1;
+    string otp = 2;
 }
 
-message RefreshTokenResponse {
-    string token = 1;
+message VerifyUserResponse {
+    bool valid = 1;
 }
 
+// ResendOtp RPC messages.
+message ResendOtpRequest {
+    string email = 1;
+}
+
+message ResendOtpResponse {
+    string message = 1;
+}
+
+// GetUser RPC messages.
+message GetUserRequest {
+    string user_id = 1;
+}
+
+message GetUserResponse {
+    User user = 1;
+}
+
+// LogOut RPC messages.
+message LogOutRequest {
+    string user_id = 1;
+}
+
+message LogOutResponse {
+    string message = 1;
+}

@@ -28,8 +28,8 @@ func main() {
     // Create an instance of UserData with sample data
     userData := UserData{
         UserID:           1,
-        Favorites:        []int{384, 1411, 200},
-        ViewedProperties: []int{162, 434, 300},
+        Favorites:        []int{15, 18, 200, 25, 26},
+        ViewedProperties: []int{56, 60, 91},
     }
 
     // Convert the UserData instance to JSON

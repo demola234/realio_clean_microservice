@@ -1,28 +1,45 @@
 package grpc_clients
 
 import (
+	"context"
 	"fmt"
 	pb "job_portal/authentication/interfaces/api/grpc"
 	"log"
+	"time"
 
 	"google.golang.org/grpc"
 )
 
 type AuthenticationClient struct {
 	Client pb.AuthServiceClient
+	conn   *grpc.ClientConn
 }
 
-func NewAuthenticationClient(address string) (*AuthenticationClient, error) {
-	// Create a context with a timeout to avoid indefinite dialing attempts.
+// NewAuthenticationClient creates a new gRPC client for the Authentication service
+func NewAuthenticationClient(address string, timeout time.Duration) (*AuthenticationClient, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
 
-	// Use grpc.DialContext with context and a proper timeout.
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	// Establish the connection with timeout
+	conn, err := grpc.DialContext(ctx, address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to gRPC server: %w", err)
+		return nil, fmt.Errorf("failed to connect to gRPC server at %s: %w", address, err)
 	}
 
 	log.Printf("Connected to Authentication service at %s", address)
 	client := pb.NewAuthServiceClient(conn)
 
-	return &AuthenticationClient{Client: client}, nil
+	return &AuthenticationClient{
+		Client: client,
+		conn:   conn,
+	}, nil
+}
+
+// Close closes the gRPC connection
+func (ac *AuthenticationClient) Close() error {
+	if err := ac.conn.Close(); err != nil {
+		return fmt.Errorf("failed to close gRPC connection: %w", err)
+	}
+	log.Println("gRPC connection closed")
+	return nil
 }

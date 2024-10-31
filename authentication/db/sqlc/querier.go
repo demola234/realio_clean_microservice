@@ -6,12 +6,22 @@ package db
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
+	ChangePassword(ctx context.Context, arg ChangePasswordParams) (Users, error)
+	CheckEmailExists(ctx context.Context, email string) (bool, error)
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Sessions, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (Users, error)
-	DeleteUser(ctx context.Context, email string) error
+	DeleteSession(ctx context.Context, sessionID uuid.UUID) error
+	DeleteUser(ctx context.Context, id uuid.UUID) error
+	GetSession(ctx context.Context, sessionID uuid.UUID) (Sessions, error)
 	GetUser(ctx context.Context, email string) (Users, error)
+	RevokeSession(ctx context.Context, sessionID uuid.UUID) error
+	UpdateSession(ctx context.Context, arg UpdateSessionParams) (Sessions, error)
+	UpdateSessionActivity(ctx context.Context, arg UpdateSessionActivityParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (Users, error)
 }
 

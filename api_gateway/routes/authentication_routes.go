@@ -11,5 +11,9 @@ func RegisterRoutes(rg *gin.RouterGroup, authHandler *handler.AuthHandler) {
 	{
 		authRoutes.POST("/register", authHandler.Register)
 		authRoutes.POST("/login", authHandler.Login)
+		authRoutes.GET("/user", authHandler.GetUser)
+		authRoutes.POST("/logout", authHandler.Logout)
+		authRoutes.POST("/verify", authHandler.VerifyUser)
+		authRoutes.POST("/resend-otp", authHandler.ResendOtp)
 	}
 }

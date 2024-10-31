@@ -7,6 +7,8 @@ import (
 type Config struct {
 	Port                      string `mapstructure:"API_GATEWAY_PORT"`
 	AuthenticationGRPCAddress string `mapstructure:"AUTH_GRPC_ADDRESS"`
+	SentryConfig              string `mapstructure:"SENTRY_CONFIG"`
+	SentryConst               string `mapstructure:"SENTRY_CONST"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

@@ -22,6 +22,10 @@ func RandomString(n int) string {
 	return string(b)
 }
 
+func RandomOtp() string {
+	return fmt.Sprintf("%06v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000))
+}
+
 // RandomInt generates a random integer between min and max
 func RandomInt(min, max int) int {
 	return rand.Intn(max-min) + min
@@ -30,6 +34,11 @@ func RandomInt(min, max int) int {
 // RandomOwner generates a random owner name
 func RandomOwner() string {
 	return RandomString(6)
+}
+
+func RandomRole() string {
+	roles := []string{"admin", "user", "buyer", "seller"}
+	return roles[rand.Intn(len(roles))]
 }
 
 // RandomMoney generates a random amount of money

@@ -2,14 +2,18 @@ package entity
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
+// User entity based on the users table schema
 type User struct {
-	FullName          string    `json:"full_name"`
-	Email             string    `json:"email"`
-	Password          string    `json:"password"`
-	PasswordChangedAt time.Time `json:"password_changed_at"`
-	CreatedAt         time.Time `json:"created_at"`
-	AccessToken       string    `json:"access_token"`
-	RefreshToken      string    `json:"refresh_token"`
+	ID        uuid.UUID `json:"id"`
+	FullName  string    `json:"name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	Role      string    `json:"role"`
+	Phone     string    `json:"phone"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
