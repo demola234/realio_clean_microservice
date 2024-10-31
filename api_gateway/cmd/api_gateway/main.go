@@ -4,8 +4,10 @@ import (
 	"context"
 	"job_portal/api_gateway/config"
 	"job_portal/api_gateway/interfaces/grpc_clients"
+	"job_portal/api_gateway/interfaces/middleware"
 	"job_portal/api_gateway/internal/handler"
 	auth "job_portal/api_gateway/routes"
+	"job_portal/authentication/interfaces/middleware/token_maker"
 	"log"
 	"net/http"
 	"os"
@@ -34,8 +36,14 @@ func main() {
 	// Create a new Gin router
 	router := gin.Default()
 
+	tokenMaker, err := token_maker.NewTokenMaker(configs.TokenSymmetricKey)
+	if err != nil {
+		panic("failed to create token maker: " + err.Error())
+	}
+
 	// Initialize handlers
 	authHandler := handler.NewAuthHandler(authClient)
+	authMiddleware := middleware.AuthMiddleware(tokenMaker)
 
 	// Group routes under /v1
 	v1 := router.Group("/v1")
@@ -49,7 +57,7 @@ func main() {
 	}
 
 	// Define authentication routes
-	auth.RegisterRoutes(v1, authHandler)
+	auth.RegisterRoutes(v1, authHandler, authMiddleware)
 
 	// Create an HTTP server with the configured port
 	srv := &http.Server{

@@ -9,6 +9,7 @@ type Config struct {
 	AuthenticationGRPCAddress string `mapstructure:"AUTH_GRPC_ADDRESS"`
 	SentryConfig              string `mapstructure:"SENTRY_CONFIG"`
 	SentryConst               string `mapstructure:"SENTRY_CONST"`
+	TokenSymmetricKey         string `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
