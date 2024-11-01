@@ -2,8 +2,6 @@ module job_portal
 
 go 1.23
 
-// toolchain go1.23
-
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang/mock v1.6.0

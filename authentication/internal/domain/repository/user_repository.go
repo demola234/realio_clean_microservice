@@ -19,7 +19,7 @@ type UserRepository interface {
 	UpdatePassword(ctx context.Context, email string, newPassword string) error
 
 	// CreateToken generates a new access token for a user.
-	CreateToken(ctx context.Context, email string) (string, error)
+	CreateToken(ctx context.Context, email string, userID string) (string, error)
 
 	// GetUserByID retrieves a user by their ID.
 	GetUserByID(ctx context.Context, id string) (*entity.User, error)

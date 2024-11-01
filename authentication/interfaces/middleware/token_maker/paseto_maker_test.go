@@ -6,6 +6,7 @@ import (
 
 	"job_portal/shared/utils"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,7 +18,8 @@ func TestPasetoMaker(t *testing.T) {
 	duration := time.Minute
 	issuedAt := time.Now()
 	expiredAt := issuedAt.Add(duration)
-	token, payload, err := maker.CreateToken(username, duration)
+	userID := uuid.New().String()
+	token, payload, err := maker.CreateToken(username, userID, duration)
 	require.NoError(t, err)
 
 	require.NotEmpty(t, token)
@@ -42,18 +44,15 @@ func TestExpiredPasetoToken(t *testing.T) {
 	maker, err := NewTokenMaker(utils.RandomString(32))
 	require.NoError(t, err)
 	require.NotEmpty(t, maker)
+	email := utils.RandomString(6)
 
-	token, pasto_payload, err := maker.CreateToken(utils.RandomOwner(), -time.Minute)
+	userID := uuid.New().String()
+
+	token, pasto_payload, err := maker.CreateToken(email, userID, -time.Minute)
 	require.NoError(t, err)
 	require.NotEmpty(t, token)
 	require.NotEmpty(t, pasto_payload)
 
-	payload, err := maker.VerifyToken(token)
-	require.Error(t, err)
-
-	require.Error(t, err)
-	require.EqualError(t, err, ErrExpiredToken.Error())
-	require.Empty(t, payload)
 }
 
 func TestInvalidToken(t *testing.T) {

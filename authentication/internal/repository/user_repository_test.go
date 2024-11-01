@@ -81,7 +81,10 @@ func TestCreateToken(t *testing.T) {
 	repo := NewUserRepository(store)
 
 	email := utils.RandomEmail()
-	token, err := repo.CreateToken(context.Background(), email)
+	userID := uuid.New().String()
+	
+	
+	token, err := repo.CreateToken(context.Background(), email, userID)
 
 	require.NoError(t, err)
 	require.NotEmpty(t, token)

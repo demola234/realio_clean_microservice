@@ -25,7 +25,7 @@ type UserUsecase interface {
 	LoginUser(ctx context.Context, password, email string) (*entity.User, error)
 	ChangePassword(ctx context.Context, currentPassword, newPassword, id string) error
 	GetSession(ctx context.Context, id string) (*entity.Session, error)
-	GenerateToken(ctx context.Context, email string) (string, error)
+	GenerateToken(ctx context.Context, email string, userID string) (string, error)
 	ResendOtp(ctx context.Context, email string) error
 	GetUser(ctx context.Context, userId string) (*entity.User, error)
 	LogOut(ctx context.Context, userId string) error
@@ -43,8 +43,8 @@ func NewUserUsecase(repo repository.UserRepository) UserUsecase {
 }
 
 // GenerateToken implements UserUsecase.
-func (u *userUsecase) GenerateToken(ctx context.Context, email string) (string, error) {
-	token, err := u.repo.CreateToken(ctx, email)
+func (u *userUsecase) GenerateToken(ctx context.Context, email string, userID string) (string, error) {
+	token, err := u.repo.CreateToken(ctx, email, userID)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate token for email %s: %w", email, err)
 	}
@@ -61,19 +61,20 @@ func (u *userUsecase) RegisterUser(ctx context.Context, fullName, password, emai
 
 	// Check if user with the same email already exists
 	existingUser, err := u.repo.GetUserByEmail(ctx, email)
+	userID := uuid.New()
 	if err == nil && existingUser != nil {
 		return nil, nil, fmt.Errorf("user with email %s already exists", email)
 	}
 
 	// Generate a new token for the session
-	token, err := u.repo.CreateToken(ctx, email)
+	token, err := u.repo.CreateToken(ctx, email, userID.String())
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to generate token for email %s: %w", email, err)
 	}
 
 	// Create a new user entity with a unique ID
 	user := &entity.User{
-		ID:       uuid.New(),
+		ID:       userID,
 		Email:    email,
 		FullName: fullName,
 		Password: password,

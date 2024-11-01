@@ -45,7 +45,7 @@ func (h *UserHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 		return nil, status.Errorf(401, "invalid credentials %d", err)
 	}
 
-	token, err := h.userUsecase.GenerateToken(ctx, user.Email)
+	token, err := h.userUsecase.GenerateToken(ctx, user.Email, user.ID.String())
 	if err != nil {
 		return nil, status.Errorf(500, "failed to generate token")
 	}

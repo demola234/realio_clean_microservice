@@ -28,8 +28,8 @@ func (m *MockTokenMaker) VerifyToken(token string) (*token_maker.Payload, error)
 }
 
 // Mock the CreateToken method to satisfy the token.Maker interface
-func (m *MockTokenMaker) CreateToken(userID string, duration time.Duration) (string, *token_maker.Payload, error) {
-	args := m.Called(userID, duration)
+func (m *MockTokenMaker) CreateToken(email string, userID string, duration time.Duration) (string, *token_maker.Payload, error) {
+	args := m.Called(email, userID, duration)
 	if payload, ok := args.Get(1).(*token_maker.Payload); ok {
 		return args.String(0), payload, args.Error(2)
 	}
@@ -45,7 +45,7 @@ func TestAuthMiddleware(t *testing.T) {
 	router.Use(authMiddleware)
 	router.GET("/test", func(ctx *gin.Context) {
 		if payload, exists := ctx.Get(authorizationPayloadKey); exists {
-			ctx.JSON(http.StatusOK, gin.H{"message": "success", "user_id": payload.(*token_maker.Payload).Email}) // Replace 'ID' with the correct field name
+			ctx.JSON(http.StatusOK, gin.H{"message": "success", "user_id": payload.(*token_maker.Payload).UserID}) // Replace 'ID' with the correct field name
 		} else {
 			ctx.JSON(http.StatusOK, gin.H{"message": "payload not found"})
 		}
@@ -94,7 +94,7 @@ func TestAuthMiddleware(t *testing.T) {
 	})
 
 	t.Run("valid token", func(t *testing.T) {
-		payload := &token_maker.Payload{Email: "12345"} // Replace 'ID' with the actual field name
+		payload := &token_maker.Payload{Email: "12345", UserID : "12345"} // Replace 'ID' with the actual field name
 		mockTokenMaker.On("VerifyToken", "valid_token").Return(payload, nil).Once()
 
 		req, _ := http.NewRequest(http.MethodGet, "/test", nil)
@@ -103,7 +103,7 @@ func TestAuthMiddleware(t *testing.T) {
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusOK, w.Code)
-		assert.Contains(t, w.Body.String(), `"user_id":"12345"`) // Check if payload includes the correct ID field value
+		assert.Contains(t, w.Body.String(), `"user_id":"12345"`) 
 		mockTokenMaker.AssertExpectations(t)
 	})
 }

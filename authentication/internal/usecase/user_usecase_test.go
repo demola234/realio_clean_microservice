@@ -44,7 +44,7 @@ func (m *MockUserRepository) GetUserByEmail(ctx context.Context, email string) (
 	return args.Get(0).(*entity.User), args.Error(1)
 }
 
-func (m *MockUserRepository) CreateToken(ctx context.Context, email string) (string, error) {
+func (m *MockUserRepository) CreateToken(ctx context.Context, email string, userID string) (string, error) {
 	args := m.Called(ctx, email)
 	return args.String(0), args.Error(1)
 }

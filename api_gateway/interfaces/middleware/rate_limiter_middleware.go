@@ -35,10 +35,8 @@ func getLimiter(key string) *rate.Limiter {
 	mu.Lock()
 	defer mu.Unlock()
 
-
 	limiter, exists := userLimiters[key]
 	if !exists {
-	
 		limiter = rate.NewLimiter(1, 5)
 		userLimiters[key] = limiter
 	}
