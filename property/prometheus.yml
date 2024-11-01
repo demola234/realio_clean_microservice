@@ -1,0 +1,5 @@
+
+scrape_configs:
+  - job_name: "authentication_service"
+    static_configs:
+      - targets: ["0.0.0.0:9092"]

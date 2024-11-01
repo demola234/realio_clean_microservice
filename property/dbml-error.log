@@ -1,0 +1,26 @@
+2024-11-01T13:00:36.975Z
+Error: ENOENT: no such file or directory, stat '/Users/ademola/Desktop/Golang/golang_job_portal/property/doc/property.dbmlcd'
+    at Object.statSync (node:fs:1659:25)
+    at validateFilePlugin (/opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/validatePlugins/validatePlugins.js:10:28)
+    at /opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/utils.js:21:31
+    at Array.every (<anonymous>)
+    at validateInputFilePaths (/opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/utils.js:21:16)
+    at exportHandler (/opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/export.js:21:39)
+    at Object.dbml2sql (/opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/index.js:19:23)
+    at Object.<anonymous> (/opt/homebrew/lib/node_modules/@dbml/cli/bin/dbml2sql.js:4:19)
+    at Module._compile (node:internal/modules/cjs/loader:1368:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1426:10)
+
+2024-11-01T13:00:47.762Z
+Error: ENOENT: no such file or directory, stat '/Users/ademola/Desktop/Golang/golang_job_portal/property/docs/property.dbmlcd'
+    at Object.statSync (node:fs:1659:25)
+    at validateFilePlugin (/opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/validatePlugins/validatePlugins.js:10:28)
+    at /opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/utils.js:21:31
+    at Array.every (<anonymous>)
+    at validateInputFilePaths (/opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/utils.js:21:16)
+    at exportHandler (/opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/export.js:21:39)
+    at Object.dbml2sql (/opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/index.js:19:23)
+    at Object.<anonymous> (/opt/homebrew/lib/node_modules/@dbml/cli/bin/dbml2sql.js:4:19)
+    at Module._compile (node:internal/modules/cjs/loader:1368:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1426:10)
+

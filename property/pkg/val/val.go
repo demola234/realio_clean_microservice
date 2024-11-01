@@ -64,4 +64,3 @@ func ValidateFullName(fullName string) error {
 	}
 	return nil
 }
-

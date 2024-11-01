@@ -1,0 +1,25 @@
+Project realio_properties {
+    database_type: 'PostgreSQL'
+}
+
+Table Property {
+  id              UUID       [pk, note: "Primary key"]
+  title           String     [not null, note: "Property title"]
+  description     Text       [note: "Detailed description"]
+  price           Decimal    [not null, note: "Price of the property"]
+  type            Enum       [note: "House, Apartment, Land, etc. (Optional)"]
+  address         String     [not null, note: "Address details"]
+  zip_code        String     [note: "Zip code (Optional)"]
+  owner_id        UUID       [note: "Reference to the user (seller), external microservice"]
+  images          Array      [note: "List of image URLs (Optional)"]
+  no_of_bed_rooms Int        [note: "Number of Bed Rooms"]
+  no_of_bath_rooms Int       [note: "Number of Bath Rooms"]
+  no_of_toilets   Int        [note: "Number of Toilets"]
+  geo_location    JSON       [note: "Latitude & longitude (Optional)"]
+  status          Enum       [note: "Available, Sold, Rented, etc."]
+  created_at      Timestamp  [default: `now()`, note: "Timestamp of listing"]
+  updated_at      Timestamp  [default: `now()`, note: "Timestamp of last update"]
+}
+
+
+
