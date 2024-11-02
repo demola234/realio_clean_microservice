@@ -7,7 +7,7 @@ import (
 	errorResponse "job_portal/api_gateway/interfaces/error_response"
 	"job_portal/api_gateway/interfaces/grpc_clients"
 	pb "job_portal/authentication/interfaces/api/grpc"
-	token "job_portal/authentication/interfaces/middleware/token_maker"
+	token "job_portal/api_gateway/interfaces/middleware/token_maker"
 
 	"github.com/gin-gonic/gin"
 )

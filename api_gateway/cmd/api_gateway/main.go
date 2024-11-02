@@ -5,9 +5,9 @@ import (
 	"job_portal/api_gateway/config"
 	"job_portal/api_gateway/interfaces/grpc_clients"
 	"job_portal/api_gateway/interfaces/middleware"
+	"job_portal/api_gateway/interfaces/middleware/token_maker"
 	"job_portal/api_gateway/internal/handler"
 	auth "job_portal/api_gateway/routes"
-	"job_portal/authentication/interfaces/middleware/token_maker"
 	"log"
 	"net/http"
 	"os"
@@ -27,11 +27,15 @@ func main() {
 
 	// Initialize gRPC client with dynamic address
 	authClient, err := grpc_clients.NewAuthenticationClient("127.0.0.1:9091", 20*time.Second)
-
 	if err != nil {
 		log.Fatalf("Failed to connect to Authentication service: %v", err)
 	}
 	defer authClient.Close() // Ensure gRPC connection is closed on shutdown
+
+	propertyClient, err := grpc_clients.NewPropertyClient("127.0.0.1:9092", 20*time.Second)
+	if err != nil {
+		log.Fatalf("Failed to connect to Property service: %v", err)
+	}
 
 	// Create a new Gin router
 	router := gin.Default()
@@ -41,9 +45,11 @@ func main() {
 		panic("failed to create token maker: " + err.Error())
 	}
 
+	authMiddleware := middleware.AuthMiddleware(tokenMaker)
+
 	// Initialize handlers
 	authHandler := handler.NewAuthHandler(authClient)
-	authMiddleware := middleware.AuthMiddleware(tokenMaker)
+	propertyHandler := handler.NewPropertyHandler(propertyClient)
 
 	// Group routes under /v1
 	v1 := router.Group("/v1")
@@ -58,6 +64,7 @@ func main() {
 
 	// Define authentication routes
 	auth.RegisterRoutes(v1, authHandler, authMiddleware)
+	auth.RegisterProperRoutes(v1, propertyHandler, authMiddleware)
 
 	// Create an HTTP server with the configured port
 	srv := &http.Server{

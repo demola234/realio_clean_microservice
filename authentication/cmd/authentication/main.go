@@ -55,7 +55,7 @@ func main() {
 	reflection.Register(grpcServer)
 
 	log.Printf("gRPC server is running on %s", configs.GRPCServerAddress)
-	
+
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

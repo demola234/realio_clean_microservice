@@ -1,0 +1,109 @@
+syntax = "proto3";
+package pb;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "./pb";
+
+service PropertyService {
+    rpc CreateProperty(CreatePropertyRequest) returns (CreatePropertyResponse);
+    rpc UpdateProperty(UpdatePropertyRequest) returns (UpdatePropertyResponse);
+    rpc GetPropertyByID(GetPropertyByIDRequest) returns (GetPropertyByIDResponse);
+    rpc GetProperties(GetPropertiesRequest) returns (GetPropertiesResponse);
+    rpc GetPropertiesByOwner(GetPropertiesByOwnerRequest) returns (GetPropertiesByOwnerResponse);
+    rpc DeleteProperty(DeletePropertyRequest) returns (DeletePropertyResponse);
+}
+
+message Property {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    double price = 4;
+    string type = 5;
+    string address = 6;
+    string zip_code = 7;
+    string owner_id = 8;
+    repeated string images = 9;
+    int32 no_of_bedrooms = 10;
+    int32 no_of_bathrooms = 11;
+    int32 no_of_toilets = 12;
+    string geo_location = 13;
+    string status = 14;
+    google.protobuf.Timestamp created_at = 15;
+    google.protobuf.Timestamp updated_at = 16;
+}
+
+
+message CreatePropertyRequest {
+    string title = 1;
+    string description = 2;
+    double price = 3;
+    string type = 4;
+    string address = 5;
+    string zip_code = 6;
+    string owner_id = 7;
+    repeated string images = 8;
+    int32 no_of_bedrooms = 9;
+    int32 no_of_bathrooms = 10;
+    int32 no_of_toilets = 11;
+    string geo_location = 12;
+    string status = 13;
+}
+
+message CreatePropertyResponse {
+    string id = 1;
+}
+
+message UpdatePropertyRequest {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    double price = 4;
+    string type = 5;
+    string address = 6;
+    string zip_code = 7;
+    repeated string images = 8;
+    int32 no_of_bedrooms = 9;
+    int32 no_of_bathrooms = 10;
+    int32 no_of_toilets = 11;
+    string geo_location = 12;
+    string status = 13;
+    string owner_id = 14;
+}
+
+message UpdatePropertyResponse {}
+
+message GetPropertyByIDRequest {
+    string id = 1;
+}
+
+message GetPropertyByIDResponse {
+    Property property = 1;
+}
+
+message GetPropertiesRequest {
+    int32 limit = 2;
+    int32 offset = 3;
+}
+
+message GetPropertiesResponse {
+    repeated Property properties = 1;
+}
+
+message GetPropertiesByOwnerRequest {
+    string owner_id = 1;
+    int32 limit = 2;
+    int32 offset = 3;
+}
+
+message GetPropertiesByOwnerResponse {
+    repeated Property properties = 1;
+}
+
+message DeletePropertyRequest {
+    string id = 1;
+    string owner_id = 2;
+}
+
+message DeletePropertyResponse {}
+

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	interfaces "job_portal/authentication/interfaces/error"
-	token "job_portal/authentication/interfaces/middleware/token_maker"
+	token "job_portal/api_gateway/interfaces/middleware/token_maker"
 
 	"net/http"
 	"strings"

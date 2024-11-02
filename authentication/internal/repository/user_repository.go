@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"job_portal/authentication/config"
 	db "job_portal/authentication/db/sqlc" // SQLC generated code for interacting with the database
-	token "job_portal/authentication/interfaces/middleware/token_maker"
+	token "job_portal/api_gateway/interfaces/middleware/token_maker"
 	"job_portal/authentication/internal/domain/entity"
 	"job_portal/authentication/pkg/utils"
 	"log"
