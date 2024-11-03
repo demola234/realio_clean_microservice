@@ -7,8 +7,8 @@ import (
 
 	"job_portal/authentication/config"
 	db "job_portal/authentication/db/sqlc"
-	pb "job_portal/authentication/interfaces/api/grpc"
-	grpcHandler "job_portal/authentication/interfaces/api/user_handler"
+	pb "job_portal/authentication/infrastructure/api/grpc"
+	grpcHandler "job_portal/authentication/infrastructure/api/user_handler"
 	"job_portal/authentication/internal/repository"
 	usercase "job_portal/authentication/internal/usecase"
 

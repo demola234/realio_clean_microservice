@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"job_portal/api_gateway/config"
-	"job_portal/api_gateway/interfaces/grpc_clients"
-	"job_portal/api_gateway/interfaces/middleware"
-	"job_portal/api_gateway/interfaces/middleware/token_maker"
+	"job_portal/api_gateway/infrastructure/grpc_clients"
+	"job_portal/api_gateway/infrastructure/middleware"
+	"job_portal/api_gateway/infrastructure/middleware/token_maker"
 	"job_portal/api_gateway/internal/handler"
 	auth "job_portal/api_gateway/routes"
 	"log"

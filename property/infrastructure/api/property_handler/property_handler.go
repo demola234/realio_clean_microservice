@@ -3,7 +3,7 @@ package propertyhandler
 import (
 	"context"
 	"encoding/json"
-	pb "job_portal/property/interfaces/api/grpc"
+	pb "job_portal/property/infrastructure/api/grpc"
 	"job_portal/property/internal/domain/entity"
 	"job_portal/property/internal/usecases"
 	"strconv"

@@ -2,9 +2,9 @@ package handler
 
 import (
 	"context"
-	"job_portal/api_gateway/interfaces/grpc_clients"
-	token "job_portal/api_gateway/interfaces/middleware/token_maker"
-	pb "job_portal/property/interfaces/api/grpc"
+	"job_portal/api_gateway/infrastructure/grpc_clients"
+	token "job_portal/api_gateway/infrastructure/middleware/token_maker"
+	pb "job_portal/property/infrastructure/api/grpc"
 	"net/http"
 	"strconv"
 

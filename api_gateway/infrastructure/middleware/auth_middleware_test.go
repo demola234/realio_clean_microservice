@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"errors"
-	"job_portal/api_gateway/interfaces/middleware/token_maker"
+	"job_portal/api_gateway/infrastructure/middleware/token_maker"
 	"net/http"
 	"net/http/httptest"
 	"testing"

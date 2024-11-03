@@ -4,10 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	errorResponse "job_portal/api_gateway/interfaces/error_response"
-	"job_portal/api_gateway/interfaces/grpc_clients"
-	pb "job_portal/authentication/interfaces/api/grpc"
-	token "job_portal/api_gateway/interfaces/middleware/token_maker"
+	errorResponse "job_portal/api_gateway/infrastructure/error_response"
+	"job_portal/api_gateway/infrastructure/grpc_clients"
+	pb "job_portal/authentication/infrastructure/api/grpc"
+	token "job_portal/api_gateway/infrastructure/middleware/token_maker"
 
 	"github.com/gin-gonic/gin"
 )

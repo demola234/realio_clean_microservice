@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	interfaces "job_portal/authentication/interfaces/error"
+	interfaces "job_portal/authentication/infrastructure/error"
 	"job_portal/authentication/internal/domain/entity"
 	"job_portal/authentication/internal/domain/repository"
 	"job_portal/authentication/pkg/utils"

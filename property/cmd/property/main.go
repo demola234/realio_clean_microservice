@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"job_portal/property/config"
 	db "job_portal/property/db/sqlc"
-	pb "job_portal/property/interfaces/api/grpc"
-	grpcHandler "job_portal/property/interfaces/api/property_handler"
+	pb "job_portal/property/infrastructure/api/grpc"
+	grpcHandler "job_portal/property/infrastructure/api/property_handler"
+	"job_portal/property/infrastructure/messaging/kafka"
 	"job_portal/property/internal/repository"
 	"job_portal/property/internal/usecases"
 	"log"
@@ -36,7 +37,13 @@ func main() {
 	// Initialize repository and use case
 	dbQueries := db.New(conn)
 	propertyRepo := repository.NewPropertyRepository(dbQueries)
-	propertyUsecase := usecases.NewPropertyUsecase(propertyRepo)
+
+	// Initialize Kafka producer
+	kafkaProducer := kafka.NewKafkaProducer(configs.KafkaBrokers, configs.KafkaGroupID)
+	defer kafkaProducer.Close()
+
+	// Pass the Kafka producer to the use case
+	propertyUsecase := usecases.NewPropertyUsecase(propertyRepo, kafkaProducer)
 
 	propertyService := grpcHandler.NewPropertyHandler(propertyUsecase)
 

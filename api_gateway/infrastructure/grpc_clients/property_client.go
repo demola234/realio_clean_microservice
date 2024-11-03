@@ -3,7 +3,7 @@ package grpc_clients
 import (
 	"context"
 	"fmt"
-	pb "job_portal/property/interfaces/api/grpc"
+	pb "job_portal/property/infrastructure/api/grpc"
 	"log"
 	"time"
 

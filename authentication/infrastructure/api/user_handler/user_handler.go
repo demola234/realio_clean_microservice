@@ -2,7 +2,7 @@ package user_handler
 
 import (
 	"context"
-	pb "job_portal/authentication/interfaces/api/grpc"
+	pb "job_portal/authentication/infrastructure/api/grpc"
 	"job_portal/authentication/internal/usecase"
 	"time"
 

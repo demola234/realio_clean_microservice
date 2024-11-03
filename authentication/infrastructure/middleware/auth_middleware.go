@@ -3,8 +3,8 @@ package middleware
 import (
 	"errors"
 	"fmt"
-	interfaces "job_portal/authentication/interfaces/error"
-	token "job_portal/api_gateway/interfaces/middleware/token_maker"
+	interfaces "job_portal/authentication/infrastructure/error"
+	token "job_portal/api_gateway/infrastructure/middleware/token_maker"
 
 	"net/http"
 	"strings"

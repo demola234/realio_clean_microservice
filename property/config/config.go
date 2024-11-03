@@ -6,10 +6,13 @@ import (
 )
 
 type Config struct {
-	DBDriver          string `mapstructure:"DB_DRIVER"`
-	DBSource          string `mapstructure:"DB_SOURCE"`
-	GRPCServerAddress string `mapstructure:"GRPC_SERVER_ADDRESS"`
-	TokenSymmetricKey string `mapstructure:"TOKEN_SYMMETRIC_KEY"`
+	DBDriver          string   `mapstructure:"DB_DRIVER"`
+	DBSource          string   `mapstructure:"DB_SOURCE"`
+	GRPCServerAddress string   `mapstructure:"GRPC_SERVER_ADDRESS"`
+	TokenSymmetricKey string   `mapstructure:"TOKEN_SYMMETRIC_KEY"`
+	KafkaBrokers      []string `mapstructure:"KAFKA_BROKERS"`
+	KafkaTopic        string   `mapstructure:"KAFKA_TOPIC"`
+	KafkaGroupID      string   `mapstructure:"KAFKA_GROUP_ID"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
