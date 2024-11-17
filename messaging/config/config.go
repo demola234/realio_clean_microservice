@@ -7,8 +7,11 @@ import (
 type Config struct {
 	DBDriver          string `mapstructure:"DB_DRIVER"`
 	DBSource          string `mapstructure:"DB_SOURCE"`
+	DBUser            string `mapstructure:"DB_USER"`
+	DBPass            string `mapstructure:"DB_PASS"`
+	Port              string `mapstructure:"PORT"`
+	MongoURI          string `mapstructure:"MONGO_URI"`
 	GRPCServerAddress string `mapstructure:"GRPC_SERVER_ADDRESS"`
-	TokenSymmetricKey string `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

@@ -1,0 +1,6 @@
+output: ./db/mocks
+log-level: info # Logging level
+with-expecter: true # Include expecter methods in mocks
+dir: ./db/mongo # Path to the package containing the interfaces
+all: true # Generate mocks for all interfaces
+name: Database # Name of the interface to mock

@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package messaging;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "./pb";
+
+// Represents a message
+message Message {
+  string id = 1;
+  string conversationId = 2;
+  string senderId = 3;
+  string content = 4;
+  bool isRead = 5;
+  google.protobuf.Timestamp createdAt = 6;
+  google.protobuf.Timestamp updatedAt = 7;
+  bool isDeleted = 8;
+}
+
+// Represents the last message in a conversation
+message LastMessage {
+  string content = 1;
+  string senderId = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+// Represents a conversation
+message Conversation {
+  string id = 1;
+  repeated string participants = 2;
+  LastMessage lastMessage = 3;
+  google.protobuf.Timestamp createdAt = 4;
+  google.protobuf.Timestamp updatedAt = 5;
+}
+
+// Request and response messages for RPCs
+message SendMessageRequest {
+  string conversationId = 1;
+  string senderId = 2;
+  string content = 3;
+}
+
+message SendMessageResponse {
+  string status = 1; 
+}
+
+message GetMessagesRequest {
+  string conversationId = 1;
+  bool isRead = 2;
+}
+
+message GetMessagesResponse {
+  repeated Message messages = 1;
+}
+
+message DeleteMessagesRequest {
+  string conversationId = 1;
+}
+
+message DeleteMessagesResponse {
+  string status = 1;
+}
+
+message UpdateMessageRequest {
+  string messageId = 1;
+  string content = 2;
+}
+
+message UpdateMessageResponse {
+  string status = 1; 
+}
+
+message UpdateMessageReadStatusRequest {
+  string messageId = 1;
+  bool isRead = 2;
+}
+
+message UpdateMessageReadStatusResponse {
+  string status = 1; 
+}
+
+message GetConversationBetweenUsersRequest {
+  string user1Id = 1;
+  string user2Id = 2;
+}
+
+message GetConversationBetweenUsersResponse {
+  repeated Conversation conversations = 1;
+}
+
+// Messaging service definition
+service MessagingService {
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+  rpc DeleteMessages(DeleteMessagesRequest) returns (DeleteMessagesResponse);
+  rpc UpdateMessage(UpdateMessageRequest) returns (UpdateMessageResponse);
+  rpc UpdateMessageReadStatus(UpdateMessageReadStatusRequest) returns (UpdateMessageReadStatusResponse);
+  rpc GetConversationBetweenUsers(GetConversationBetweenUsersRequest) returns (GetConversationBetweenUsersResponse);
+}
