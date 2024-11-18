@@ -25,6 +25,7 @@ func NewMessageHandler(messageUseCase usecase.MessagingUseCase) *MessageHandler 
 
 // SendMessage handles the SendMessage gRPC request.
 func (h *MessageHandler) SendMessage(ctx context.Context, req *pb.SendMessageRequest) (*pb.SendMessageResponse, error) {
+
 	message := &entity.Message{
 		ConversationID: req.GetConversationId(),
 		SenderID:       req.GetSenderId(),
@@ -34,7 +35,7 @@ func (h *MessageHandler) SendMessage(ctx context.Context, req *pb.SendMessageReq
 		IsDeleted:      false,
 	}
 
-	err := h.messageUseCase.SendMessage(ctx, message)
+	_, err := h.messageUseCase.SendMessage(ctx, message)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send message: %w", err)
 	}

@@ -12,7 +12,7 @@ import (
 )
 
 type MessagingUseCase interface {
-	SendMessage(ctx context.Context, message *entity.Message) error
+	SendMessage(ctx context.Context, message *entity.Message) (entity.Message, error)
 	GetMessages(ctx context.Context, conversationID string, includeDeleted *bool) ([]entity.Message, error)
 	DeleteMessages(ctx context.Context, conversationID string) error
 	UpdateMessage(ctx context.Context, messageID string, content string) error
@@ -36,18 +36,18 @@ func NewMessagingUseCase(
 	}
 }
 
-func (uc *messagingUseCase) SendMessage(ctx context.Context, message *entity.Message) error {
+func (uc *messagingUseCase) SendMessage(ctx context.Context, message *entity.Message) (entity.Message, error) {
 	// Initialize message details
 	message.ID = primitive.NewObjectID()
 	message.IsRead = false
 	message.IsDeleted = false
-	message.CreatedAt = time.Now()
-	message.UpdatedAt = time.Now()
+	message.CreatedAt = time.Now().UTC()
+	message.UpdatedAt = time.Now().UTC()
 
 	// Check for an existing conversation
 	conversations, err := uc.conversationRepo.GetConversationBetweenUsers(ctx, message.SenderID, message.ReceiverID)
 	if err != nil {
-		return fmt.Errorf("failed to retrieve conversations: %w", err)
+		return entity.Message{}, fmt.Errorf("failed to retrieve conversations: %w", err)
 	}
 
 	var conversationID primitive.ObjectID
@@ -55,7 +55,7 @@ func (uc *messagingUseCase) SendMessage(ctx context.Context, message *entity.Mes
 		// Use the existing conversation
 		conversationID = conversations[0].ID
 	} else {
-		// Create a new conversation
+		// Create a new conversation if none exists
 		conversationID = primitive.NewObjectID()
 		conversation := &entity.Conversation{
 			ID:           conversationID,
@@ -69,14 +69,14 @@ func (uc *messagingUseCase) SendMessage(ctx context.Context, message *entity.Mes
 			UpdatedAt: time.Now(),
 		}
 		if err := uc.conversationRepo.CreateConversation(ctx, conversation); err != nil {
-			return fmt.Errorf("failed to create conversation: %w", err)
+			return entity.Message{}, fmt.Errorf("failed to create conversation: %w", err)
 		}
 	}
 
 	// Set the conversation ID for the message and save it
 	message.ConversationID = conversationID.Hex()
 	if err := uc.messageRepo.SaveMessage(ctx, message); err != nil {
-		return fmt.Errorf("failed to save message: %w", err)
+		return entity.Message{}, fmt.Errorf("failed to save message: %w", err)
 	}
 
 	// Update the last message in the conversation
@@ -85,12 +85,11 @@ func (uc *messagingUseCase) SendMessage(ctx context.Context, message *entity.Mes
 		conversationID.Hex(),
 		message.ID.Hex(),
 		message.Content,
-		message.CreatedAt.String(),
 	); err != nil {
-		return fmt.Errorf("failed to update conversation last message: %w", err)
+		return entity.Message{}, fmt.Errorf("failed to update conversation last message: %w", err)
 	}
 
-	return nil
+	return *message, nil
 }
 
 func (uc *messagingUseCase) GetMessages(ctx context.Context, conversationID string, includeDeleted *bool) ([]entity.Message, error) {

@@ -53,10 +53,14 @@ func (c *conversationRepository) GetConversationBetweenUsers(ctx context.Context
 		return nil, fmt.Errorf("failed to decode conversations: %w", err)
 	}
 
+	if len(conversations) == 0 {
+		return []entity.Conversation{}, nil
+	}
+
 	return conversations, nil
 }
 
-func (c *conversationRepository) UpdateConversationLastMessage(ctx context.Context, conversationID string, messageID string, content string, timestamp string) error {
+func (c *conversationRepository) UpdateConversationLastMessage(ctx context.Context, conversationID string, messageID string, content string) error {
 	objectID, err := primitive.ObjectIDFromHex(conversationID)
 	if err != nil {
 		return fmt.Errorf("invalid conversation ID: %w", err)
@@ -66,7 +70,7 @@ func (c *conversationRepository) UpdateConversationLastMessage(ctx context.Conte
 		"$set": bson.M{
 			"lastMessage.messageID": messageID,
 			"lastMessage.content":   content,
-			"lastMessage.timestamp": timestamp,
+			"lastMessage.timestamp": time.Now(),
 			"updatedAt":             time.Now(),
 		},
 	}

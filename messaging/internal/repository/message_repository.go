@@ -6,6 +6,7 @@ import (
 	"job_portal/messaging/db/mongo"
 	"job_portal/messaging/internal/domain/entity"
 	"job_portal/messaging/internal/domain/repository"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -28,12 +29,13 @@ func (m *messageRepository) SaveMessage(ctx context.Context, message *entity.Mes
 }
 
 func (m *messageRepository) GetMessages(ctx context.Context, conversationID string, includeDeleted *bool) ([]entity.Message, error) {
-	objectID, err := primitive.ObjectIDFromHex(conversationID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid conversation ID: %w", err)
-	}
+	// objectID, err := primitive.ObjectIDFromHex(conversationID)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("invalid conversation ID: %w", err)
+	// }
 
-	filter := bson.M{"conversation_id": objectID}
+	// Use the correct field name as per the BSON tag in the Message struct
+	filter := bson.M{"conversationId": conversationID}
 	// if includeDeleted != nil && !*includeDeleted {
 	// 	filter["isDeleted"] = false
 	// }
@@ -53,12 +55,25 @@ func (m *messageRepository) GetMessages(ctx context.Context, conversationID stri
 }
 
 func (m *messageRepository) DeleteMessages(ctx context.Context, conversationID string) error {
-	objectID, err := primitive.ObjectIDFromHex(conversationID)
-	if err != nil {
-		return fmt.Errorf("invalid conversation ID: %w", err)
+	// Handle both ObjectID and string formats for conversationId
+	filter := bson.M{}
+	if conversationID != "" {
+		filter["conversationId"] = conversationID
 	}
+	
+	// objectID, err := primitive.ObjectIDFromHex(conversationID)
+	// if err == nil {
+	// 	// If conversationID can be converted to ObjectID, use it
+	// 	filter["conversationId"] = objectID
+	// } else {
+	// 	// Otherwise, fallback to string format
+	// 	filter["conversationId"] = conversationID
+	// }
 
-	filter := bson.M{"conversation_id": objectID}
+	// Log the query for debugging
+	log.Printf("Deleting messages with filter: %+v", filter)
+
+	// Perform delete operation
 	result, err := m.collection.DeleteMany(ctx, filter)
 	if err != nil {
 		return fmt.Errorf("failed to delete messages: %w", err)

@@ -13,7 +13,7 @@ type ConversationRepository interface {
 	GetConversationBetweenUsers(ctx context.Context, user1ID, user2ID string) ([]entity.Conversation, error)
 
 	// Update the last message details in a conversation
-	UpdateConversationLastMessage(ctx context.Context, conversationID string, messageID string, content string, timestamp string) error
+	UpdateConversationLastMessage(ctx context.Context, conversationID string, messageID string, content string) error
 
 	// Create a new conversation
 	CreateConversation(ctx context.Context, conversation *entity.Conversation) error
