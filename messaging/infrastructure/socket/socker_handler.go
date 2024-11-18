@@ -16,10 +16,9 @@ import (
 type MessageWebSocket struct {
 	upgrader    websocket.Upgrader
 	messagingUC usecase.MessagingUseCase
-	clients     map[*websocket.Conn]string // Map of clients and their IDs
+	clients     map[*websocket.Conn]string
 }
 
-// NewMessageWebSocket creates a new instance of MessageWebSocket.
 func NewMessageWebSocket(messagingUC usecase.MessagingUseCase) *MessageWebSocket {
 	return &MessageWebSocket{
 		upgrader: websocket.Upgrader{
@@ -32,7 +31,6 @@ func NewMessageWebSocket(messagingUC usecase.MessagingUseCase) *MessageWebSocket
 	}
 }
 
-// HandleWebSocket upgrades the connection and handles WebSocket communication.
 func (ws *MessageWebSocket) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := ws.upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -43,7 +41,6 @@ func (ws *MessageWebSocket) HandleWebSocket(w http.ResponseWriter, r *http.Reque
 
 	log.Printf("New WebSocket connection: %s", conn.RemoteAddr().String())
 
-	// Listen for messages from the client
 	for {
 		var data map[string]string
 		err := conn.ReadJSON(&data)
@@ -101,10 +98,8 @@ func (ws *MessageWebSocket) handleSendMessage(conn *websocket.Conn, data map[str
 		return
 	}
 
-	// Acknowledge the sender
 	conn.WriteJSON(savedMessage)
 
-	// Notify the receiver
 	for client, userID := range ws.clients {
 		if userID == savedMessage.ReceiverID {
 			client.WriteJSON(map[string]interface{}{

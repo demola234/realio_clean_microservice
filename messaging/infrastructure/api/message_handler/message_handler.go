@@ -6,7 +6,7 @@ import (
 	"job_portal/messaging/internal/domain/entity"
 	"job_portal/messaging/internal/usecase"
 
-	pb "job_portal/messaging/interfaces/api/grpc"
+	pb "job_portal/messaging/infrastructure/api/grpc"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

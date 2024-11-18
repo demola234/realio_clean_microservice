@@ -8,7 +8,7 @@ import (
 
 	"job_portal/messaging/config"
 	"job_portal/messaging/db/mongo"
-	"job_portal/messaging/interfaces/socket"
+	"job_portal/messaging/infrastructure/socket"
 	"job_portal/messaging/internal/repository"
 	"job_portal/messaging/internal/usecase"
 )
