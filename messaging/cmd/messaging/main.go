@@ -3,47 +3,111 @@ package main
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
 	"job_portal/messaging/config"
 	"job_portal/messaging/db/mongo"
+	pb "job_portal/messaging/infrastructure/api/grpc"
+	grpcHandler "job_portal/messaging/infrastructure/api/message_handler"
 	"job_portal/messaging/infrastructure/socket"
 	"job_portal/messaging/internal/repository"
 	"job_portal/messaging/internal/usecase"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
 	configs, err := config.LoadConfig(".")
 	if err != nil {
-		log.Fatalf("cannot load config: %v", err)
+		log.Fatalf("Cannot load config: %v", err)
 	}
 
+	// Initialize MongoDB client
 	client, err := mongo.NewClient(configs.MongoURI)
 	if err != nil {
-		log.Fatalf("failed to create MongoDB client: %v", err)
+		log.Fatalf("Failed to create MongoDB client: %v", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := client.Connect(ctx); err != nil {
-		log.Fatalf("failed to connect to MongoDB: %v", err)
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
 	defer func() {
 		if err := client.Disconnect(context.Background()); err != nil {
-			log.Printf("error disconnecting MongoDB client: %v", err)
+			log.Printf("Error disconnecting MongoDB client: %v", err)
 		}
 	}()
 
+	// Repositories and UseCase initialization
 	db := client.Database(configs.DBUser)
 	messageRepo := repository.NewMessageRepository(db, "messages")
 	conversationRepo := repository.NewConversationRepository(db, "conversations")
 	messageUsecase := usecase.NewMessagingUseCase(messageRepo, conversationRepo)
 
+	// WebSocket handler
 	webSocketHandler := socket.NewMessageWebSocket(messageUsecase)
 
-	http.HandleFunc("/ws", webSocketHandler.HandleWebSocket)
-	log.Println("WebSocket server is running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// Start gRPC and HTTP servers in separate goroutines
+	errChan := make(chan error)
+
+	go func() {
+		if err := startGRPCServer(configs.GRPCServerAddress, messageUsecase); err != nil {
+			errChan <- err
+		}
+	}()
+
+	go func() {
+		if err := startWebSocketServer(":8080", webSocketHandler); err != nil {
+			errChan <- err
+		}
+	}()
+
+	// Gracefully handle shutdown
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt)
+
+	select {
+	case err := <-errChan:
+		log.Fatalf("Server error: %v", err)
+	case <-signalChan:
+		log.Println("Shutting down gracefully...")
+		cancel()
+	}
+}
+
+func startGRPCServer(address string, messageUsecase usecase.MessagingUseCase) error {
+	lis, err := net.Listen("tcp", address)
+	if err != nil {
+		return err
+	}
+
+	grpcServer := grpc.NewServer()
+	messageService := grpcHandler.NewMessageHandler(messageUsecase)
+
+	pb.RegisterMessagingServiceServer(grpcServer, messageService)
+	reflection.Register(grpcServer)
+
+	log.Printf("gRPC server is running on %s", address)
+	return grpcServer.Serve(lis)
+}
+
+func startWebSocketServer(address string, handler *socket.MessageWebSocket) error {
+	http.HandleFunc("/ws", handler.HandleWebSocket)
+
+	server := &http.Server{
+		Addr:         address,
+		Handler:      nil,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+	}
+
+	log.Printf("WebSocket server is running on %s", address)
+	return server.ListenAndServe()
 }

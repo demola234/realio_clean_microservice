@@ -1,6 +1,6 @@
-PROTO_DIR = interfaces/api/proto
-GRPC_DIR = interfaces/api/grpc
-PB_DIR = interfaces/api/grpc
+PROTO_DIR = infrastructure/api/proto
+GRPC_DIR = infrastructure/api/grpc
+PB_DIR = infrastructure/api/grpc
 
 proto:
 	@rm -f $(GRPC_DIR)/*.go

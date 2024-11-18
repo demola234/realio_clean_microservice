@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "./pb";
 
-// Represents a message
+
 message Message {
   string id = 1;
   string conversationId = 2;
@@ -19,14 +19,14 @@ message Message {
   string receiverId = 9;
 }
 
-// Represents the last message in a conversation
+
 message LastMessage {
   string content = 1;
   string senderId = 2;
   google.protobuf.Timestamp timestamp = 3;
 }
 
-// Represents a conversation
+
 message Conversation {
   string id = 1;
   repeated string participants = 2;
@@ -35,7 +35,7 @@ message Conversation {
   google.protobuf.Timestamp updatedAt = 5;
 }
 
-// Request and response messages for RPCs
+
 message SendMessageRequest {
   string conversationId = 1;
   string senderId = 2;
@@ -91,7 +91,15 @@ message GetConversationBetweenUsersResponse {
   repeated Conversation conversations = 1;
 }
 
-// Messaging service definition
+message GetConversationsRequest {
+  string userId = 1;
+}
+
+message GetConversationsResponse {
+  repeated Conversation conversations = 1;
+}
+
+
 service MessagingService {
   rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
   rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
@@ -99,4 +107,5 @@ service MessagingService {
   rpc UpdateMessage(UpdateMessageRequest) returns (UpdateMessageResponse);
   rpc UpdateMessageReadStatus(UpdateMessageReadStatusRequest) returns (UpdateMessageReadStatusResponse);
   rpc GetConversationBetweenUsers(GetConversationBetweenUsersRequest) returns (GetConversationBetweenUsersResponse);
+  rpc GetConversations(GetConversationsRequest) returns (GetConversationsResponse);
 }

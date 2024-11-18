@@ -17,4 +17,7 @@ type ConversationRepository interface {
 
 	// Create a new conversation
 	CreateConversation(ctx context.Context, conversation *entity.Conversation) error
+
+	// Get All conversations betweens different users
+	GetAllConversations(ctx context.Context, userID string) ([]entity.Conversation, error)
 }

@@ -121,3 +121,27 @@ func (h *MessageHandler) GetConversationBetweenUsers(ctx context.Context, req *p
 
 	return &pb.GetConversationBetweenUsersResponse{Conversations: pbConversations}, nil
 }
+
+func (h *MessageHandler) GetConversations(ctx context.Context, req *pb.GetConversationsRequest) (*pb.GetConversationsResponse, error) {
+	conversations, err := h.messageUseCase.GetAllConversations(ctx, req.GetUserId())
+	if err != nil {
+		return nil, fmt.Errorf("failed to get conversations for user: %w", err)
+	}
+
+	var pbConversations []*pb.Conversation
+	for _, conv := range conversations {
+		pbConversations = append(pbConversations, &pb.Conversation{
+			Id:           conv.ID.Hex(),
+			Participants: conv.Participants,
+			LastMessage: &pb.LastMessage{
+				Content:   conv.LastMessage.Content,
+				SenderId:  conv.LastMessage.SenderID,
+				Timestamp: timestamppb.New(conv.LastMessage.Timestamp),
+			},
+			CreatedAt: timestamppb.New(conv.CreatedAt),
+			UpdatedAt: timestamppb.New(conv.UpdatedAt),
+		})
+
+	}
+	return &pb.GetConversationsResponse{Conversations: pbConversations}, nil
+}

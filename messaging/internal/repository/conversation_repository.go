@@ -94,3 +94,24 @@ func (c *conversationRepository) CreateConversation(ctx context.Context, convers
 	}
 	return nil
 }
+
+// GetAllConversations implements repository.ConversationRepository.
+func (c *conversationRepository) GetAllConversations(ctx context.Context, userID string) ([]entity.Conversation, error) {
+	// Filter to find conversations where the user is a participant
+	filter := bson.M{"participants": bson.M{"$in": []string{userID}}}
+
+	// Query the database
+	cursor, err := c.collection.Find(ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch conversations: %w", err)
+	}
+	defer cursor.Close(ctx)
+
+	// Decode the results into a slice of Conversation
+	var conversations []entity.Conversation
+	if err := cursor.All(ctx, &conversations); err != nil {
+		return nil, fmt.Errorf("failed to decode conversations: %w", err)
+	}
+
+	return conversations, nil
+}

@@ -18,6 +18,7 @@ type MessagingUseCase interface {
 	UpdateMessage(ctx context.Context, messageID string, content string) error
 	UpdateMessageReadStatus(ctx context.Context, messageID string, isRead bool) error
 	GetConversationBetweenUsers(ctx context.Context, user1ID, user2ID string) ([]entity.Conversation, error)
+	GetAllConversations(ctx context.Context, userID string) ([]entity.Conversation, error)
 }
 
 type messagingUseCase struct {
@@ -143,6 +144,21 @@ func (uc *messagingUseCase) GetConversationBetweenUsers(ctx context.Context, use
 
 	if len(conversations) == 0 {
 		return nil, errors.New("no conversations found between the users")
+	}
+
+	return conversations, nil
+}
+
+// GetAllConversations implements MessagingUseCase.
+func (uc *messagingUseCase) GetAllConversations(ctx context.Context, userID string) ([]entity.Conversation, error) {
+	// Retrieve all conversations for a user
+	conversations, err := uc.conversationRepo.GetAllConversations(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all conversations for user %s: %w", userID, err)
+	}
+
+	if len(conversations) == 0 {
+		return nil, errors.New("no conversations found for the user")
 	}
 
 	return conversations, nil

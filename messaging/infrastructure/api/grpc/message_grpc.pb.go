@@ -25,6 +25,7 @@ const (
 	MessagingService_UpdateMessage_FullMethodName               = "/messaging.MessagingService/UpdateMessage"
 	MessagingService_UpdateMessageReadStatus_FullMethodName     = "/messaging.MessagingService/UpdateMessageReadStatus"
 	MessagingService_GetConversationBetweenUsers_FullMethodName = "/messaging.MessagingService/GetConversationBetweenUsers"
+	MessagingService_GetConversations_FullMethodName            = "/messaging.MessagingService/GetConversations"
 )
 
 // MessagingServiceClient is the client API for MessagingService service.
@@ -39,6 +40,7 @@ type MessagingServiceClient interface {
 	UpdateMessage(ctx context.Context, in *UpdateMessageRequest, opts ...grpc.CallOption) (*UpdateMessageResponse, error)
 	UpdateMessageReadStatus(ctx context.Context, in *UpdateMessageReadStatusRequest, opts ...grpc.CallOption) (*UpdateMessageReadStatusResponse, error)
 	GetConversationBetweenUsers(ctx context.Context, in *GetConversationBetweenUsersRequest, opts ...grpc.CallOption) (*GetConversationBetweenUsersResponse, error)
+	GetConversations(ctx context.Context, in *GetConversationsRequest, opts ...grpc.CallOption) (*GetConversationsResponse, error)
 }
 
 type messagingServiceClient struct {
@@ -109,6 +111,16 @@ func (c *messagingServiceClient) GetConversationBetweenUsers(ctx context.Context
 	return out, nil
 }
 
+func (c *messagingServiceClient) GetConversations(ctx context.Context, in *GetConversationsRequest, opts ...grpc.CallOption) (*GetConversationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetConversationsResponse)
+	err := c.cc.Invoke(ctx, MessagingService_GetConversations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MessagingServiceServer is the server API for MessagingService service.
 // All implementations must embed UnimplementedMessagingServiceServer
 // for forward compatibility.
@@ -121,6 +133,7 @@ type MessagingServiceServer interface {
 	UpdateMessage(context.Context, *UpdateMessageRequest) (*UpdateMessageResponse, error)
 	UpdateMessageReadStatus(context.Context, *UpdateMessageReadStatusRequest) (*UpdateMessageReadStatusResponse, error)
 	GetConversationBetweenUsers(context.Context, *GetConversationBetweenUsersRequest) (*GetConversationBetweenUsersResponse, error)
+	GetConversations(context.Context, *GetConversationsRequest) (*GetConversationsResponse, error)
 	mustEmbedUnimplementedMessagingServiceServer()
 }
 
@@ -148,6 +161,9 @@ func (UnimplementedMessagingServiceServer) UpdateMessageReadStatus(context.Conte
 }
 func (UnimplementedMessagingServiceServer) GetConversationBetweenUsers(context.Context, *GetConversationBetweenUsersRequest) (*GetConversationBetweenUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConversationBetweenUsers not implemented")
+}
+func (UnimplementedMessagingServiceServer) GetConversations(context.Context, *GetConversationsRequest) (*GetConversationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConversations not implemented")
 }
 func (UnimplementedMessagingServiceServer) mustEmbedUnimplementedMessagingServiceServer() {}
 func (UnimplementedMessagingServiceServer) testEmbeddedByValue()                          {}
@@ -278,6 +294,24 @@ func _MessagingService_GetConversationBetweenUsers_Handler(srv interface{}, ctx 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MessagingService_GetConversations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetConversationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessagingServiceServer).GetConversations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MessagingService_GetConversations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessagingServiceServer).GetConversations(ctx, req.(*GetConversationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MessagingService_ServiceDesc is the grpc.ServiceDesc for MessagingService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -308,6 +342,10 @@ var MessagingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetConversationBetweenUsers",
 			Handler:    _MessagingService_GetConversationBetweenUsers_Handler,
+		},
+		{
+			MethodName: "GetConversations",
+			Handler:    _MessagingService_GetConversations_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
