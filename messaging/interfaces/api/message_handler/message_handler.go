@@ -8,7 +8,6 @@ import (
 
 	pb "job_portal/messaging/interfaces/api/grpc"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -26,27 +25,18 @@ func NewMessageHandler(messageUseCase usecase.MessagingUseCase) *MessageHandler 
 
 // SendMessage handles the SendMessage gRPC request.
 func (h *MessageHandler) SendMessage(ctx context.Context, req *pb.SendMessageRequest) (*pb.SendMessageResponse, error) {
-	conversationID, err := primitive.ObjectIDFromHex(req.ConversationId)
-	if err != nil {
-		return nil, fmt.Errorf("invalid conversation ID: %v", err)
-	}
-
-	// Convert SenderID to ObjectID
-	senderID, err := primitive.ObjectIDFromHex(req.SenderId)
-	if err != nil {
-		return nil, fmt.Errorf("invalid sender ID: %v", err)
-	}
-
 	message := &entity.Message{
-		ConversationID: conversationID,
-		SenderID:       senderID,
-		Content:        req.Content,
-		IsRead:         false, 
+		ConversationID: req.GetConversationId(),
+		SenderID:       req.GetSenderId(),
+		ReceiverID:     req.GetReceiverId(),
+		Content:        req.GetContent(),
+		IsRead:         false,
+		IsDeleted:      false,
 	}
 
-	err = h.messageUseCase.SendMessage(ctx, message)
+	err := h.messageUseCase.SendMessage(ctx, message)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to send message: %w", err)
 	}
 
 	return &pb.SendMessageResponse{Status: "Message sent successfully"}, nil
@@ -54,19 +44,18 @@ func (h *MessageHandler) SendMessage(ctx context.Context, req *pb.SendMessageReq
 
 // GetMessages handles the GetMessages gRPC request.
 func (h *MessageHandler) GetMessages(ctx context.Context, req *pb.GetMessagesRequest) (*pb.GetMessagesResponse, error) {
-	isRead := req.GetIsRead()
-	messages, err := h.messageUseCase.GetMessages(ctx, req.GetConversationId(), &isRead)
+	messages, err := h.messageUseCase.GetMessages(ctx, req.GetConversationId(), &req.IncludeDeleted)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get messages: %w", err)
 	}
 
-	// Convert to gRPC response format
 	var pbMessages []*pb.Message
 	for _, msg := range messages {
 		pbMessages = append(pbMessages, &pb.Message{
 			Id:             msg.ID.Hex(),
-			ConversationId: msg.ConversationID.Hex(),
-			SenderId:       msg.SenderID.Hex(),
+			ConversationId: msg.ConversationID,
+			SenderId:       msg.SenderID,
+			ReceiverId:     msg.ReceiverID,
 			Content:        msg.Content,
 			IsRead:         msg.IsRead,
 			CreatedAt:      timestamppb.New(msg.CreatedAt),
@@ -81,7 +70,7 @@ func (h *MessageHandler) GetMessages(ctx context.Context, req *pb.GetMessagesReq
 func (h *MessageHandler) DeleteMessages(ctx context.Context, req *pb.DeleteMessagesRequest) (*pb.DeleteMessagesResponse, error) {
 	err := h.messageUseCase.DeleteMessages(ctx, req.GetConversationId())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to delete messages: %w", err)
 	}
 
 	return &pb.DeleteMessagesResponse{Status: "Messages deleted successfully"}, nil
@@ -91,7 +80,7 @@ func (h *MessageHandler) DeleteMessages(ctx context.Context, req *pb.DeleteMessa
 func (h *MessageHandler) UpdateMessage(ctx context.Context, req *pb.UpdateMessageRequest) (*pb.UpdateMessageResponse, error) {
 	err := h.messageUseCase.UpdateMessage(ctx, req.GetMessageId(), req.GetContent())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to update message: %w", err)
 	}
 
 	return &pb.UpdateMessageResponse{Status: "Message updated successfully"}, nil
@@ -101,7 +90,7 @@ func (h *MessageHandler) UpdateMessage(ctx context.Context, req *pb.UpdateMessag
 func (h *MessageHandler) UpdateMessageReadStatus(ctx context.Context, req *pb.UpdateMessageReadStatusRequest) (*pb.UpdateMessageReadStatusResponse, error) {
 	err := h.messageUseCase.UpdateMessageReadStatus(ctx, req.GetMessageId(), req.GetIsRead())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to update read status: %w", err)
 	}
 
 	return &pb.UpdateMessageReadStatusResponse{Status: "Message read status updated successfully"}, nil
@@ -111,10 +100,9 @@ func (h *MessageHandler) UpdateMessageReadStatus(ctx context.Context, req *pb.Up
 func (h *MessageHandler) GetConversationBetweenUsers(ctx context.Context, req *pb.GetConversationBetweenUsersRequest) (*pb.GetConversationBetweenUsersResponse, error) {
 	conversations, err := h.messageUseCase.GetConversationBetweenUsers(ctx, req.GetUser1Id(), req.GetUser2Id())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get conversations between users: %w", err)
 	}
 
-	// Convert to gRPC response format
 	var pbConversations []*pb.Conversation
 	for _, conv := range conversations {
 		pbConversations = append(pbConversations, &pb.Conversation{
@@ -125,7 +113,7 @@ func (h *MessageHandler) GetConversationBetweenUsers(ctx context.Context, req *p
 				SenderId:  conv.LastMessage.SenderID,
 				Timestamp: timestamppb.New(conv.LastMessage.Timestamp),
 			},
-			CreatedAt: timestamppb.New(conv.UpdatedAt),
+			CreatedAt: timestamppb.New(conv.CreatedAt),
 			UpdatedAt: timestamppb.New(conv.UpdatedAt),
 		})
 	}

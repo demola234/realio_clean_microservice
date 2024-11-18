@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"job_portal/messaging/db/mongo"
 	"job_portal/messaging/internal/domain/entity"
@@ -14,24 +13,30 @@ import (
 )
 
 type messageRepository struct {
-	database   mongo.Database
 	collection mongo.Collection
 }
 
-// NewMessageRepository creates a new instance of messageRepository.
 func NewMessageRepository(db mongo.Database, collectionName string) repository.MessageRepository {
 	return &messageRepository{
-		database:   db,
 		collection: db.Collection(collectionName),
 	}
 }
 
-// GetMessages retrieves messages for a conversation with an optional filter for deleted messages.
+func (m *messageRepository) SaveMessage(ctx context.Context, message *entity.Message) error {
+	_, err := m.collection.InsertOne(ctx, message)
+	return err
+}
+
 func (m *messageRepository) GetMessages(ctx context.Context, conversationID string, includeDeleted *bool) ([]entity.Message, error) {
-	filter := bson.M{"conversation_id": conversationID}
-	if includeDeleted != nil && !*includeDeleted {
-		filter["deleted"] = false
+	objectID, err := primitive.ObjectIDFromHex(conversationID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid conversation ID: %w", err)
 	}
+
+	filter := bson.M{"conversation_id": objectID}
+	// if includeDeleted != nil && !*includeDeleted {
+	// 	filter["isDeleted"] = false
+	// }
 
 	cursor, err := m.collection.Find(ctx, filter)
 	if err != nil {
@@ -43,63 +48,37 @@ func (m *messageRepository) GetMessages(ctx context.Context, conversationID stri
 	if err := cursor.All(ctx, &messages); err != nil {
 		return nil, fmt.Errorf("failed to decode messages: %w", err)
 	}
+
 	return messages, nil
 }
 
-// DeleteMessages deletes all messages for a specific conversation.
-// DeleteMessages deletes all messages for a specific conversation.
 func (m *messageRepository) DeleteMessages(ctx context.Context, conversationID string) error {
-	filter := bson.M{"conversation_id": conversationID}
-	result, err := m.collection.DeleteOne(ctx, filter)
+	objectID, err := primitive.ObjectIDFromHex(conversationID)
+	if err != nil {
+		return fmt.Errorf("invalid conversation ID: %w", err)
+	}
+
+	filter := bson.M{"conversation_id": objectID}
+	result, err := m.collection.DeleteMany(ctx, filter)
 	if err != nil {
 		return fmt.Errorf("failed to delete messages: %w", err)
 	}
 
 	if result.DeletedCount == 0 {
-		return errors.New("no messages found to delete")
+		return fmt.Errorf("no messages found to delete for conversation ID: %s", conversationID)
 	}
+
 	return nil
 }
 
-// GetConversationBetweenUsers retrieves conversations between two users.
-func (m *messageRepository) GetConversationBetweenUsers(ctx context.Context, user1ID, user2ID string) ([]entity.Conversation, error) {
-	filter := bson.M{"participants": bson.M{"$all": []string{user1ID, user2ID}}}
-
-	cursor, err := m.collection.Find(ctx, filter)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch conversations: %w", err)
-	}
-	defer cursor.Close(ctx)
-
-	var conversations []entity.Conversation
-	if err := cursor.All(ctx, &conversations); err != nil {
-		return nil, fmt.Errorf("failed to decode conversations: %w", err)
-	}
-	return conversations, nil
-}
-
-// SaveMessage saves a new message to the database.
-func (m *messageRepository) SaveMessage(ctx context.Context, message *entity.Message) error {
-	message.ID = primitive.NewObjectID()
-	message.IsRead = false
-	message.IsDeleted = false
-
-	_, err := m.collection.InsertOne(ctx, message)
-	if err != nil {
-		return fmt.Errorf("failed to save message: %w", err)
-	}
-	return nil
-}
-
-// UpdateMessage updates the content of an existing message.
-func (m *messageRepository) UpdateMessage(ctx context.Context, messageID, content string) error {
+func (m *messageRepository) UpdateMessage(ctx context.Context, messageID string, content string) error {
 	id, err := primitive.ObjectIDFromHex(messageID)
 	if err != nil {
 		return fmt.Errorf("invalid message ID: %w", err)
 	}
 
 	filter := bson.M{"_id": id}
-	update := bson.M{"$set": bson.M{"content": content}}
+	update := bson.M{"$set": bson.M{"content": content, "updatedAt": time.Now()}}
 
 	result, err := m.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
@@ -107,12 +86,12 @@ func (m *messageRepository) UpdateMessage(ctx context.Context, messageID, conten
 	}
 
 	if result.MatchedCount == 0 {
-		return errors.New("no message found to update")
+		return fmt.Errorf("no message found to update")
 	}
+
 	return nil
 }
 
-// UpdateMessageReadStatus updates the read status of a message.
 func (m *messageRepository) UpdateMessageReadStatus(ctx context.Context, messageID string, isRead bool) error {
 	id, err := primitive.ObjectIDFromHex(messageID)
 	if err != nil {
@@ -120,7 +99,7 @@ func (m *messageRepository) UpdateMessageReadStatus(ctx context.Context, message
 	}
 
 	filter := bson.M{"_id": id}
-	update := bson.M{"$set": bson.M{"isRead": isRead}}
+	update := bson.M{"$set": bson.M{"isRead": isRead, "updatedAt": time.Now()}}
 
 	result, err := m.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
@@ -128,41 +107,8 @@ func (m *messageRepository) UpdateMessageReadStatus(ctx context.Context, message
 	}
 
 	if result.MatchedCount == 0 {
-		return errors.New("no message found to update read status")
-	}
-	return nil
-}
-
-// UpdateConversationLastMessage updates the last message details in a conversation.
-func (m *messageRepository) UpdateConversationLastMessage(ctx context.Context, conversationID, messageID, content string) error {
-	convID, err := primitive.ObjectIDFromHex(conversationID)
-	if err != nil {
-		return fmt.Errorf("invalid conversation ID: %w", err)
+		return fmt.Errorf("no message found to update read status")
 	}
 
-	msgID, err := primitive.ObjectIDFromHex(messageID)
-	if err != nil {
-		return fmt.Errorf("invalid message ID: %w", err)
-	}
-
-	filter := bson.M{"_id": convID}
-	update := bson.M{
-		"$set": bson.M{
-			"lastMessage": bson.M{
-				"id":      msgID,
-				"content": content,
-			},
-			"updatedAt": time.Now(),
-		},
-	}
-
-	result, err := m.collection.UpdateOne(ctx, filter, update)
-	if err != nil {
-		return fmt.Errorf("failed to update conversation: %w", err)
-	}
-
-	if result.MatchedCount == 0 {
-		return errors.New("no conversation found to update")
-	}
 	return nil
 }

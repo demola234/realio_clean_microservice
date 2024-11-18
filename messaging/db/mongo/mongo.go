@@ -24,6 +24,7 @@ type Collection interface {
 	InsertOne(context.Context, interface{}) (interface{}, error)
 	InsertMany(context.Context, []interface{}) ([]interface{}, error)
 	DeleteOne(ctx context.Context, filter interface{}) (*mongo.DeleteResult, error)
+	DeleteMany(ctx context.Context, filter interface{}) (*mongo.DeleteResult, error)
 	Find(context.Context, interface{}, ...*options.FindOptions) (Cursor, error)
 	CountDocuments(context.Context, interface{}, ...*options.CountOptions) (int64, error)
 	Aggregate(context.Context, interface{}) (Cursor, error)
@@ -159,9 +160,13 @@ func (mc *mongoCollection) InsertMany(ctx context.Context, document []interface{
 }
 
 func (mc *mongoCollection) DeleteOne(ctx context.Context, filter interface{}) (*mongo.DeleteResult, error) {
-    return mc.coll.DeleteOne(ctx, filter)
+	return mc.coll.DeleteOne(ctx, filter)
 }
 
+// DeleteMany implements Collection.
+func (mc *mongoCollection) DeleteMany(ctx context.Context, filter interface{}) (*mongo.DeleteResult, error) {
+	return mc.coll.DeleteMany(ctx, filter)
+}
 
 func (mc *mongoCollection) Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (Cursor, error) {
 	findResult, err := mc.coll.Find(ctx, filter, opts...)

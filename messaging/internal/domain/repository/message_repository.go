@@ -6,11 +6,18 @@ import (
 )
 
 type MessageRepository interface {
-	SaveMessage(c context.Context, message *entity.Message) error
-	GetMessages(c context.Context, conversationID string, isRead *bool) ([]entity.Message, error)
-	DeleteMessages(c context.Context, conversationID string) error
-	UpdateMessage(c context.Context, messageID string, content string) error
-	UpdateMessageReadStatus(c context.Context, messageID string, isRead bool) error
-	GetConversationBetweenUsers(c context.Context, user1ID, user2ID string) ([]entity.Conversation, error)
-	UpdateConversationLastMessage(c context.Context, conversationID string, messageID string, content string) error
+	// Save a new message
+	SaveMessage(ctx context.Context, message *entity.Message) error
+	
+	// Get all messages for a conversation between two users
+	GetMessages(ctx context.Context, conversationID string, includeDeleted *bool) ([]entity.Message, error)
+	
+	// Delete messages for a specific conversation
+	DeleteMessages(ctx context.Context, conversationID string) error
+	
+	// Update the content of an existing message
+	UpdateMessage(ctx context.Context, messageID string, content string) error
+	
+	// Update the read status of a message
+	UpdateMessageReadStatus(ctx context.Context, messageID string, isRead bool) error
 }

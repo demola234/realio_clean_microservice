@@ -16,6 +16,7 @@ message Message {
   google.protobuf.Timestamp createdAt = 6;
   google.protobuf.Timestamp updatedAt = 7;
   bool isDeleted = 8;
+  string receiverId = 9;
 }
 
 // Represents the last message in a conversation
@@ -38,7 +39,8 @@ message Conversation {
 message SendMessageRequest {
   string conversationId = 1;
   string senderId = 2;
-  string content = 3;
+  string receiverId = 3;
+  string content = 4;
 }
 
 message SendMessageResponse {
@@ -47,7 +49,7 @@ message SendMessageResponse {
 
 message GetMessagesRequest {
   string conversationId = 1;
-  bool isRead = 2;
+  bool includeDeleted = 2;
 }
 
 message GetMessagesResponse {

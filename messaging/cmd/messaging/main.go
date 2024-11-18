@@ -45,8 +45,9 @@ func main() {
 	db := client.Database(configs.DBUser)
 
 	// Initialize repository and use case
-	messageRepo := repository.NewMessageRepository(db, configs.DBUser)
-	messageUsecase := usercase.NewMessagingUseCase(messageRepo)
+	messageRepo := repository.NewMessageRepository(db, "messages")
+	convoRepo := repository.NewConversationRepository(db, "conversations")
+	messageUsecase := usercase.NewMessagingUseCase(messageRepo, convoRepo)
 
 	// Create the gRPC handler using the use case
 	messageHandler := grpcHandler.NewMessageHandler(messageUsecase)
