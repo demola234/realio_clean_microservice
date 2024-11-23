@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterProperRoutes(rg *gin.RouterGroup, propertyHandler *handler.PropertyHandler, authMiddleware gin.HandlerFunc) {
+func RegisterPropertyRoutes(rg *gin.RouterGroup, propertyHandler *handler.PropertyHandler, authMiddleware gin.HandlerFunc) {
 	propertyRoutes := rg.Group("/property")
 
 	{
