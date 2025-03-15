@@ -10,9 +10,9 @@ func RegisterMessageRoutes(rg *gin.RouterGroup, messageHandler *handler.MessageH
 	messageRoutes := rg.Group("/message")
 
 	{
-		messageRoutes.GET("/", authMiddleware, messageHandler.GetMessages)                            // GET /message
-		messageRoutes.GET("/conversation", authMiddleware, messageHandler.GetConversationBetweenUser) // GET /message/conversation
-		messageRoutes.GET("/:id", authMiddleware, messageHandler.GetConversationByID)                 // GET /message/:id
-		messageRoutes.POST("/", authMiddleware, messageHandler.SendMessage)                           // POST /message
+		messageRoutes.GET("/", authMiddleware, messageHandler.GetMessages)
+		messageRoutes.GET("/conversation", authMiddleware, messageHandler.GetConversationBetweenUser)
+		messageRoutes.GET("/:id", authMiddleware, messageHandler.GetConversationByID)
+		messageRoutes.POST("/", authMiddleware, messageHandler.SendMessage)
 	}
 }
