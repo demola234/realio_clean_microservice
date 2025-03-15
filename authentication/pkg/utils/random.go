@@ -41,6 +41,14 @@ func RandomRole() string {
 	return roles[rand.Intn(len(roles))]
 }
 
+func RandomProfilePicture() string {
+	return fmt.Sprintf("https://picsum.photos/200/300?random=%d", rand.Intn(1000))
+}
+
+func RandomBio() string {
+	return fmt.Sprintf("Bio %d", rand.Intn(1000))
+}
+
 // RandomMoney generates a random amount of money
 func RandomMoney() int64 {
 	return int64(RandomInt(0, 1000))

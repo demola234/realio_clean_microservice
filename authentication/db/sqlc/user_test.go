@@ -17,12 +17,15 @@ func createRandomUser(t *testing.T) Users {
 	require.NoError(t, err)
 
 	arg := CreateUserParams{
-		ID:       uuid.New(),
-		Name:     utils.RandomOwner(),
-		Email:    utils.RandomEmail(),
-		Password: hashPassword,
-		Role:     sql.NullString{String: utils.RandomRole(), Valid: true},
-		Phone:    sql.NullString{String: utils.RandomPhoneNumber(), Valid: true},
+		ID:             uuid.New(),
+		Name:           utils.RandomOwner(),
+		Email:          utils.RandomEmail(),
+		Password:       hashPassword,
+		ProfilePicture: sql.NullString{String: utils.RandomProfilePicture(), Valid: true},
+		Username:       utils.RandomOwner(),
+		Bio:            sql.NullString{String: utils.RandomBio(), Valid: true},
+		Role:           sql.NullString{String: utils.RandomRole(), Valid: true},
+		Phone:          sql.NullString{String: utils.RandomPhoneNumber(), Valid: true},
 	}
 
 	user, err := testQueries.CreateUser(context.Background(), arg)
@@ -49,6 +52,10 @@ func TestGetUser(t *testing.T) {
 	require.Equal(t, user.ID, user2.ID)
 	require.Equal(t, user.Name, user2.Name)
 	require.Equal(t, user.Email, user2.Email)
+	require.Equal(t, user.Bio, user2.Bio)
+	require.Equal(t, user.Phone, user2.Phone)
+	require.Equal(t, user.Username, user2.Username)
+	require.Equal(t, user.ProfilePicture, user2.ProfilePicture)
 	require.Equal(t, user.Password, user2.Password)
 	require.Equal(t, user.Role, user2.Role)
 	require.WithinDuration(t, user.CreatedAt.Time, user2.CreatedAt.Time, time.Second)

@@ -1,6 +1,9 @@
 CREATE TABLE "users" (
     "id" UUID UNIQUE PRIMARY KEY,
     "name" VARCHAR NOT NULL,
+    "username" VARCHAR UNIQUE NOT NULL,
+    "profile_picture" VARCHAR,
+    "bio" VARCHAR,
     "email" VARCHAR UNIQUE NOT NULL,
     "password" VARCHAR NOT NULL,
     "role" VARCHAR,

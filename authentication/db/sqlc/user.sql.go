@@ -17,7 +17,7 @@ UPDATE users
 SET password = $2,
 updated_at = now()
 WHERE
-    id = $1 RETURNING id, name, email, password, role, phone, created_at, updated_at
+    id = $1 RETURNING id, name, username, profile_picture, bio, email, password, role, phone, created_at, updated_at
 `
 
 type ChangePasswordParams struct {
@@ -31,6 +31,9 @@ func (q *Queries) ChangePassword(ctx context.Context, arg ChangePasswordParams) 
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.Username,
+		&i.ProfilePicture,
+		&i.Bio,
 		&i.Email,
 		&i.Password,
 		&i.Role,
@@ -65,6 +68,9 @@ INSERT INTO
         name,
         email,
         password,
+        profile_picture,
+        username,
+        bio,
         role,
         phone,
         created_at,
@@ -77,18 +83,24 @@ VALUES (
         $4, -- password (hashed password)
         $5, -- role (user role, default is 'buyer')
         $6, -- phone (optional phone number)
+        $7, -- bio (optional user bio)
+        $8, --profile_picture
+        $9, -- username (unique username)
         now(), -- created_at (timestamp for user creation)
         now() -- updated_at (timestamp for the last update)
-    ) RETURNING id, name, email, password, role, phone, created_at, updated_at
+    ) RETURNING id, name, username, profile_picture, bio, email, password, role, phone, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	ID       uuid.UUID      `json:"id"`
-	Name     string         `json:"name"`
-	Email    string         `json:"email"`
-	Password string         `json:"password"`
-	Role     sql.NullString `json:"role"`
-	Phone    sql.NullString `json:"phone"`
+	ID             uuid.UUID      `json:"id"`
+	Name           string         `json:"name"`
+	Email          string         `json:"email"`
+	Password       string         `json:"password"`
+	ProfilePicture sql.NullString `json:"profile_picture"`
+	Username       string         `json:"username"`
+	Bio            sql.NullString `json:"bio"`
+	Role           sql.NullString `json:"role"`
+	Phone          sql.NullString `json:"phone"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Users, error) {
@@ -97,6 +109,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Users, 
 		arg.Name,
 		arg.Email,
 		arg.Password,
+		arg.ProfilePicture,
+		arg.Username,
+		arg.Bio,
 		arg.Role,
 		arg.Phone,
 	)
@@ -104,6 +119,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Users, 
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.Username,
+		&i.ProfilePicture,
+		&i.Bio,
 		&i.Email,
 		&i.Password,
 		&i.Role,
@@ -124,7 +142,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, name, email, password, role, phone, created_at, updated_at FROM users WHERE email = $1 OR id::text = $1 LIMIT 1
+SELECT id, name, username, profile_picture, bio, email, password, role, phone, created_at, updated_at FROM users WHERE email = $1 OR id::text = $1 LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, email string) (Users, error) {
@@ -133,6 +151,9 @@ func (q *Queries) GetUser(ctx context.Context, email string) (Users, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.Username,
+		&i.ProfilePicture,
+		&i.Bio,
 		&i.Email,
 		&i.Password,
 		&i.Role,
@@ -153,7 +174,7 @@ SET
     phone = COALESCE($5, phone),
     updated_at = now()
 WHERE
-    id = $6 RETURNING id, name, email, password, role, phone, created_at, updated_at
+    id = $6 RETURNING id, name, username, profile_picture, bio, email, password, role, phone, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -178,6 +199,9 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (Users, 
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.Username,
+		&i.ProfilePicture,
+		&i.Bio,
 		&i.Email,
 		&i.Password,
 		&i.Role,

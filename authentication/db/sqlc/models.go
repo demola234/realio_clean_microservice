@@ -45,7 +45,10 @@ type Users struct {
 	// Primary key
 	ID uuid.UUID `json:"id"`
 	// User's full name
-	Name string `json:"name"`
+	Name           string         `json:"name"`
+	Username       string         `json:"username"`
+	ProfilePicture sql.NullString `json:"profile_picture"`
+	Bio            sql.NullString `json:"bio"`
 	// User's email (unique)
 	Email string `json:"email"`
 	// Hashed password

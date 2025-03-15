@@ -5,6 +5,9 @@ INSERT INTO
         name,
         email,
         password,
+        profile_picture,
+        username,
+        bio,
         role,
         phone,
         created_at,
@@ -17,6 +20,9 @@ VALUES (
         $4, -- password (hashed password)
         $5, -- role (user role, default is 'buyer')
         $6, -- phone (optional phone number)
+        $7, -- bio (optional user bio)
+        $8, --profile_picture
+        $9, -- username (unique username)
         now(), -- created_at (timestamp for user creation)
         now() -- updated_at (timestamp for the last update)
     ) RETURNING *;
