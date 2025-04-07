@@ -1,7 +1,7 @@
 PROTO_DIR = interfaces/api/proto
 GRPC_DIR = interfaces/api/grpc
 PB_DIR = interfaces/api/grpc
-DB_URL = "postgresql://usmiekrnx6pqq6ybbp2g:IeEtTWSo6FGjweshdN9yUco06Kieba@bjhuxkyprn3x6g7vhtnl-postgresql.services.clever-cloud.com:50013/bjhuxkyprn3x6g7vhtnl"
+DB_URL = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 
 proto:
 	@rm -f $(GRPC_DIR)/*.go
@@ -13,6 +13,32 @@ proto:
 	       $(PROTO_DIR)/*.proto
 
 .PHONY: proto
+
+
+# Docker commands
+docker-up:
+	docker-compose up -d
+
+docker-down:
+	docker-compose down
+
+docker-logs:
+	docker-compose logs -f
+
+docker-ps:
+	docker-compose ps
+
+docker-build:
+	docker-compose build
+
+docker-restart:
+	docker-compose restart
+
+# Database commands
+postgres:
+	docker run --name defi -p $(DB_PORT):5432 -e POSTGRES_USER=$(DB_USER) -e POSTGRES_PASSWORD=$(DB_PASSWORD) -d postgres:15-alpine
+
+
 
 migrateup:
 	migrate -database $(DB_URL) -path db/migration -verbose up
