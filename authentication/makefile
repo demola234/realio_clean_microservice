@@ -1,7 +1,6 @@
 PROTO_DIR = interfaces/api/proto
 GRPC_DIR = interfaces/api/grpc
 PB_DIR = interfaces/api/grpc
-DB_URL = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 
 proto:
 	@rm -f $(GRPC_DIR)/*.go
@@ -13,6 +12,18 @@ proto:
 	       $(PROTO_DIR)/*.proto
 
 .PHONY: proto
+
+# Load .env file if it exists
+ifneq (,$(wildcard .env))
+    include .env
+    export
+endif
+
+DB_URL = ${DB_SOURCE}
+DB_NAME ?= ${DB_NAME}
+DB_USER ?= ${DB_USER}
+DB_PASSWORD ?= ${DB_PASSWORD}
+DB_PORT ?= 5433
 
 
 # Docker commands
@@ -36,9 +47,10 @@ docker-restart:
 
 # Database commands
 postgres:
-	docker run --name defi -p $(DB_PORT):5432 -e POSTGRES_USER=$(DB_USER) -e POSTGRES_PASSWORD=$(DB_PASSWORD) -d postgres:15-alpine
+	docker run --name $(DB_NAME) -p $(DB_PORT):5432 -e POSTGRES_USER=$(DB_USER) -e POSTGRES_PASSWORD=$(DB_PASSWORD) -d postgres:15-alpine
 
-
+createdb:
+	docker exec -it $(DB_NAME) createdb --username=$(DB_USER) --owner=$(DB_USER) $(DB_NAME)
 
 migrateup:
 	migrate -database $(DB_URL) -path db/migration -verbose up
@@ -60,3 +72,6 @@ migrateversion:
 
 sqlc:
 	sqlc generate
+
+server:
+	go run cmd/authentication/main.go
