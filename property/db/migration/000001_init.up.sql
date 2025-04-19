@@ -11,6 +11,7 @@ CREATE TABLE "Property" (
   "type" property_type, -- Enum for property type
   "address" VARCHAR NOT NULL,
   "zip_code" VARCHAR,
+  "city" VARCHAR,
   "owner_id" UUID, -- Reference to external user microservice
   "images" TEXT[], -- Array of image URLs (Optional)
   "no_of_bed_rooms" INT,
