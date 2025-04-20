@@ -17,7 +17,7 @@ CREATE TABLE "Property" (
   "no_of_bed_rooms" INT,
   "no_of_bath_rooms" INT,
   "no_of_toilets" INT,
-  "geo_location" JSON, -- Latitude & longitude (Optional)
+  "geo_location" JSON, 
   "status" property_status, -- Enum for property status
   "created_at" TIMESTAMP DEFAULT now(),
   "updated_at" TIMESTAMP DEFAULT now()
