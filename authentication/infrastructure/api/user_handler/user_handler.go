@@ -17,6 +17,7 @@ type UserHandler struct {
 
 // NewUserHandler creates a new instance of UserHandler
 func NewUserHandler(userUsecase usecase.UserUsecase) *UserHandler {
+	
 	return &UserHandler{userUsecase: userUsecase}
 }
 

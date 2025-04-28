@@ -1,63 +1,60 @@
 -- name: CreateSession :one
-INSERT INTO
-    sessions (
-        session_id,
-        user_id,
-        token,
-        created_at,
-        expires_at,
-        last_activity,
-        ip_address,
-        user_agent,
-        is_active,
-        revoked_at,
-        otp_verified,
-        otp_expires_at,
-        otp_attempts,
-        otp,
-        device_info
-    )
-VALUES (
-        $1, -- session_id (unique identifier for the session, UUID)
-        $2, -- user_id (UUID of the associated user)
-        $3, -- token (session or refresh token for authentication)
-        now(), -- created_at (timestamp for when session is created)
-        $4, -- expires_at (timestamp for when session expires)
-        $5, -- last_activity (timestamp for last user activity)
-        $6, -- ip_address (IP address of the client)
-        $7, -- user_agent (device or browser information)
-        $8, -- is_active (boolean to indicate if the session is active)
-        $9, -- revoked_at (timestamp for when session is revoked, if applicable)
-        $10,
-        $11,
-        $12,
-        $13,
-        $14
-    ) RETURNING *;
+INSERT INTO sessions (
+    session_id,
+    user_id,
+    token,
+    otp,
+    otp_expires_at,
+    otp_attempts,
+    otp_verified,
+    created_at,
+    expires_at,
+    last_activity,
+    ip_address,
+    user_agent,
+    is_active,
+    revoked_at,
+    device_info
+) VALUES (
+    $1, -- session_id
+    $2, -- user_id
+    $3, -- token
+    $4, -- otp
+    $5, -- otp_expires_at
+    $6, -- otp_attempts
+    $7, -- otp_verified
+    now(), -- created_at
+    $8, -- expires_at
+    $9, -- last_activity
+    $10, -- ip_address
+    $11, -- user_agent
+    $12, -- is_active
+    $13, -- revoked_at
+    $14 -- device_info
+) RETURNING *;
 
 -- name: GetSession :one
-SELECT * FROM sessions 
-WHERE session_id = $1 
-   OR user_id = $1;
+SELECT * FROM sessions
+WHERE session_id = $1 OR user_id::text = $1
+LIMIT 1;
 
 -- name: UpdateSessionActivity :exec
 UPDATE sessions
 SET
     last_activity = $1,
     is_active = $2
-WHERE
-    session_id = $3;
+WHERE session_id = $3;
 
 -- name: RevokeSession :exec
 UPDATE sessions
 SET
     is_active = false,
     revoked_at = now()
-WHERE
-    session_id = $1;
+WHERE session_id = $1;
 
 -- name: DeleteSession :exec
-DELETE FROM sessions WHERE session_id = $1;
+DELETE FROM sessions
+WHERE session_id = $1;
 
 -- name: UpdateSession :one
 UPDATE sessions
@@ -74,5 +71,5 @@ SET
     revoked_at = COALESCE($10, revoked_at),
     otp_verified = COALESCE($11, otp_verified),
     device_info = COALESCE($12, device_info)
-WHERE
-    user_id = $13 RETURNING *;
+WHERE user_id = $13
+RETURNING *;

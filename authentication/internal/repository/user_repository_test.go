@@ -27,7 +27,7 @@ func TestGetUserByEmail(t *testing.T) {
 		ID:        uuid.New(),
 		Email:     utils.RandomEmail(),
 		Name:      utils.RandomOwner(),
-		Password:  utils.RandomString(10),
+		Password:  sql.NullString{String: utils.RandomString(10), Valid: true},
 		CreatedAt: sql.NullTime{Time: time.Now(), Valid: true},
 		UpdatedAt: sql.NullTime{Time: time.Now(), Valid: true},
 		Role:      sql.NullString{String: utils.RandomRole(), Valid: true},
@@ -82,14 +82,12 @@ func TestCreateToken(t *testing.T) {
 
 	email := utils.RandomEmail()
 	userID := uuid.New().String()
-	
-	
+
 	token, err := repo.CreateToken(context.Background(), email, userID)
 
 	require.NoError(t, err)
 	require.NotEmpty(t, token)
 }
-
 
 func TestUpdatePassword(t *testing.T) {
 	ctrl := gomock.NewController(t)

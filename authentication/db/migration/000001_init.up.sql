@@ -5,9 +5,11 @@ CREATE TABLE "users" (
     "profile_picture" VARCHAR,
     "bio" VARCHAR,
     "email" VARCHAR UNIQUE NOT NULL,
-    "password" VARCHAR NOT NULL,
+    "password" VARCHAR,
     "role" VARCHAR,
     "phone" VARCHAR,
+    "provider" VARCHAR DEFAULT 'local',
+    "provider_id" VARCHAR UNIQUE,
     "created_at" TIMESTAMP DEFAULT now(),
     "updated_at" TIMESTAMP DEFAULT now()
 );
@@ -31,42 +33,45 @@ CREATE TABLE "sessions" (
 );
 
 COMMENT ON COLUMN "users"."id" IS 'Primary key';
-
 COMMENT ON COLUMN "users"."name" IS 'User''s full name';
-
+COMMENT ON COLUMN "users"."username" IS 'Unique username';
+COMMENT ON COLUMN "users"."profile_picture" IS 'URL to profile picture';
+COMMENT ON COLUMN "users"."bio" IS 'Short user bio';
 COMMENT ON COLUMN "users"."email" IS 'User''s email (unique)';
-
-COMMENT ON COLUMN "users"."password" IS 'Hashed password';
-
-COMMENT ON COLUMN "users"."role" IS 'Role';
-
+COMMENT ON COLUMN "users"."password" IS 'Hashed password (nullable for OAuth users)';
+COMMENT ON COLUMN "users"."role" IS 'Role (admin, user, etc.)';
 COMMENT ON COLUMN "users"."phone" IS 'Contact number';
-
+COMMENT ON COLUMN "users"."provider" IS 'Authentication provider (local, google, github, etc.)';
+COMMENT ON COLUMN "users"."provider_id" IS 'User ID from OAuth provider (unique)';
 COMMENT ON COLUMN "users"."created_at" IS 'Timestamp of registration';
-
 COMMENT ON COLUMN "users"."updated_at" IS 'Timestamp of last update';
 
+-- Comments for sessions table
 COMMENT ON COLUMN "sessions"."session_id" IS 'Unique identifier for each session.';
-
 COMMENT ON COLUMN "sessions"."user_id" IS 'Foreign key linking to the user table (identifies the user).';
-
-COMMENT ON COLUMN "sessions"."token" IS 'The session token, which can be a JWT or another token format.';
-
+COMMENT ON COLUMN "sessions"."token" IS 'The session token (JWT or other).';
+COMMENT ON COLUMN "sessions"."otp" IS 'One-time password (for MFA)';
+COMMENT ON COLUMN "sessions"."otp_expires_at" IS 'Expiry time for OTP';
+COMMENT ON COLUMN "sessions"."otp_attempts" IS 'Number of OTP attempts made';
+COMMENT ON COLUMN "sessions"."otp_verified" IS 'Indicates if OTP was verified';
 COMMENT ON COLUMN "sessions"."created_at" IS 'Timestamp of when the session was created.';
-
 COMMENT ON COLUMN "sessions"."expires_at" IS 'Timestamp of when the session expires.';
-
 COMMENT ON COLUMN "sessions"."last_activity" IS 'Tracks the last activity time for session timeout checks.';
-
 COMMENT ON COLUMN "sessions"."ip_address" IS 'The IP address from which the session was initiated.';
-
-COMMENT ON COLUMN "sessions"."user_agent" IS 'The user agent (browser or device info) for the session.';
-
+COMMENT ON COLUMN "sessions"."user_agent" IS 'The user agent (browser/device info) for the session.';
 COMMENT ON COLUMN "sessions"."is_active" IS 'Indicates whether the session is currently active.';
-
 COMMENT ON COLUMN "sessions"."revoked_at" IS 'Timestamp for when the session was revoked, if applicable.';
-
 COMMENT ON COLUMN "sessions"."device_info" IS 'Stores additional device details if needed.';
 
+-- Foreign key constraint
 ALTER TABLE "sessions"
 ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
+-- Constraint to ensure either password or provider_id is required
+ALTER TABLE "users"
+ADD CONSTRAINT users_password_or_provider_id_check
+CHECK (
+    (provider = 'local' AND password IS NOT NULL)
+    OR
+    (provider != 'local' AND provider_id IS NOT NULL)
+);

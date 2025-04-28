@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	token "job_portal/api_gateway/infrastructure/middleware/token_maker"
 	"job_portal/authentication/config"
 	db "job_portal/authentication/db/sqlc" // SQLC generated code for interacting with the database
-	token "job_portal/api_gateway/infrastructure/middleware/token_maker"
 	"job_portal/authentication/internal/domain/entity"
 	"job_portal/authentication/pkg/utils"
 	"log"
@@ -60,12 +60,17 @@ func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*ent
 		return nil, fmt.Errorf("failed to retrieve user by email %s: %w", email, err)
 	}
 
+	password := userDetails.Password.String
+	if password == "" {
+		return nil, fmt.Errorf("password is empty for user with email %s", email)
+	}
+
 	return &entity.User{
 		ID:        userDetails.ID,
 		FullName:  userDetails.Name,
 		Email:     userDetails.Email,
 		CreatedAt: userDetails.CreatedAt.Time,
-		Password:  userDetails.Password,
+		Password:  password,
 		Role:      userDetails.Role.String,
 		Phone:     userDetails.Phone.String,
 		UpdatedAt: userDetails.UpdatedAt.Time,
@@ -79,10 +84,12 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *entity.User) erro
 		return err
 	}
 
+	hashedPasswordString := sql.NullString{String: hashedPassword, Valid: true}
+
 	_, err = r.store.CreateUser(ctx, db.CreateUserParams{
 		Email:    user.Email,
 		Name:     user.FullName,
-		Password: hashedPassword,
+		Password: hashedPasswordString,
 		ID:       user.ID,
 		Role:     sql.NullString{String: user.Role, Valid: true},
 		Phone:    sql.NullString{String: user.Phone, Valid: true},
@@ -98,8 +105,11 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *entity.User) erro
 // UpdatePassword updates a user's password in the database.
 func (r *UserRepository) UpdatePassword(ctx context.Context, userID string, newPassword string) error {
 
+	// Hash the new password
+	newPass := sql.NullString{String: newPassword, Valid: true}
+
 	_, err := r.store.UpdateUser(ctx, db.UpdateUserParams{
-		Password: newPassword,
+		Password: newPass,
 	})
 
 	return err
@@ -111,12 +121,17 @@ func (r *UserRepository) GetUserByID(ctx context.Context, id string) (*entity.Us
 		return nil, err
 	}
 
+	password := userDetails.Password.String
+	if password == "" {
+		return nil, fmt.Errorf("password cannot be empty for user with ID %s", id)
+	}
+
 	return &entity.User{
 		ID:        userDetails.ID,
 		FullName:  userDetails.Name,
 		Email:     userDetails.Email,
 		CreatedAt: userDetails.CreatedAt.Time,
-		Password:  userDetails.Password,
+		Password:  password,
 		Role:      userDetails.Role.String,
 		Phone:     userDetails.Phone.String,
 		UpdatedAt: userDetails.UpdatedAt.Time,

@@ -20,8 +20,10 @@ func createRandomUser(t *testing.T) Users {
 		ID:             uuid.New(),
 		Name:           utils.RandomOwner(),
 		Email:          utils.RandomEmail(),
-		Password:       hashPassword,
+		Password:       sql.NullString{String: hashPassword, Valid: true},
+		Provider:       sql.NullString{String: utils.RandomProvider(), Valid: true},
 		ProfilePicture: sql.NullString{String: utils.RandomProfilePicture(), Valid: true},
+		ProviderID:     sql.NullString{String: utils.RandomString(32), Valid: true},
 		Username:       utils.RandomOwner(),
 		Bio:            sql.NullString{String: utils.RandomBio(), Valid: true},
 		Role:           sql.NullString{String: utils.RandomRole(), Valid: true},
@@ -34,6 +36,11 @@ func createRandomUser(t *testing.T) Users {
 	require.Equal(t, arg.Name, user.Name)
 	require.Equal(t, arg.Email, user.Email)
 	require.Equal(t, arg.Password, user.Password)
+	require.Equal(t, arg.Provider, user.Provider)
+	require.Equal(t, arg.ProfilePicture, user.ProfilePicture)
+	require.Equal(t, arg.ProviderID, user.ProviderID)
+	require.Equal(t, arg.Username, user.Username)
+	require.Equal(t, arg.Bio, user.Bio)
 	require.Equal(t, arg.Role, user.Role)
 	require.NotZero(t, user.CreatedAt)
 
@@ -67,7 +74,7 @@ func TestChangePassword(t *testing.T) {
 	newPassword := utils.RandomString(8)
 	arg := ChangePasswordParams{
 		ID:       user.ID,
-		Password: newPassword,
+		Password: sql.NullString{String: newPassword, Valid: true},
 	}
 
 	updatedUser, err := testQueries.ChangePassword(context.Background(), arg)
