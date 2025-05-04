@@ -3,10 +3,11 @@ package messageHandler
 import (
 	"context"
 	"fmt"
-	"job_portal/messaging/internal/domain/entity"
-	"job_portal/messaging/internal/usecase"
 
-	pb "job_portal/messaging/infrastructure/api/grpc"
+	"github.com/demola234/messaging/internal/domain/entity"
+	"github.com/demola234/messaging/internal/usecase"
+
+	pb "github.com/demola234/messaging/infrastructure/api/grpc"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

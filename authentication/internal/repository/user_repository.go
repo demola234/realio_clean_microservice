@@ -4,13 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	token "job_portal/api_gateway/infrastructure/middleware/token_maker"
-	"job_portal/authentication/config"
-	db "job_portal/authentication/db/sqlc" // SQLC generated code for interacting with the database
-	"job_portal/authentication/internal/domain/entity"
-	"job_portal/authentication/pkg/utils"
 	"log"
+	"strings"
 	"time"
+
+	token "github.com/demola234/api_gateway/infrastructure/middleware/token_maker"
+	"github.com/demola234/authentication/config"
+	db "github.com/demola234/authentication/db/sqlc" // SQLC generated code for interacting with the database
+	"github.com/demola234/authentication/internal/domain/entity"
+	"github.com/demola234/authentication/pkg/utils"
 
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
@@ -54,49 +56,99 @@ func NewUserRepository(store db.Store) *UserRepository {
 
 // GetUserByEmail retrieves a user by their email from the database.
 func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
-
 	userDetails, err := r.store.GetUser(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve user by email %s: %w", email, err)
 	}
 
 	password := userDetails.Password.String
-	if password == "" {
-		return nil, fmt.Errorf("password is empty for user with email %s", email)
+
+	// Create ProviderType using the new unified format
+	provider := utils.ProviderType{}
+	if userDetails.Provider.Valid {
+		provider.SetProvider(userDetails.Provider.String, userDetails.ProviderID.String)
+	} else {
+		// Default to local if provider not set
+		provider.SetProvider("local", userDetails.Email)
 	}
 
 	return &entity.User{
-		ID:        userDetails.ID,
-		FullName:  userDetails.Name,
-		Email:     userDetails.Email,
-		CreatedAt: userDetails.CreatedAt.Time,
-		Password:  password,
-		Role:      userDetails.Role.String,
-		Phone:     userDetails.Phone.String,
-		UpdatedAt: userDetails.UpdatedAt.Time,
+		ID:             userDetails.ID,
+		FullName:       userDetails.Name,
+		Username:       userDetails.Username,
+		Email:          userDetails.Email,
+		Provider:       provider,
+		ProviderID:     userDetails.ProviderID.String,
+		ProfilePicture: userDetails.ProfilePicture.String,
+		Role:           userDetails.Role.String,
+		Password:       password,
+		Phone:          userDetails.Phone.String,
+		EmailVerified:  userDetails.EmailVerified.Bool,
+		IsActive:       userDetails.IsActive.Bool,
+		LastLogin:      userDetails.LastLogin.Time,
+		CreatedAt:      userDetails.CreatedAt.Time,
+		UpdatedAt:      userDetails.UpdatedAt.Time,
 	}, nil
 }
 
-// CreateUser creates a new user in the database.
+
+
 func (r *UserRepository) CreateUser(ctx context.Context, user *entity.User) error {
-	hashedPassword, err := utils.HashPassword(user.Password)
-	if err != nil {
-		return err
+	if user.ID == uuid.Nil {
+		user.ID = uuid.New()
 	}
 
-	hashedPasswordString := sql.NullString{String: hashedPassword, Valid: true}
+	// Get provider information using the unified method
+	provider, providerID := user.Provider.GetProviderInfo()
 
-	_, err = r.store.CreateUser(ctx, db.CreateUserParams{
-		Email:    user.Email,
-		Name:     user.FullName,
-		Password: hashedPasswordString,
-		ID:       user.ID,
-		Role:     sql.NullString{String: user.Role, Valid: true},
-		Phone:    sql.NullString{String: user.Phone, Valid: true},
+	// Convert to sql.NullString
+	var providerIDNullable sql.NullString
+	if providerID != "" {
+		providerIDNullable = sql.NullString{String: providerID, Valid: true}
+	} else {
+		providerIDNullable = sql.NullString{Valid: false}
+	}
+
+	// Hash password only for local users
+	var hashedPasswordString sql.NullString
+	if provider == "local" && user.Password != "" {
+		hashedPassword, err := utils.HashPassword(user.Password)
+		if err != nil {
+			return fmt.Errorf("failed to hash password: %w", err)
+		}
+		hashedPasswordString = sql.NullString{String: hashedPassword, Valid: true}
+	} else {
+		hashedPasswordString = sql.NullString{Valid: false}
+	}
+
+	username := user.Username
+	if username == "" {
+		if strings.Contains(user.Email, "@") {
+			username = user.Email[:strings.Index(user.Email, "@")]
+		} else {
+			username = user.Email // Fallback if email format is invalid
+		}
+	}
+
+	_, err := r.store.CreateUser(ctx, db.CreateUserParams{
+		ID:             user.ID,
+		Name:           user.FullName,
+		Username:       username,
+		Email:          user.Email,
+		Password:       hashedPasswordString,
+		ProfilePicture: sql.NullString{String: user.ProfilePicture, Valid: user.ProfilePicture != ""},
+		Bio:            sql.NullString{String: "", Valid: true},
+		Role:           sql.NullString{String: user.Role, Valid: user.Role != ""},
+		Phone:          sql.NullString{String: user.Phone, Valid: user.Phone != ""},
+		Provider:       sql.NullString{String: provider, Valid: true},
+		ProviderID:     providerIDNullable,
+		EmailVerified:  sql.NullBool{Bool: false, Valid: true},
+		IsActive:       sql.NullBool{Bool: true, Valid: true},
+		LastLogin:      sql.NullTime{Valid: false},
 	})
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create user: %w", err)
 	}
 
 	return nil

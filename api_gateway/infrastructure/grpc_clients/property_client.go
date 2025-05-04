@@ -3,9 +3,10 @@ package grpc_clients
 import (
 	"context"
 	"fmt"
-	pb "job_portal/property/infrastructure/api/grpc"
 	"log"
 	"time"
+
+	pb "github.com/demola234/property/infrastructure/api/grpc"
 
 	"google.golang.org/grpc"
 )

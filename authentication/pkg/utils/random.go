@@ -80,3 +80,8 @@ func RandomPhoneNumber() string {
 
 	return fmt.Sprintf("080%s", phoneNumber)
 }
+
+// enums -> email, google, facebook
+
+
+// roles -> admin, user, buyer, seller

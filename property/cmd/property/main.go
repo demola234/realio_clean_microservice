@@ -2,15 +2,16 @@ package main
 
 import (
 	"database/sql"
-	"job_portal/property/config"
-	db "job_portal/property/db/sqlc"
-	pb "job_portal/property/infrastructure/api/grpc"
-	grpcHandler "job_portal/property/infrastructure/api/property_handler"
-	"job_portal/property/infrastructure/messaging/kafka"
-	"job_portal/property/internal/repository"
-	"job_portal/property/internal/usecases"
 	"log"
 	"net"
+
+	"github.com/demola234/property/config"
+	db "github.com/demola234/property/db/sqlc"
+	pb "github.com/demola234/property/infrastructure/api/grpc"
+	grpcHandler "github.com/demola234/property/infrastructure/api/property_handler"
+	"github.com/demola234/property/infrastructure/messaging/kafka"
+	"github.com/demola234/property/internal/repository"
+	"github.com/demola234/property/internal/usecases"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

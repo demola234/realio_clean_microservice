@@ -75,3 +75,6 @@ sqlc:
 
 server:
 	go run cmd/authentication/main.go
+
+mock:
+	mockgen -package mockdb -destination db/mock/store.go github.com/demola234/db/sqlc Store

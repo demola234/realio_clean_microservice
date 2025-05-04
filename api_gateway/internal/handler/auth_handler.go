@@ -4,10 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	errorResponse "job_portal/api_gateway/infrastructure/error_response"
-	"job_portal/api_gateway/infrastructure/grpc_clients"
-	pb "job_portal/authentication/infrastructure/api/grpc"
-	token "job_portal/api_gateway/infrastructure/middleware/token_maker"
+	errorResponse "github.com/demola234/api_gateway/infrastructure/error_response"
+	"github.com/demola234/api_gateway/infrastructure/grpc_clients"
+	token "github.com/demola234/api_gateway/infrastructure/middleware/token_maker"
+	pb "github.com/demola234/authentication/infrastructure/api/grpc"
 
 	"github.com/gin-gonic/gin"
 )

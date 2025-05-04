@@ -20,6 +20,8 @@ type Querier interface {
 	GetSession(ctx context.Context, sessionID uuid.UUID) (Sessions, error)
 	GetUser(ctx context.Context, email string) (Users, error)
 	RevokeSession(ctx context.Context, sessionID uuid.UUID) error
+	UpdateEmailVerification(ctx context.Context, id uuid.UUID) error
+	UpdateLastLogin(ctx context.Context, id uuid.UUID) error
 	UpdateSession(ctx context.Context, arg UpdateSessionParams) (Sessions, error)
 	UpdateSessionActivity(ctx context.Context, arg UpdateSessionActivityParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (Users, error)

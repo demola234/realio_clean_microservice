@@ -68,6 +68,12 @@ type Users struct {
 	Provider sql.NullString `json:"provider"`
 	// User ID from OAuth provider (unique)
 	ProviderID sql.NullString `json:"provider_id"`
+	// Indicates if email is verified
+	EmailVerified sql.NullBool `json:"email_verified"`
+	// Indicates if user is active
+	IsActive sql.NullBool `json:"is_active"`
+	// Timestamp of last login
+	LastLogin sql.NullTime `json:"last_login"`
 	// Timestamp of registration
 	CreatedAt sql.NullTime `json:"created_at"`
 	// Timestamp of last update

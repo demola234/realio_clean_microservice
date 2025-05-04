@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"job_portal/api_gateway/internal/handler"
+	"github.com/demola234/api_gateway/internal/handler"
 	// Import middleware package
 
 	"github.com/gin-gonic/gin"

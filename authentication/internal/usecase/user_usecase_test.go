@@ -2,9 +2,10 @@ package usecase
 
 import (
 	"context"
-	"job_portal/authentication/internal/domain/entity"
-	"job_portal/authentication/pkg/utils"
 	"testing"
+
+	"github.com/demola234/authentication/internal/domain/entity"
+	"github.com/demola234/authentication/pkg/utils"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"

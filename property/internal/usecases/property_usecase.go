@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"job_portal/property/internal/domain/entity"
-	"job_portal/property/internal/domain/repository"
 	"log"
+
+	"github.com/demola234/property/internal/domain/entity"
+	"github.com/demola234/property/internal/domain/repository"
 
 	"github.com/google/uuid"
 )
@@ -78,13 +79,13 @@ func (p *propertyUsecase) DeleteProperty(ctx context.Context, id uuid.UUID) erro
 
 // GetProperties retrieves a list of properties with pagination.
 func (p *propertyUsecase) GetProperties(ctx context.Context, limit, offset int32) ([]*entity.Property, error) {
-	
+
 	return p.propertyRepo.GetProperties(limit, offset)
 }
 
 // GetPropertiesByOwner retrieves a list of properties owned by a specific owner.
 func (p *propertyUsecase) GetPropertiesByOwner(ctx context.Context, ownerID uuid.NullUUID, limit, offset int32) ([]*entity.Property, error) {
-	
+
 	return p.propertyRepo.GetPropertiesByOwner(ownerID, limit, offset)
 }
 

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"job_portal/authentication/pkg/utils"
+	"github.com/demola234/authentication/pkg/utils"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"

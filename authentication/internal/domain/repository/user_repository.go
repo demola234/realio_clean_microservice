@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	"job_portal/authentication/internal/domain/entity"
+
+	"github.com/demola234/authentication/internal/domain/entity"
 
 	"github.com/google/uuid"
 )

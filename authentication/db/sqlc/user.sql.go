@@ -17,7 +17,7 @@ UPDATE users
 SET password = $2,
     updated_at = now()
 WHERE id = $1
-RETURNING id, name, username, profile_picture, bio, email, password, role, phone, provider, provider_id, created_at, updated_at
+RETURNING id, name, username, profile_picture, bio, email, password, role, phone, provider, provider_id, email_verified, is_active, last_login, created_at, updated_at
 `
 
 type ChangePasswordParams struct {
@@ -40,6 +40,9 @@ func (q *Queries) ChangePassword(ctx context.Context, arg ChangePasswordParams) 
 		&i.Phone,
 		&i.Provider,
 		&i.ProviderID,
+		&i.EmailVerified,
+		&i.IsActive,
+		&i.LastLogin,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -75,6 +78,9 @@ INSERT INTO users (
     phone,
     provider,
     provider_id,
+    email_verified,
+    is_active,
+    last_login,
     created_at,
     updated_at
 ) VALUES (
@@ -89,9 +95,12 @@ INSERT INTO users (
     $9, -- phone
     $10, -- provider
     $11, -- provider_id
+    $12, -- email_verified
+    $13, -- is_active
+    $14, -- last_login
     now(), -- created_at
     now()  -- updated_at
-) RETURNING id, name, username, profile_picture, bio, email, password, role, phone, provider, provider_id, created_at, updated_at
+) RETURNING id, name, username, profile_picture, bio, email, password, role, phone, provider, provider_id, email_verified, is_active, last_login, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -106,6 +115,9 @@ type CreateUserParams struct {
 	Phone          sql.NullString `json:"phone"`
 	Provider       sql.NullString `json:"provider"`
 	ProviderID     sql.NullString `json:"provider_id"`
+	EmailVerified  sql.NullBool   `json:"email_verified"`
+	IsActive       sql.NullBool   `json:"is_active"`
+	LastLogin      sql.NullTime   `json:"last_login"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Users, error) {
@@ -121,6 +133,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Users, 
 		arg.Phone,
 		arg.Provider,
 		arg.ProviderID,
+		arg.EmailVerified,
+		arg.IsActive,
+		arg.LastLogin,
 	)
 	var i Users
 	err := row.Scan(
@@ -135,6 +150,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Users, 
 		&i.Phone,
 		&i.Provider,
 		&i.ProviderID,
+		&i.EmailVerified,
+		&i.IsActive,
+		&i.LastLogin,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -152,7 +170,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, name, username, profile_picture, bio, email, password, role, phone, provider, provider_id, created_at, updated_at FROM users
+SELECT id, name, username, profile_picture, bio, email, password, role, phone, provider, provider_id, email_verified, is_active, last_login, created_at, updated_at FROM users
 WHERE email = $1 OR id::text = $1 OR username = $1
 LIMIT 1
 `
@@ -172,10 +190,35 @@ func (q *Queries) GetUser(ctx context.Context, email string) (Users, error) {
 		&i.Phone,
 		&i.Provider,
 		&i.ProviderID,
+		&i.EmailVerified,
+		&i.IsActive,
+		&i.LastLogin,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const updateEmailVerification = `-- name: UpdateEmailVerification :exec
+UPDATE users
+SET email_verified = true
+WHERE id = $1
+`
+
+func (q *Queries) UpdateEmailVerification(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, updateEmailVerification, id)
+	return err
+}
+
+const updateLastLogin = `-- name: UpdateLastLogin :exec
+UPDATE users
+SET last_login = now()
+WHERE id = $1
+`
+
+func (q *Queries) UpdateLastLogin(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, updateLastLogin, id)
+	return err
 }
 
 const updateUser = `-- name: UpdateUser :one
@@ -191,7 +234,7 @@ SET
     phone = COALESCE($8, phone),
     updated_at = now()
 WHERE id = $9
-RETURNING id, name, username, profile_picture, bio, email, password, role, phone, provider, provider_id, created_at, updated_at
+RETURNING id, name, username, profile_picture, bio, email, password, role, phone, provider, provider_id, email_verified, is_active, last_login, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -231,6 +274,9 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (Users, 
 		&i.Phone,
 		&i.Provider,
 		&i.ProviderID,
+		&i.EmailVerified,
+		&i.IsActive,
+		&i.LastLogin,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

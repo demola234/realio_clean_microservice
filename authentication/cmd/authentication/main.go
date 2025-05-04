@@ -5,12 +5,12 @@ import (
 	"log"
 	"net"
 
-	"job_portal/authentication/config"
-	db "job_portal/authentication/db/sqlc"
-	pb "job_portal/authentication/infrastructure/api/grpc"
-	grpcHandler "job_portal/authentication/infrastructure/api/user_handler"
-	"job_portal/authentication/internal/repository"
-	usercase "job_portal/authentication/internal/usecase"
+	"github.com/demola234/authentication/config"
+	db "github.com/demola234/authentication/db/sqlc"
+	pb "github.com/demola234/authentication/infrastructure/api/grpc"
+	grpcHandler "github.com/demola234/authentication/infrastructure/api/user_handler"
+	"github.com/demola234/authentication/internal/repository"
+	usercase "github.com/demola234/authentication/internal/usecase"
 
 	_ "github.com/lib/pq"
 

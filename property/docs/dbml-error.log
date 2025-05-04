@@ -1,5 +1,5 @@
 2024-11-01T13:00:18.741Z
-Error: ENOENT: no such file or directory, stat '/Users/ademola/Desktop/Golang/golang_job_portal/property/docs/doc/property.dbml'
+Error: ENOENT: no such file or directory, stat '/Users/ademola/Desktop/Golang/golang_github.com/demola234/property/docs/doc/property.dbml'
     at Object.statSync (node:fs:1659:25)
     at validateFilePlugin (/opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/validatePlugins/validatePlugins.js:10:28)
     at /opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/utils.js:21:31
@@ -12,7 +12,7 @@ Error: ENOENT: no such file or directory, stat '/Users/ademola/Desktop/Golang/go
     at Module._extensions..js (node:internal/modules/cjs/loader:1426:10)
 
 2024-11-01T13:00:31.237Z
-Error: ENOENT: no such file or directory, stat '/Users/ademola/Desktop/Golang/golang_job_portal/property/docs/doc/property.dbml'
+Error: ENOENT: no such file or directory, stat '/Users/ademola/Desktop/Golang/golang_github.com/demola234/property/docs/doc/property.dbml'
     at Object.statSync (node:fs:1659:25)
     at validateFilePlugin (/opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/validatePlugins/validatePlugins.js:10:28)
     at /opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/utils.js:21:31
@@ -25,7 +25,7 @@ Error: ENOENT: no such file or directory, stat '/Users/ademola/Desktop/Golang/go
     at Module._extensions..js (node:internal/modules/cjs/loader:1426:10)
 
 2024-11-01T13:00:33.537Z
-Error: ENOENT: no such file or directory, stat '/Users/ademola/Desktop/Golang/golang_job_portal/property/docs/doc/property.dbmlcd'
+Error: ENOENT: no such file or directory, stat '/Users/ademola/Desktop/Golang/golang_github.com/demola234/property/docs/doc/property.dbmlcd'
     at Object.statSync (node:fs:1659:25)
     at validateFilePlugin (/opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/validatePlugins/validatePlugins.js:10:28)
     at /opt/homebrew/lib/node_modules/@dbml/cli/lib/cli/utils.js:21:31

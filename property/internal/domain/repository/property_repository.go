@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"job_portal/property/internal/domain/entity"
+	"github.com/demola234/property/internal/domain/entity"
 
 	"github.com/google/uuid"
 )

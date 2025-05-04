@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	interfaces "job_portal/authentication/infrastructure/error"
-	"job_portal/authentication/internal/domain/entity"
-	"job_portal/authentication/internal/domain/repository"
-	"job_portal/authentication/pkg/utils"
-	"job_portal/authentication/pkg/val"
 	"time"
+
+	interfaces "github.com/demola234/authentication/infrastructure/error"
+	"github.com/demola234/authentication/internal/domain/entity"
+	"github.com/demola234/authentication/internal/domain/repository"
+	"github.com/demola234/authentication/pkg/utils"
+	"github.com/demola234/authentication/pkg/val"
 
 	"github.com/google/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -22,6 +23,7 @@ var (
 // UserUsecase defines the interface for user-related business logic.
 type UserUsecase interface {
 	RegisterUser(ctx context.Context, fullName string, password string, email string, role string, phone string) (*entity.User, *entity.Session, error)
+	RegisterWithOAuth(ctx context.Context, provider, token string) (*entity.User, *entity.Session, error)
 	LoginUser(ctx context.Context, password, email string) (*entity.User, error)
 	ChangePassword(ctx context.Context, currentPassword, newPassword, id string) error
 	GetSession(ctx context.Context, id string) (*entity.Session, error)
@@ -37,10 +39,18 @@ type userUsecase struct {
 	repo repository.UserRepository
 }
 
+
 // NewUserUsecase creates a new instance of userUsecase.
 func NewUserUsecase(repo repository.UserRepository) UserUsecase {
 	return &userUsecase{repo: repo}
 }
+
+
+// RegisterWithOAuth implements UserUsecase.
+func (u *userUsecase) RegisterWithOAuth(ctx context.Context, provider string, token string) (*entity.User, *entity.Session, error) {
+	panic("unimplemented")
+}
+
 
 // GenerateToken implements UserUsecase.
 func (u *userUsecase) GenerateToken(ctx context.Context, email string, userID string) (string, error) {

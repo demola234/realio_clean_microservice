@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"job_portal/messaging/internal/domain/entity"
-	"job_portal/messaging/internal/usecase"
+	"github.com/demola234/messaging/internal/domain/entity"
+	"github.com/demola234/messaging/internal/usecase"
 
 	"github.com/gorilla/websocket"
 )

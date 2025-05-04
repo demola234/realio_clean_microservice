@@ -2,8 +2,8 @@ package repository
 
 // import (
 // 	"context"
-// 	"job_portal/messaging/db/mocks"
-// 	"job_portal/messaging/internal/domain/entity"
+// 	"github.com/demola234/messaging/db/mocks"
+// 	"github.com/demola234/messaging/internal/domain/entity"
 // 	"testing"
 // 	"time"
 

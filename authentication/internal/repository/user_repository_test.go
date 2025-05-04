@@ -10,10 +10,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	mockdb "job_portal/authentication/db/mock"
-	db "job_portal/authentication/db/sqlc"
-	"job_portal/authentication/internal/domain/entity"
-	"job_portal/authentication/pkg/utils"
+	mockdb "github.com/demola234/authentication/db/mock"
+	db "github.com/demola234/authentication/db/sqlc"
+	"github.com/demola234/authentication/internal/domain/entity"
+	"github.com/demola234/authentication/pkg/utils"
 )
 
 func TestGetUserByEmail(t *testing.T) {

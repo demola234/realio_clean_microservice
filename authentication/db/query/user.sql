@@ -11,6 +11,9 @@ INSERT INTO users (
     phone,
     provider,
     provider_id,
+    email_verified,
+    is_active,
+    last_login,
     created_at,
     updated_at
 ) VALUES (
@@ -25,6 +28,9 @@ INSERT INTO users (
     $9, -- phone
     $10, -- provider
     $11, -- provider_id
+    $12, -- email_verified
+    $13, -- is_active
+    $14, -- last_login
     now(), -- created_at
     now()  -- updated_at
 ) RETURNING *;
@@ -66,4 +72,14 @@ RETURNING *;
 
 -- name: DeleteUser :exec
 DELETE FROM users
+WHERE id = $1;
+
+-- name: UpdateLastLogin :exec
+UPDATE users
+SET last_login = now()
+WHERE id = $1;
+
+-- name: UpdateEmailVerification :exec
+UPDATE users
+SET email_verified = true
 WHERE id = $1;
