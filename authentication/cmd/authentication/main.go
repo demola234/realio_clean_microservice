@@ -39,7 +39,8 @@ func main() {
 	// Initialize repository and use case
 	dbQueries := db.New(conn)
 	userRepo := repository.NewUserRepository(dbQueries)
-	userUsecase := usercase.NewUserUsecase(userRepo)
+	oAuthRepo := repository.NewOAuthRepository(&configs)
+	userUsecase := usercase.NewUserUsecase(userRepo, oAuthRepo)
 
 	// Create the gRPC handler using the use case
 	authService := grpcHandler.NewUserHandler(userUsecase)

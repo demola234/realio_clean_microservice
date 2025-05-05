@@ -23,7 +23,6 @@ var (
 // UserUsecase defines the interface for user-related business logic.
 type UserUsecase interface {
 	RegisterUser(ctx context.Context, fullName string, password string, email string, role string, phone string) (*entity.User, *entity.Session, error)
-	RegisterWithOAuth(ctx context.Context, provider, token string) (*entity.User, *entity.Session, error)
 	LoginUser(ctx context.Context, password, email string) (*entity.User, error)
 	ChangePassword(ctx context.Context, currentPassword, newPassword, id string) error
 	GetSession(ctx context.Context, id string) (*entity.Session, error)
@@ -32,29 +31,34 @@ type UserUsecase interface {
 	GetUser(ctx context.Context, userId string) (*entity.User, error)
 	LogOut(ctx context.Context, userId string) error
 	VerifyOtp(ctx context.Context, email string, otp string) (bool, error)
+	RegisterWithOAuth(ctx context.Context, provider, token string) (*entity.User, *entity.Session, error)
+	LoginWithOAuth(ctx context.Context, provider, token string) (*entity.User, *entity.Session, error)
 }
 
 // userUsecase implements the UserUsecase interface.
 type userUsecase struct {
-	repo repository.UserRepository
+	userRepo  repository.UserRepository
+	oauthRepo repository.OAuthRepository
 }
-
-
-// NewUserUsecase creates a new instance of userUsecase.
-func NewUserUsecase(repo repository.UserRepository) UserUsecase {
-	return &userUsecase{repo: repo}
-}
-
 
 // RegisterWithOAuth implements UserUsecase.
 func (u *userUsecase) RegisterWithOAuth(ctx context.Context, provider string, token string) (*entity.User, *entity.Session, error) {
 	panic("unimplemented")
 }
 
+// LoginWithOAuth implements UserUsecase.
+func (u *userUsecase) LoginWithOAuth(ctx context.Context, provider string, token string) (*entity.User, *entity.Session, error) {
+	panic("unimplemented")
+}
+
+// NewUserUsecase creates a new instance of userUsecase.
+func NewUserUsecase(userRepo repository.UserRepository, oauthRepo repository.OAuthRepository) UserUsecase {
+	return &userUsecase{userRepo: userRepo, oauthRepo: oauthRepo}
+}
 
 // GenerateToken implements UserUsecase.
 func (u *userUsecase) GenerateToken(ctx context.Context, email string, userID string) (string, error) {
-	token, err := u.repo.CreateToken(ctx, email, userID)
+	token, err := u.userRepo.CreateToken(ctx, email, userID)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate token for email %s: %w", email, err)
 	}
@@ -70,14 +74,14 @@ func (u *userUsecase) RegisterUser(ctx context.Context, fullName, password, emai
 	// }
 
 	// Check if user with the same email already exists
-	existingUser, err := u.repo.GetUserByEmail(ctx, email)
+	existingUser, err := u.userRepo.GetUserByEmail(ctx, email)
 	userID := uuid.New()
 	if err == nil && existingUser != nil {
 		return nil, nil, fmt.Errorf("user with email %s already exists", email)
 	}
 
 	// Generate a new token for the session
-	token, err := u.repo.CreateToken(ctx, email, userID.String())
+	token, err := u.userRepo.CreateToken(ctx, email, userID.String())
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to generate token for email %s: %w", email, err)
 	}
@@ -113,12 +117,12 @@ func (u *userUsecase) RegisterUser(ctx context.Context, fullName, password, emai
 	}
 
 	// Save user in the repository
-	if err := u.repo.CreateUser(ctx, user); err != nil {
+	if err := u.userRepo.CreateUser(ctx, user); err != nil {
 		return nil, nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
 	// Save session in the repository
-	if err := u.repo.CreateSession(ctx, session); err != nil {
+	if err := u.userRepo.CreateSession(ctx, session); err != nil {
 		return nil, nil, fmt.Errorf("failed to create session: %w", err)
 	}
 
@@ -128,7 +132,7 @@ func (u *userUsecase) RegisterUser(ctx context.Context, fullName, password, emai
 // LoginUser authenticates a user by email and password.
 func (u *userUsecase) LoginUser(ctx context.Context, password string, email string) (*entity.User, error) {
 	// Retrieve user by email
-	user, err := u.repo.GetUserByEmail(ctx, email)
+	user, err := u.userRepo.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve user: %w", err)
 	}
@@ -160,7 +164,7 @@ func (u *userUsecase) LoginUser(ctx context.Context, password string, email stri
 // ChangePassword updates a user's password.
 func (u *userUsecase) ChangePassword(ctx context.Context, currentPassword string, newPassword string, email string) error {
 	// Retrieve the user by ID to verify the current password
-	user, err := u.repo.GetUserByEmail(ctx, email)
+	user, err := u.userRepo.GetUserByEmail(ctx, email)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve user by ID %s: %w", email, err)
 	}
@@ -176,7 +180,7 @@ func (u *userUsecase) ChangePassword(ctx context.Context, currentPassword string
 		return fmt.Errorf("failed to hash new password: %w", err)
 	}
 
-	session, err := u.repo.GetUserSession(ctx, user.ID)
+	session, err := u.userRepo.GetUserSession(ctx, user.ID)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve user session: %w", err)
 	}
@@ -192,7 +196,7 @@ func (u *userUsecase) ChangePassword(ctx context.Context, currentPassword string
 	}
 
 	// Update the password in the repository
-	err = u.repo.UpdatePassword(ctx, email, hashedPassword)
+	err = u.userRepo.UpdatePassword(ctx, email, hashedPassword)
 	if err != nil {
 		return fmt.Errorf("failed to update password: %w", err)
 	}
@@ -203,7 +207,7 @@ func (u *userUsecase) ChangePassword(ctx context.Context, currentPassword string
 // GetUser implements UserUsecase.
 func (u *userUsecase) GetUser(ctx context.Context, userId string) (*entity.User, error) {
 	// Retrieve user by email
-	user, err := u.repo.GetUserByID(ctx, userId)
+	user, err := u.userRepo.GetUserByID(ctx, userId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve user by userId %s: %w", userId, err)
 	}
@@ -214,7 +218,7 @@ func (u *userUsecase) GetUser(ctx context.Context, userId string) (*entity.User,
 // LogOut implements UserUsecase.
 func (u *userUsecase) LogOut(ctx context.Context, userId string) error {
 	// Retrieve user by email
-	err := u.repo.DeleteSession(ctx, userId)
+	err := u.userRepo.DeleteSession(ctx, userId)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve user by userId %s: %w", userId, err)
 	}
@@ -225,7 +229,7 @@ func (u *userUsecase) LogOut(ctx context.Context, userId string) error {
 // ResendOtp implements UserUsecase.
 func (u *userUsecase) ResendOtp(ctx context.Context, email string) error {
 	// Retrieve user by email
-	user, err := u.repo.GetUserByEmail(ctx, email)
+	user, err := u.userRepo.GetUserByEmail(ctx, email)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve user by email %s: %w", email, err)
 	}
@@ -233,7 +237,7 @@ func (u *userUsecase) ResendOtp(ctx context.Context, email string) error {
 	//
 
 	// Retrieve user by email
-	err = u.repo.UpdateOtp(ctx, &entity.UpdateOtp{
+	err = u.userRepo.UpdateOtp(ctx, &entity.UpdateOtp{
 		Otp:          utils.RandomOtp(),
 		Email:        user.Email,
 		OtpExpiresAt: time.Now().Add(time.Minute * 10),
@@ -253,7 +257,7 @@ func (u *userUsecase) GetSession(ctx context.Context, id string) (*entity.Sessio
 		return nil, fmt.Errorf("failed to parse user ID: %w", err)
 	}
 	// Retrieve user by email
-	session, err := u.repo.GetUserSession(ctx, userId)
+	session, err := u.userRepo.GetUserSession(ctx, userId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve user by userId %s: %w", id, err)
 	}
@@ -265,17 +269,17 @@ func (u *userUsecase) GetSession(ctx context.Context, id string) (*entity.Sessio
 // VerifyOtp implements UserUsecase.
 func (u *userUsecase) VerifyOtp(ctx context.Context, email string, otp string) (bool, error) {
 	// Retrieve user by email
-	user, err := u.repo.GetUserByEmail(ctx, email)
+	user, err := u.userRepo.GetUserByEmail(ctx, email)
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve user by email %s: %w", email, err)
 	}
 
-	session, err := u.repo.GetUserSession(ctx, user.ID)
+	session, err := u.userRepo.GetUserSession(ctx, user.ID)
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve user session: %w", err)
 	}
 
-	otpUpdate, err := u.repo.GetOtp(ctx, user.ID.String())
+	otpUpdate, err := u.userRepo.GetOtp(ctx, user.ID.String())
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve user session: %w", err)
 	}
@@ -293,7 +297,7 @@ func (u *userUsecase) VerifyOtp(ctx context.Context, email string, otp string) (
 	}
 
 	// Update the password in the repository
-	err = u.repo.UpdateOtp(ctx, &entity.UpdateOtp{
+	err = u.userRepo.UpdateOtp(ctx, &entity.UpdateOtp{
 		OtpAttempts: session.OtpAttempts + 1,
 		Email:       user.Email,
 		OTPVerified: true,

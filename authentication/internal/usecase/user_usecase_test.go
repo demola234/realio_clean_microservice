@@ -17,6 +17,10 @@ type MockUserRepository struct {
 	mock.Mock
 }
 
+type MockOauthRepository struct {
+	mock.Mock
+}
+
 // GetOtp implements repository.UserRepository.
 func (m *MockUserRepository) GetOtp(ctx context.Context, id string) (*entity.UpdateOtp, error) {
 	args := m.Called(ctx, id)
@@ -86,9 +90,41 @@ func (m *MockUserRepository) UpdateOtp(ctx context.Context, updateOtp *entity.Up
 	return args.Error(0)
 }
 
+func (m *MockOauthRepository) ValidateGoogleToken(ctx context.Context, token string) (*entity.OAuthUserInfo, error) {
+	args := m.Called(ctx, token)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*entity.OAuthUserInfo), args.Error(1)
+}
+func (m *MockOauthRepository) ValidateFacebookToken(ctx context.Context, token string) (*entity.OAuthUserInfo, error) {
+	args := m.Called(ctx, token)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*entity.OAuthUserInfo), args.Error(1)
+}
+
+func (m *MockOauthRepository) ValidateAppleToken(ctx context.Context, token string) (*entity.OAuthUserInfo, error) {
+	args := m.Called(ctx, token)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*entity.OAuthUserInfo), args.Error(1)
+}
+
+func (m *MockOauthRepository) ValidateProviderToken(ctx context.Context, provider, token string) (*entity.OAuthUserInfo, error) {
+	args := m.Called(ctx, provider, token)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*entity.OAuthUserInfo), args.Error(1)
+}
+
 func TestRegisterUser(t *testing.T) {
 	mockRepo := new(MockUserRepository)
-	useCase := NewUserUsecase(mockRepo)
+	mockOauthRepo := new(MockOauthRepository)
+	useCase := NewUserUsecase(mockRepo, mockOauthRepo)
 	ctx := context.Background()
 
 	fullName := "Test User"
@@ -118,7 +154,9 @@ func TestRegisterUser(t *testing.T) {
 
 func TestLoginUser(t *testing.T) {
 	mockRepo := new(MockUserRepository)
-	useCase := NewUserUsecase(mockRepo)
+	mockOauthRepo := new(MockOauthRepository)
+
+	useCase := NewUserUsecase(mockRepo, mockOauthRepo)
 	ctx := context.Background()
 
 	password := "password123"
@@ -146,7 +184,9 @@ func TestLoginUser(t *testing.T) {
 
 func TestChangePassword(t *testing.T) {
 	mockRepo := new(MockUserRepository)
-	useCase := NewUserUsecase(mockRepo)
+	mockOauthRepo := new(MockOauthRepository)
+
+	useCase := NewUserUsecase(mockRepo, mockOauthRepo)
 	ctx := context.Background()
 
 	currentPassword := "oldpassword123"
@@ -173,7 +213,9 @@ func TestChangePassword(t *testing.T) {
 
 func TestGetSession(t *testing.T) {
 	mockRepo := new(MockUserRepository)
-	useCase := NewUserUsecase(mockRepo)
+	mockOauthRepo := new(MockOauthRepository)
+
+	useCase := NewUserUsecase(mockRepo, mockOauthRepo)
 	ctx := context.Background()
 
 	sessionID := uuid.New().String()
@@ -199,7 +241,9 @@ func TestGetSession(t *testing.T) {
 
 func TestLogOut(t *testing.T) {
 	mockRepo := new(MockUserRepository)
-	useCase := NewUserUsecase(mockRepo)
+	mockOauthRepo := new(MockOauthRepository)
+
+	useCase := NewUserUsecase(mockRepo, mockOauthRepo)
 	ctx := context.Background()
 
 	userID := uuid.New().String()
@@ -216,7 +260,9 @@ func TestLogOut(t *testing.T) {
 
 func TestResendOtp(t *testing.T) {
 	mockRepo := new(MockUserRepository)
-	useCase := NewUserUsecase(mockRepo)
+	mockOauthRepo := new(MockOauthRepository)
+
+	useCase := NewUserUsecase(mockRepo, mockOauthRepo)
 	ctx := context.Background()
 
 	email := "test@example.com"
