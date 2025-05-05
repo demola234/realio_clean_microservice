@@ -1,19 +1,3 @@
-PROTO_DIR = interfaces/api/proto
-GRPC_DIR = interfaces/api/grpc
-PB_DIR = interfaces/api/grpc
-
-proto:
-	@rm -f $(GRPC_DIR)/*.go
-	protoc --proto_path=infrastructure/api/proto \
-       --proto_path=infrastructure/api/proto/google \
-       --go_out=infrastructure/api/grpc --go_opt=paths=source_relative \
-       --go-grpc_out=infrastructure/api/grpc --go-grpc_opt=paths=source_relative \
-       --grpc-gateway_out=infrastructure/api/grpc --grpc-gateway_opt=paths=source_relative \
-       infrastructure/api/proto/*.proto
-
-
-.PHONY: proto
-
 # Load .env file if it exists
 ifneq (,$(wildcard .env))
     include .env
@@ -25,6 +9,28 @@ DB_NAME ?= ${DB_NAME}
 DB_USER ?= ${DB_USER}
 DB_PASSWORD ?= ${DB_PASSWORD}
 DB_PORT ?= 5433
+
+
+
+PROTO_DIR = interfaces/api/proto
+GRPC_DIR = interfaces/api/grpc
+PB_DIR = interfaces/api/grpc
+OUT_DIR = infrastructure/api/grpc
+SWAGGER_DIR = docs/swagger
+
+proto:
+	@rm -f $(GRPC_DIR)/*.go
+	@rm -f docs/swagger/*.swagger.json
+	protoc --proto_path=infrastructure/api/proto \
+	       --proto_path=infrastructure/api/proto/google \
+	       --go_out=infrastructure/api/grpc --go_opt=paths=source_relative \
+	       --go-grpc_out=infrastructure/api/grpc --go-grpc_opt=paths=source_relative \
+	       --grpc-gateway_out=infrastructure/api/grpc --grpc-gateway_opt=paths=source_relative \
+	       --openapiv2_out=docs/swagger --openapiv2_opt=allow_merge,merge_file_name=realio-authentication \
+	       infrastructure/api/proto/*.proto
+	statik -src=./docs/swagger -dest=./docs
+
+.PHONY: proto
 
 
 # Docker commands
@@ -79,3 +85,6 @@ server:
 
 mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/demola234/db/sqlc Store
+
+evans:
+	evans --host localhost --port 9090 -r repl

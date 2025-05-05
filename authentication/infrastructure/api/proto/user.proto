@@ -1,120 +1,241 @@
 syntax = "proto3";
+
 package pb;
 
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "./pb";
+option go_package = "github.com/demola234/realio_go_microservice/pb";
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Realio-Authentication";
+    version: "1.0";
+    contact: {
+      name: "Realio-Authentication";
+      url: "https://github.com/demola234/realio_go_microservice";
+      email: "ademolakolawole45@gmail.com";
+    };
+  };
+  security_definitions: {
+    security: {
+      key: "bearer"
+      value: {
+        type: TYPE_API_KEY
+        in: IN_HEADER
+        name: "Authorization Bearer"
+        description: "Authentication token, prefixed by Bearer: Bearer <token>"
+      }
+    }
+  }
+  security: {
+    security_requirement: {
+      key: "bearer"
+    }
+  };
+};
 
 // AuthService defines authentication-related RPCs.
 service AuthService {
-    rpc Login (LoginRequest) returns (LoginResponse);
-    rpc Register (RegisterRequest) returns (RegisterResponse);
-    rpc VerifyUser (VerifyUserRequest) returns (VerifyUserResponse);
-    rpc ResendOtp (ResendOtpRequest) returns (ResendOtpResponse);
-    rpc GetUser (GetUserRequest) returns (GetUserResponse);
-    rpc LogOut (LogOutRequest) returns (LogOutResponse);
-    rpc OAuthLogin (OAuthLoginRequest) returns (OAuthLoginResponse);
-    rpc OAuthRegister (OAuthRegisterRequest) returns (OAuthRegisterResponse);
-
+  rpc Login (LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/login"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "User this API to login and generate an access token";
+      summary: "Login a user";
+      tags: "Authentication";
+      security: {} // Disable security key
+    };
+  };
+  
+  rpc Register (RegisterRequest) returns (RegisterResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/register"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "User this API to register a new user";
+      summary: "Register a new user";
+      tags: "Authentication";
+      security: {} // Disable security key
+    };
+  };
+  
+  rpc VerifyUser (VerifyUserRequest) returns (VerifyUserResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/verify"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "User this API to verify a user with OTP";
+      summary: "Verify user with OTP";
+      tags: "Authentication";
+      security: {} // Disable security key
+    };
+  };
+  
+  rpc ResendOtp (ResendOtpRequest) returns (ResendOtpResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/resend-otp"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "User this API to resend OTP to the user's email";
+      summary: "Resend OTP";
+      tags: "Authentication";
+      security: {} // Disable security key
+    };
+  };
+  
+  rpc GetUser (GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/user/{user_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "User this API to get user details by user ID";
+      summary: "Get user details";
+      tags: "User";
+    };
+  };
+  
+  rpc LogOut (LogOutRequest) returns (LogOutResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/logout"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "User this API to logout and invalidate the user session";
+      summary: "Logout user";
+      tags: "Authentication";
+    };
+  };
+  
+  rpc OAuthLogin (OAuthLoginRequest) returns (OAuthLoginResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/oauth/login"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "User this API to login using OAuth providers";
+      summary: "OAuth login";
+      tags: "OAuth";
+      security: {} // Disable security key
+    };
+  };
+  
+  rpc OAuthRegister (OAuthRegisterRequest) returns (OAuthRegisterResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/oauth/register"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "User this API to register using OAuth providers";
+      summary: "OAuth register";
+      tags: "OAuth";
+      security: {} // Disable security key
+    };
+  };
 }
 
 // User entity with core user details.
 message User {
-    string user_id = 1;
-    string email = 2;
-    string full_name = 3;
-    string password = 4;
-    string role = 5;
-    string phone = 6;
-    google.protobuf.Timestamp updated_at = 7;
-    google.protobuf.Timestamp created_at = 8;
+  string user_id = 1;
+  string email = 2;
+  string full_name = 3;
+  string password = 4;
+  string role = 5;
+  string phone = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  google.protobuf.Timestamp created_at = 8;
 }
 
 // Session entity containing token information.
 message Session {
-    string token = 1;
-    google.protobuf.Timestamp expires_at = 2;
+  string token = 1;
+  google.protobuf.Timestamp expires_at = 2;
 }
 
 // Login RPC messages.
 message LoginRequest {
-    string email = 1;
-    string password = 2;
+  string email = 1;
+  string password = 2;
 }
 
 message LoginResponse {
-    User user = 1;
-    Session session = 2;
+  User user = 1;
+  Session session = 2;
 }
 
 // Register RPC messages.
 message RegisterRequest {
-    string email = 1;
-    string password = 2;
-    string full_name = 3;
-    string role = 4;
-    string phone = 5;
+  string email = 1;
+  string password = 2;
+  string full_name = 3;
+  string role = 4;
+  string phone = 5;
 }
 
 message RegisterResponse {
-    User user = 1;
+  User user = 1;
 }
 
 // VerifyUser RPC messages.
 message VerifyUserRequest {
-    string email = 1;
-    string otp = 2;
+  string email = 1;
+  string otp = 2;
 }
 
 message VerifyUserResponse {
-    bool valid = 1;
+  bool valid = 1;
 }
 
 // ResendOtp RPC messages.
 message ResendOtpRequest {
-    string email = 1;
+  string email = 1;
 }
 
 message ResendOtpResponse {
-    string message = 1;
+  string message = 1;
 }
 
 // GetUser RPC messages.
 message GetUserRequest {
-    string user_id = 1;
+  string user_id = 1;
 }
 
 message GetUserResponse {
-    User user = 1;
+  User user = 1;
 }
 
 // LogOut RPC messages.
 message LogOutRequest {
-    string user_id = 1;
+  string user_id = 1;
 }
 
 message LogOutResponse {
-    string message = 1;
+  string message = 1;
 }
 
 // OAuth Login messages
 message OAuthLoginRequest {
-    string provider = 1; 
-    string token = 2;    
+  string provider = 1;  
+  string token = 2;
 }
 
 message OAuthLoginResponse {
-    User user = 1;
-    Session session = 2;
+  User user = 1;
+  Session session = 2;
 }
 
 // OAuth Register messages (same as Login)
 message OAuthRegisterRequest {
-    string provider = 1;
-    string token = 2;
+  string provider = 1;
+  string token = 2;
 }
 
 message OAuthRegisterResponse {
-    User user = 1;
-    Session session = 2;
+  User user = 1;
+  Session session = 2;
 }

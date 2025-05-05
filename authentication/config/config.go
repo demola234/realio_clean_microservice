@@ -8,6 +8,7 @@ type Config struct {
 	DBDriver          string `mapstructure:"DB_DRIVER"`
 	DBSource          string `mapstructure:"DB_SOURCE"`
 	GRPCServerAddress string `mapstructure:"GRPC_SERVER_ADDRESS"`
+	HTTPServerAddress string `mapstructure:"HTTP_SERVER_ADDRESS"`
 	TokenSymmetricKey string `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	Environment       string `mapstructure:"ENVIRONMENT"`
 
@@ -37,6 +38,7 @@ func LoadConfig(path string) (config Config, err error) {
 	viper.SetDefault("DB_DRIVER", "postgres")
 	viper.SetDefault("DB_SOURCE", "postgres://root:secret@localhost:5433/defi?sslmode=disable")
 	viper.SetDefault("GRPC_SERVER_ADDRESS", ":50051")
+	viper.SetDefault("HTTP_SERVER_ADDRESS", ":8080")
 	viper.SetDefault("TOKEN_SYMMETRIC_KEY", "12345678901234567890123456789012")
 	viper.SetDefault("Environment", "development")
 
@@ -54,7 +56,7 @@ func LoadConfig(path string) (config Config, err error) {
 	viper.SetDefault("APPLE_TEAM_ID", "ABCDEFGHIJK")
 	viper.SetDefault("APPLE_KEY_ID", "ABCDEFGHIJK")
 	viper.SetDefault("APPLE_PRIVATE_KEY", "-----BEGIN PRIVATE KEY-----\nabcdefghijklmnopqrstuvwxyz123456\n-----END PRIVATE KEY-----")
-	
+
 	viper.AutomaticEnv()
 
 	// Set the type of the configuration file
