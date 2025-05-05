@@ -126,3 +126,36 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 
 	c.JSON(http.StatusOK, res)
 }
+
+// OAuthLogin handles OAuth login requests
+func (h *AuthHandler) OAuthLogin(c *gin.Context) {
+	var req pb.OAuthLoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse.ErrInvalidRequest)
+		return
+	}
+
+	res, err := h.AuthClient.Client.OAuthLogin(context.Background(), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *AuthHandler) OAuthRegister(c *gin.Context) {
+	var req pb.OAuthRegisterRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse.ErrInvalidRequest)
+		return
+	}
+
+	res, err := h.AuthClient.Client.OAuthRegister(context.Background(), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}

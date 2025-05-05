@@ -136,3 +136,5 @@ func (h *UserHandler) LogOut(ctx context.Context, req *pb.LogOutRequest) (*pb.Lo
 		Message: "Logged out successfully",
 	}, nil
 }
+
+

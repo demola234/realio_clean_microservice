@@ -15,6 +15,8 @@ func RegisterRoutes(rg *gin.RouterGroup, authHandler *handler.AuthHandler, authM
 		authRoutes.POST("/login", authHandler.Login)
 		authRoutes.POST("/verify", authHandler.VerifyUser)
 		authRoutes.POST("/resend-otp", authHandler.ResendOtp)
+		authRoutes.POST("/register-oauth", authHandler.OAuthRegister)
+		authRoutes.POST("/login-oauth", authHandler.OAuthLogin)
 
 		// Protected routes (require authMiddleware)
 		authRoutes.GET("/user", authMiddleware, authHandler.GetUser)
