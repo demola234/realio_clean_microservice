@@ -13,6 +13,9 @@ service AuthService {
     rpc ResendOtp (ResendOtpRequest) returns (ResendOtpResponse);
     rpc GetUser (GetUserRequest) returns (GetUserResponse);
     rpc LogOut (LogOutRequest) returns (LogOutResponse);
+    rpc OAuthLogin (OAuthLoginRequest) returns (OAuthLoginResponse);
+    rpc OAuthRegister (OAuthRegisterRequest) returns (OAuthRegisterResponse);
+
 }
 
 // User entity with core user details.
@@ -92,4 +95,26 @@ message LogOutRequest {
 
 message LogOutResponse {
     string message = 1;
+}
+
+// OAuth Login messages
+message OAuthLoginRequest {
+    string provider = 1; 
+    string token = 2;    
+}
+
+message OAuthLoginResponse {
+    User user = 1;
+    Session session = 2;
+}
+
+// OAuth Register messages (same as Login)
+message OAuthRegisterRequest {
+    string provider = 1;
+    string token = 2;
+}
+
+message OAuthRegisterResponse {
+    User user = 1;
+    Session session = 2;
 }

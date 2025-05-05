@@ -2,11 +2,12 @@ package handler
 
 import (
 	"context"
-	"job_portal/api_gateway/infrastructure/grpc_clients"
-	token "job_portal/api_gateway/infrastructure/middleware/token_maker"
-	pb "job_portal/property/infrastructure/api/grpc"
 	"net/http"
 	"strconv"
+
+	"github.com/demola234/api_gateway/infrastructure/grpc_clients"
+	token "github.com/demola234/api_gateway/infrastructure/middleware/token_maker"
+	pb "github.com/demola234/property/infrastructure/api/grpc"
 
 	"github.com/gin-gonic/gin"
 )

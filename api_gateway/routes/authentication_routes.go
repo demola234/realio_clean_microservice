@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"job_portal/api_gateway/internal/handler"
+	"github.com/demola234/api_gateway/internal/handler"
 	// Import middleware package
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +15,8 @@ func RegisterRoutes(rg *gin.RouterGroup, authHandler *handler.AuthHandler, authM
 		authRoutes.POST("/login", authHandler.Login)
 		authRoutes.POST("/verify", authHandler.VerifyUser)
 		authRoutes.POST("/resend-otp", authHandler.ResendOtp)
+		authRoutes.POST("/register-oauth", authHandler.OAuthRegister)
+		authRoutes.POST("/login-oauth", authHandler.OAuthLogin)
 
 		// Protected routes (require authMiddleware)
 		authRoutes.GET("/user", authMiddleware, authHandler.GetUser)

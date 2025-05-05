@@ -4,10 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	errorResponse "job_portal/api_gateway/infrastructure/error_response"
-	"job_portal/api_gateway/infrastructure/grpc_clients"
-	pb "job_portal/authentication/infrastructure/api/grpc"
-	token "job_portal/api_gateway/infrastructure/middleware/token_maker"
+	errorResponse "github.com/demola234/api_gateway/infrastructure/error_response"
+	"github.com/demola234/api_gateway/infrastructure/grpc_clients"
+	token "github.com/demola234/api_gateway/infrastructure/middleware/token_maker"
+	pb "github.com/demola234/authentication/infrastructure/api/grpc"
 
 	"github.com/gin-gonic/gin"
 )
@@ -119,6 +119,39 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	}
 
 	res, err := h.AuthClient.Client.LogOut(context.Background(), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// OAuthLogin handles OAuth login requests
+func (h *AuthHandler) OAuthLogin(c *gin.Context) {
+	var req pb.OAuthLoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse.ErrInvalidRequest)
+		return
+	}
+
+	res, err := h.AuthClient.Client.OAuthLogin(context.Background(), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *AuthHandler) OAuthRegister(c *gin.Context) {
+	var req pb.OAuthRegisterRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse.ErrInvalidRequest)
+		return
+	}
+
+	res, err := h.AuthClient.Client.OAuthRegister(context.Background(), &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

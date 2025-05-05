@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	errorResponse "job_portal/api_gateway/infrastructure/error_response"
-	"job_portal/api_gateway/infrastructure/grpc_clients"
-	pb "job_portal/messaging/infrastructure/api/grpc"
+	errorResponse "github.com/demola234/api_gateway/infrastructure/error_response"
+	"github.com/demola234/api_gateway/infrastructure/grpc_clients"
+	pb "github.com/demola234/messaging/infrastructure/api/grpc"
 
 	"github.com/gin-gonic/gin"
 )

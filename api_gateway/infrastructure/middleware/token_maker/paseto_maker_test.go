@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"job_portal/shared/utils"
+	"github.com/demola234/shared/utils"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
@@ -68,5 +68,3 @@ func TestInvalidToken(t *testing.T) {
 	require.EqualError(t, err, ErrInvalidToken.Error())
 	require.Empty(t, payload)
 }
-
-

@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	"job_portal/messaging/internal/domain/entity"
+
+	"github.com/demola234/messaging/internal/domain/entity"
 )
 
 type ConversationRepository interface {

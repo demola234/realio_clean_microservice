@@ -2,9 +2,10 @@ package user_handler
 
 import (
 	"context"
-	pb "job_portal/authentication/infrastructure/api/grpc"
-	"job_portal/authentication/internal/usecase"
 	"time"
+
+	pb "github.com/demola234/authentication/infrastructure/api/grpc"
+	"github.com/demola234/authentication/internal/usecase"
 
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -17,6 +18,7 @@ type UserHandler struct {
 
 // NewUserHandler creates a new instance of UserHandler
 func NewUserHandler(userUsecase usecase.UserUsecase) *UserHandler {
+
 	return &UserHandler{userUsecase: userUsecase}
 }
 
@@ -134,3 +136,5 @@ func (h *UserHandler) LogOut(ctx context.Context, req *pb.LogOutRequest) (*pb.Lo
 		Message: "Logged out successfully",
 	}, nil
 }
+
+

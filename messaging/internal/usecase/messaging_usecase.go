@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"job_portal/messaging/internal/domain/entity"
-	"job_portal/messaging/internal/domain/repository"
 	"time"
+
+	"github.com/demola234/messaging/internal/domain/entity"
+	"github.com/demola234/messaging/internal/domain/repository"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

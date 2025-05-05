@@ -2,9 +2,10 @@ package db
 
 import (
 	"database/sql"
-	"job_portal/authentication/pkg/utils"
 	"log"
 	"os"
+
+	"github.com/demola234/authentication/pkg/utils"
 
 	"testing"
 

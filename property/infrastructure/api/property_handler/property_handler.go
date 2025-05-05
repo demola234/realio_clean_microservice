@@ -3,10 +3,11 @@ package propertyhandler
 import (
 	"context"
 	"encoding/json"
-	pb "job_portal/property/infrastructure/api/grpc"
-	"job_portal/property/internal/domain/entity"
-	"job_portal/property/internal/usecases"
 	"strconv"
+
+	pb "github.com/demola234/property/infrastructure/api/grpc"
+	"github.com/demola234/property/internal/domain/entity"
+	"github.com/demola234/property/internal/usecases"
 
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"

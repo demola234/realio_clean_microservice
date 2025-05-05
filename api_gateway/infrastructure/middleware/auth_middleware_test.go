@@ -2,11 +2,12 @@ package middleware
 
 import (
 	"errors"
-	"job_portal/api_gateway/infrastructure/middleware/token_maker"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/demola234/api_gateway/infrastructure/middleware/token_maker"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -94,7 +95,7 @@ func TestAuthMiddleware(t *testing.T) {
 	})
 
 	t.Run("valid token", func(t *testing.T) {
-		payload := &token_maker.Payload{Email: "12345", UserID : "12345"} // Replace 'ID' with the actual field name
+		payload := &token_maker.Payload{Email: "12345", UserID: "12345"} // Replace 'ID' with the actual field name
 		mockTokenMaker.On("VerifyToken", "valid_token").Return(payload, nil).Once()
 
 		req, _ := http.NewRequest(http.MethodGet, "/test", nil)
@@ -103,7 +104,7 @@ func TestAuthMiddleware(t *testing.T) {
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusOK, w.Code)
-		assert.Contains(t, w.Body.String(), `"user_id":"12345"`) 
+		assert.Contains(t, w.Body.String(), `"user_id":"12345"`)
 		mockTokenMaker.AssertExpectations(t)
 	})
 }

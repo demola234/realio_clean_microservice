@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"job_portal/property/pkg/utils"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/demola234/property/pkg/utils"
 
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"

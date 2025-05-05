@@ -10,10 +10,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	mockdb "job_portal/authentication/db/mock"
-	db "job_portal/authentication/db/sqlc"
-	"job_portal/authentication/internal/domain/entity"
-	"job_portal/authentication/pkg/utils"
+	mockdb "github.com/demola234/authentication/db/mock"
+	db "github.com/demola234/authentication/db/sqlc"
+	"github.com/demola234/authentication/internal/domain/entity"
+	"github.com/demola234/authentication/pkg/utils"
 )
 
 func TestGetUserByEmail(t *testing.T) {
@@ -27,7 +27,7 @@ func TestGetUserByEmail(t *testing.T) {
 		ID:        uuid.New(),
 		Email:     utils.RandomEmail(),
 		Name:      utils.RandomOwner(),
-		Password:  utils.RandomString(10),
+		Password:  sql.NullString{String: utils.RandomString(10), Valid: true},
 		CreatedAt: sql.NullTime{Time: time.Now(), Valid: true},
 		UpdatedAt: sql.NullTime{Time: time.Now(), Valid: true},
 		Role:      sql.NullString{String: utils.RandomRole(), Valid: true},
@@ -82,14 +82,12 @@ func TestCreateToken(t *testing.T) {
 
 	email := utils.RandomEmail()
 	userID := uuid.New().String()
-	
-	
+
 	token, err := repo.CreateToken(context.Background(), email, userID)
 
 	require.NoError(t, err)
 	require.NotEmpty(t, token)
 }
-
 
 func TestUpdatePassword(t *testing.T) {
 	ctrl := gomock.NewController(t)

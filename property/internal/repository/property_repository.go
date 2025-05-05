@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	db "job_portal/property/db/sqlc"
-	"job_portal/property/internal/domain/entity"
 	"strconv"
+
+	db "github.com/demola234/property/db/sqlc"
+	"github.com/demola234/property/internal/domain/entity"
 
 	"github.com/google/uuid"
 )

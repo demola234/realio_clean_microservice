@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	"job_portal/authentication/internal/domain/entity"
+
+	"github.com/demola234/authentication/internal/domain/entity"
 
 	"github.com/google/uuid"
 )
@@ -41,4 +42,6 @@ type UserRepository interface {
 
 	// GetOtp retrieves the OTP for a user session.
 	GetOtp(ctx context.Context, id string) (*entity.UpdateOtp, error)
+
+	UpdateUser(ctx context.Context, user *entity.User) error
 }

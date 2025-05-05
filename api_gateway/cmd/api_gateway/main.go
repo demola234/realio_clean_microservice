@@ -2,18 +2,19 @@ package main
 
 import (
 	"context"
-	"job_portal/api_gateway/config"
-	"job_portal/api_gateway/infrastructure/grpc_clients"
-	"job_portal/api_gateway/infrastructure/middleware"
-	"job_portal/api_gateway/infrastructure/middleware/token_maker"
-	"job_portal/api_gateway/internal/handler"
-	routes "job_portal/api_gateway/routes"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/demola234/api_gateway/config"
+	"github.com/demola234/api_gateway/infrastructure/grpc_clients"
+	"github.com/demola234/api_gateway/infrastructure/middleware"
+	"github.com/demola234/api_gateway/infrastructure/middleware/token_maker"
+	"github.com/demola234/api_gateway/internal/handler"
+	routes "github.com/demola234/api_gateway/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,12 +38,10 @@ func main() {
 		log.Fatalf("Failed to connect to Property service: %v", err)
 	}
 
-
 	messageClient, err := grpc_clients.NewMessagingClient("127.0.0.1:9093", 20*time.Second)
 	if err != nil {
 		log.Fatalf("Failed to connect to Property service: %v", err)
 	}
-
 
 	// Create a new Gin router
 	router := gin.Default()

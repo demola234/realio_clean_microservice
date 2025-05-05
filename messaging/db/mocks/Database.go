@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	mongo "job_portal/messaging/db/mongo"
+	mongo "github.com/demola234/messaging/db/mongo"
 
 	mock "github.com/stretchr/testify/mock"
 )
