@@ -277,18 +277,9 @@ func TestResendOtp(t *testing.T) {
 	require.NoError(t, err)
 }
 
-// func TestVerifyOtp(t *testing.T) {
-// 	mockRepo := new(MockUserRepository)
-// 	useCase := NewUserUsecase(mockRepo)
-// 	ctx := context.Background()
+// UpdateUser implements repository.UserRepository.
+func (m *MockUserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
+	args := m.Called(ctx, user)
+	return args.Error(0)
 
-// 	email := "test@example.com"
-// 	otp := "123456"
-// 	hashedOtp, _ := utils.HashPassword(otp)
-// 	mockUser := &entity.User{
-// 		ID:       uuid.New(),
-// 		Email:    email,
-// 		Password: hashedOtp,
-// 	}
-
-// }
+}

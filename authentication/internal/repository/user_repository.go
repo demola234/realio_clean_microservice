@@ -24,6 +24,61 @@ type UserRepository struct {
 	store db.Store
 }
 
+// UpdateUser implements repository.UserRepository.
+func (r *UserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
+
+	// Check if the user exists
+	updateUser := db.UpdateUserParams{
+		ID:       user.ID,
+		Name:     user.FullName,
+		Username: user.Username,
+		ProfilePicture: sql.NullString{
+			String: user.ProfilePicture,
+			Valid:  true,
+		},
+		Bio: sql.NullString{
+			String: user.Bio,
+			Valid:  true,
+		},
+		Phone: sql.NullString{
+			String: user.Phone,
+			Valid:  true,
+		},
+		Role: sql.NullString{
+			String: user.Role,
+			Valid:  true,
+		},
+		Email: user.Email,
+		Password: sql.NullString{
+			String: user.Password,
+			Valid:  true,
+		},
+	}
+
+	updatedUser, err := r.store.UpdateUser(ctx, updateUser)
+	if err != nil {
+		return err
+	}
+
+	// Update the user in the cache
+	user.ID = updatedUser.ID
+	user.FullName = updatedUser.Name
+	user.Username = updatedUser.Username
+	user.ProfilePicture = updatedUser.ProfilePicture.String
+	user.IsActive = updatedUser.IsActive.Bool
+	user.EmailVerified = updatedUser.EmailVerified.Bool
+	user.Phone = updatedUser.Phone.String
+	user.Provider = utils.ProviderType{
+		Name:      updatedUser.Provider.String,
+		ID:        updatedUser.ProviderID.String,
+		TokenData: updatedUser.ProviderID.String,
+	}
+	user.EmailVerified = updatedUser.EmailVerified.Bool
+
+	return nil
+
+}
+
 // CreateToken implements repository.UserRepository.
 func (r *UserRepository) CreateToken(ctx context.Context, email string, userID string) (string, error) {
 	// Load configuration
@@ -90,8 +145,6 @@ func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*ent
 		UpdatedAt:      userDetails.UpdatedAt.Time,
 	}, nil
 }
-
-
 
 func (r *UserRepository) CreateUser(ctx context.Context, user *entity.User) error {
 	if user.ID == uuid.Nil {

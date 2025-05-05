@@ -12,6 +12,7 @@ type User struct {
 	ID             uuid.UUID          `json:"id"`
 	FullName       string             `json:"name"`
 	Email          string             `json:"email"`
+	Bio            string             `json:"bio"`
 	Provider       utils.ProviderType `json:"provider"`
 	Username       string             `json:"username"`
 	ProviderID     string             `json:"provider_id"`

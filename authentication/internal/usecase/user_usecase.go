@@ -43,7 +43,72 @@ type userUsecase struct {
 
 // RegisterWithOAuth implements UserUsecase.
 func (u *userUsecase) RegisterWithOAuth(ctx context.Context, provider string, token string) (*entity.User, *entity.Session, error) {
-	panic("unimplemented")
+	userInfo, err := u.oauthRepo.ValidateProviderToken(ctx, provider, token)
+	userID := uuid.New()
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to validate OAuth token: %w", err)
+	}
+
+	// Check if the user already exists
+	existingUser, err := u.userRepo.GetUserByEmail(ctx, userInfo.Email)
+	if err == nil && existingUser != nil {
+		currentProvider, _ := existingUser.Provider.GetProviderInfo()
+		if currentProvider != provider {
+			// Update to new provider
+			existingUser.Provider.SetProvider(provider, userInfo.ID)
+			existingUser.ProviderID = userInfo.ID
+
+		}
+	}
+
+	metaData := utils.ExtractMetaData(ctx)
+
+	session := &entity.Session{
+		SessionID:    uuid.New(),
+		UserID:       userID,
+		Token:        token,
+		CreatedAt:    time.Now().UTC(),
+		ExpiresAt:    time.Now().Add(24 * time.Hour).UTC(),
+		LastActivity: time.Now().UTC(),
+		IpAddress:    metaData.ClientIP,
+		UserAgent:    metaData.UserAgent,
+		IsActive:     true,
+		OTPVerified:  true,
+		OtpExpiresAt: time.Now().Add(5 * time.Minute),
+	}
+
+	userDetails := &entity.User{
+		FullName: userInfo.Name,
+		Email:    userInfo.Email,
+		Phone:    "",
+		Role:     "user",
+		ID:       userID,
+		Bio:      "",
+		Provider: utils.ProviderType{
+			Name:      provider,
+			ID:        userInfo.ID,
+			TokenData: provider,
+		},
+		ProviderID:     userInfo.ID,
+		Username:       userInfo.Name,
+		ProfilePicture: userInfo.Picture,
+		EmailVerified:  userInfo.EmailVerified,
+		IsActive:       true,
+		LastLogin:      time.Now().UTC(),
+		UpdatedAt:      time.Now().UTC(),
+	}
+
+	// Save user in the repository
+	if err := u.userRepo.CreateUser(ctx, userDetails); err != nil {
+		return nil, nil, fmt.Errorf("failed to create user: %w", err)
+	}
+
+	// Save session in the repository
+	if err := u.userRepo.CreateSession(ctx, session); err != nil {
+		return nil, nil, fmt.Errorf("failed to create session: %w", err)
+	}
+
+	return existingUser, session, nil
 }
 
 // LoginWithOAuth implements UserUsecase.
@@ -67,11 +132,6 @@ func (u *userUsecase) GenerateToken(ctx context.Context, email string, userID st
 
 // RegisterUser registers a new user.
 func (u *userUsecase) RegisterUser(ctx context.Context, fullName, password, email, role, phone string) (*entity.User, *entity.Session, error) {
-	// Validate user input (uncomment if needed)
-	// violations := validateCreateUser(fullName, password, email)
-	// if violations != nil {
-	// 	return nil, nil, interfaces.InvalidArgErr(violations)
-	// }
 
 	// Check if user with the same email already exists
 	existingUser, err := u.userRepo.GetUserByEmail(ctx, email)
