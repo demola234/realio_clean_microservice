@@ -2,9 +2,11 @@ syntax = "proto3";
 
 package pb;
 
-import "google/protobuf/timestamp.proto";
+
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
 
 option go_package = "github.com/demola234/realio_go_microservice/pb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
