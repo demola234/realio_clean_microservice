@@ -7,6 +7,8 @@
 package pb
 
 import (
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -981,7 +983,7 @@ var File_user_proto protoreflect.FileDescriptor
 const file_user_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"user.proto\x12\x02pb\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8e\x02\n" +
+	"user.proto\x12\x02pb\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x8e\x02\n" +
 	"\x04User\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1b\n" +
@@ -1039,18 +1041,35 @@ const file_user_proto_rawDesc = "" +
 	"\x05token\x18\x02 \x01(\tR\x05token\"\\\n" +
 	"\x15OAuthRegisterResponse\x12\x1c\n" +
 	"\x04user\x18\x01 \x01(\v2\b.pb.UserR\x04user\x12%\n" +
-	"\asession\x18\x02 \x01(\v2\v.pb.SessionR\asession2\xd1\x03\n" +
-	"\vAuthService\x12,\n" +
-	"\x05Login\x12\x10.pb.LoginRequest\x1a\x11.pb.LoginResponse\x125\n" +
-	"\bRegister\x12\x13.pb.RegisterRequest\x1a\x14.pb.RegisterResponse\x12;\n" +
+	"\asession\x18\x02 \x01(\v2\v.pb.SessionR\asession2\xcc\n" +
 	"\n" +
-	"VerifyUser\x12\x15.pb.VerifyUserRequest\x1a\x16.pb.VerifyUserResponse\x128\n" +
-	"\tResendOtp\x12\x14.pb.ResendOtpRequest\x1a\x15.pb.ResendOtpResponse\x122\n" +
-	"\aGetUser\x12\x12.pb.GetUserRequest\x1a\x13.pb.GetUserResponse\x12/\n" +
-	"\x06LogOut\x12\x11.pb.LogOutRequest\x1a\x12.pb.LogOutResponse\x12;\n" +
+	"\vAuthService\x12\x9e\x01\n" +
+	"\x05Login\x12\x10.pb.LoginRequest\x1a\x11.pb.LoginResponse\"p\x92AU\n" +
+	"\x0eAuthentication\x12\fLogin a user\x1a3User this API to login and generate an access tokenb\x00\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/login\x12\xa2\x01\n" +
+	"\bRegister\x12\x13.pb.RegisterRequest\x1a\x14.pb.RegisterResponse\"k\x92AM\n" +
+	"\x0eAuthentication\x12\x13Register a new user\x1a$User this API to register a new userb\x00\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/v1/register\x12\xaa\x01\n" +
 	"\n" +
-	"OAuthLogin\x12\x15.pb.OAuthLoginRequest\x1a\x16.pb.OAuthLoginResponse\x12D\n" +
-	"\rOAuthRegister\x12\x18.pb.OAuthRegisterRequest\x1a\x19.pb.OAuthRegisterResponseB\x06Z\x04./pbb\x06proto3"
+	"VerifyUser\x12\x15.pb.VerifyUserRequest\x1a\x16.pb.VerifyUserResponse\"m\x92AQ\n" +
+	"\x0eAuthentication\x12\x14Verify user with OTP\x1a'User this API to verify a user with OTPb\x00\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/api/v1/verify\x12\xa9\x01\n" +
+	"\tResendOtp\x12\x14.pb.ResendOtpRequest\x1a\x15.pb.ResendOtpResponse\"o\x92AO\n" +
+	"\x0eAuthentication\x12\n" +
+	"Resend OTP\x1a/User this API to resend OTP to the user's emailb\x00\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/v1/resend-otp\x12\x9b\x01\n" +
+	"\aGetUser\x12\x12.pb.GetUserRequest\x1a\x13.pb.GetUserResponse\"g\x92AF\n" +
+	"\x04User\x12\x10Get user details\x1a,User this API to get user details by user ID\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/user/{user_id}\x12\xa3\x01\n" +
+	"\x06LogOut\x12\x11.pb.LogOutRequest\x1a\x12.pb.LogOutResponse\"r\x92AV\n" +
+	"\x0eAuthentication\x12\vLogout user\x1a7User this API to logout and invalidate the user session\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/api/v1/logout\x12\xa2\x01\n" +
+	"\n" +
+	"OAuthLogin\x12\x15.pb.OAuthLoginRequest\x1a\x16.pb.OAuthLoginResponse\"e\x92AD\n" +
+	"\x05OAuth\x12\vOAuth login\x1a,User this API to login using OAuth providersb\x00\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/v1/oauth/login\x12\xb4\x01\n" +
+	"\rOAuthRegister\x12\x18.pb.OAuthRegisterRequest\x1a\x19.pb.OAuthRegisterResponse\"n\x92AJ\n" +
+	"\x05OAuth\x12\x0eOAuth register\x1a/User this API to register using OAuth providersb\x00\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/v1/oauth/registerB\xae\x02\x92A\xfa\x01\x12\x87\x01\n" +
+	"\x15Realio-Authentication\"i\n" +
+	"\x15Realio-Authentication\x123https://github.com/demola234/realio_go_microservice\x1a\x1bademolakolawole45@gmail.com2\x031.0Z`\n" +
+	"^\n" +
+	"\x06bearer\x12T\b\x02\x128Authentication token, prefixed by Bearer: Bearer <token>\x1a\x14Authorization Bearer \x02b\f\n" +
+	"\n" +
+	"\n" +
+	"\x06bearer\x12\x00Z.github.com/demola234/realio_go_microservice/pbb\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once
