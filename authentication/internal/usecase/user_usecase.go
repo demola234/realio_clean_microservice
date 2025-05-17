@@ -203,7 +203,6 @@ func (u *userUsecase) LoginUser(ctx context.Context, password string, email stri
 		return nil, err
 	}
 
-
 	return user, nil
 }
 
@@ -285,6 +284,7 @@ func (u *userUsecase) ResendOtp(ctx context.Context, email string) error {
 	// Retrieve user by email
 	err = u.userRepo.UpdateOtp(ctx, &entity.UpdateOtp{
 		Otp:          utils.RandomOtp(),
+		OtpAttempts:  0,
 		Email:        user.Email,
 		OtpExpiresAt: time.Now().Add(time.Minute * 10),
 	})
@@ -323,6 +323,14 @@ func (u *userUsecase) VerifyOtp(ctx context.Context, email string, otp string) (
 	otpUpdate, err := u.userRepo.GetOtp(ctx, user.ID.String())
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve user session: %w", err)
+	}
+
+	if otpUpdate.OTPVerified {
+		return false, fmt.Errorf("otp already verified")
+	}
+
+	if otpUpdate.OtpAttempts >= 10 {
+		return false, fmt.Errorf("otp attempts exceeded")
 	}
 
 	if otpUpdate.Otp != otp {
