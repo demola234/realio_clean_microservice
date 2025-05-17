@@ -203,20 +203,6 @@ func (u *userUsecase) LoginUser(ctx context.Context, password string, email stri
 		return nil, err
 	}
 
-	// session, err := u.repo.GetUserSession(ctx, user.ID)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to retrieve user session: %w", err)
-	// }
-
-	// // Check if the user is active
-	// if !session.IsActive {
-	// 	return nil, fmt.Errorf("user is not active")
-	// }
-
-	// Check if user is verified
-	// if !session.OTPVerified {
-	// 	return nil, fmt.Errorf("user is not verified: %+v", session)
-	// }
 
 	return user, nil
 }
@@ -334,11 +320,6 @@ func (u *userUsecase) VerifyOtp(ctx context.Context, email string, otp string) (
 		return false, fmt.Errorf("failed to retrieve user by email %s: %w", email, err)
 	}
 
-	session, err := u.userRepo.GetUserSession(ctx, user.ID)
-	if err != nil {
-		return false, fmt.Errorf("failed to retrieve user session: %w", err)
-	}
-
 	otpUpdate, err := u.userRepo.GetOtp(ctx, user.ID.String())
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve user session: %w", err)
@@ -346,6 +327,11 @@ func (u *userUsecase) VerifyOtp(ctx context.Context, email string, otp string) (
 
 	if otpUpdate.Otp != otp {
 		return false, fmt.Errorf("invalid otp %s: %s", otp, otpUpdate.Otp)
+	}
+
+	session, err := u.userRepo.GetUserSession(ctx, user.ID)
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve user session: %w", err)
 	}
 
 	if session.OtpExpiresAt.After(time.Now()) {

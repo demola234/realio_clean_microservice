@@ -33,15 +33,15 @@ func main() {
 	}
 	defer authClient.Close() // Ensure gRPC connection is closed on shutdown
 
-	propertyClient, err := grpc_clients.NewPropertyClient("127.0.0.1:9092", 20*time.Second)
-	if err != nil {
-		log.Fatalf("Failed to connect to Property service: %v", err)
-	}
+	// propertyClient, err := grpc_clients.NewPropertyClient("127.0.0.1:9092", 20*time.Second)
+	// if err != nil {
+	// 	log.Fatalf("Failed to connect to Property service: %v", err)
+	// }
 
-	messageClient, err := grpc_clients.NewMessagingClient("127.0.0.1:9093", 20*time.Second)
-	if err != nil {
-		log.Fatalf("Failed to connect to Property service: %v", err)
-	}
+	// messageClient, err := grpc_clients.NewMessagingClient("127.0.0.1:9093", 20*time.Second)
+	// if err != nil {
+	// 	log.Fatalf("Failed to connect to Property service: %v", err)
+	// }
 
 	// Create a new Gin router
 	router := gin.Default()
@@ -55,8 +55,8 @@ func main() {
 
 	// Initialize handlers
 	authHandler := handler.NewAuthHandler(authClient)
-	propertyHandler := handler.NewPropertyHandler(propertyClient)
-	messageHandler := handler.NewMessageHandler(messageClient)
+	// propertyHandler := handler.NewPropertyHandler(propertyClient)
+	// messageHandler := handler.NewMessageHandler(messageClient)
 
 	// Group routes under /v1
 	v1 := router.Group("/v1")
@@ -71,8 +71,8 @@ func main() {
 
 	// Define authentication routes
 	routes.RegisterRoutes(v1, authHandler, authMiddleware)
-	routes.RegisterPropertyRoutes(v1, propertyHandler, authMiddleware)
-	routes.RegisterMessageRoutes(v1, messageHandler, authMiddleware)
+	// routes.RegisterPropertyRoutes(v1, propertyHandler, authMiddleware)
+	// routes.RegisterMessageRoutes(v1, messageHandler, authMiddleware)
 
 	// Create an HTTP server with the configured port
 	srv := &http.Server{

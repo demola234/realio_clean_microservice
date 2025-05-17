@@ -52,6 +52,15 @@ func (h *UserHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 		return nil, status.Errorf(500, "failed to generate token")
 	}
 
+	session,  err := h.userUsecase.GetSession(ctx, user.ID.String())
+	if err != nil {
+		return nil, status.Errorf(500, "failed to get session")
+	}
+	
+
+	// Delay for 5 seconds
+	time.Sleep(5 * time.Second)
+
 	return &pb.LoginResponse{
 		User: &pb.User{
 			Email:     user.Email,
@@ -59,6 +68,7 @@ func (h *UserHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 			UserId:    user.ID.String(),
 			Role:      user.Role,
 			Phone:     user.Phone,
+			IsVerified: session.OTPVerified,
 			UpdatedAt: timestamppb.New(user.UpdatedAt),
 			CreatedAt: timestamppb.New(user.CreatedAt),
 		},

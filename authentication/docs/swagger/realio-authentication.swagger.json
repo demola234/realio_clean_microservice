@@ -478,6 +478,9 @@
         "phone": {
           "type": "string"
         },
+        "isVerified": {
+          "type": "boolean"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"

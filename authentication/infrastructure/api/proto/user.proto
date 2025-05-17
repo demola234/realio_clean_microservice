@@ -149,8 +149,9 @@ message User {
   string password = 4;
   string role = 5;
   string phone = 6;
-  google.protobuf.Timestamp updated_at = 7;
-  google.protobuf.Timestamp created_at = 8;
+  bool is_verified = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp created_at = 9;
 }
 
 // Session entity containing token information.

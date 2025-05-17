@@ -247,7 +247,7 @@ func (r *UserRepository) GetUserByID(ctx context.Context, id string) (*entity.Us
 func (r *UserRepository) GetUserSession(ctx context.Context, sessionID uuid.UUID) (*entity.Session, error) {
 
 	// Retrieve session details from the store
-	sessionDetails, err := r.store.GetSession(ctx, sessionID)
+	sessionDetails, err := r.store.GetSessionByUserID(ctx, sessionID)
 	if err != nil {
 		return nil, err
 	}
@@ -382,7 +382,7 @@ func (r *UserRepository) GetOtp(ctx context.Context, email string) (*entity.Upda
 	}
 
 	// Call GetOtp with the mapped parameters
-	otp, err := r.store.GetSession(ctx, userUUID)
+	otp, err := r.store.GetSessionByUserID(ctx, userUUID)
 	if err != nil {
 		return nil, err
 	}

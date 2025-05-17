@@ -43,5 +43,6 @@ type UserRepository interface {
 	// GetOtp retrieves the OTP for a user session.
 	GetOtp(ctx context.Context, id string) (*entity.UpdateOtp, error)
 
+	// UpdateUser updates a user's information.
 	UpdateUser(ctx context.Context, user *entity.User) error
 }

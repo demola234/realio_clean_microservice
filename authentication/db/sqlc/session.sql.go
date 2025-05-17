@@ -115,14 +115,43 @@ func (q *Queries) DeleteSession(ctx context.Context, sessionID uuid.UUID) error 
 	return err
 }
 
-const getSession = `-- name: GetSession :one
+const getSessionByID = `-- name: GetSessionByID :one
 SELECT session_id, user_id, token, otp, otp_expires_at, otp_attempts, otp_verified, created_at, expires_at, last_activity, ip_address, user_agent, is_active, revoked_at, device_info FROM sessions
-WHERE session_id = $1 OR user_id::text = $1
+WHERE session_id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetSession(ctx context.Context, sessionID uuid.UUID) (Sessions, error) {
-	row := q.db.QueryRowContext(ctx, getSession, sessionID)
+func (q *Queries) GetSessionByID(ctx context.Context, sessionID uuid.UUID) (Sessions, error) {
+	row := q.db.QueryRowContext(ctx, getSessionByID, sessionID)
+	var i Sessions
+	err := row.Scan(
+		&i.SessionID,
+		&i.UserID,
+		&i.Token,
+		&i.Otp,
+		&i.OtpExpiresAt,
+		&i.OtpAttempts,
+		&i.OtpVerified,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+		&i.LastActivity,
+		&i.IpAddress,
+		&i.UserAgent,
+		&i.IsActive,
+		&i.RevokedAt,
+		&i.DeviceInfo,
+	)
+	return i, err
+}
+
+const getSessionByUserID = `-- name: GetSessionByUserID :one
+SELECT session_id, user_id, token, otp, otp_expires_at, otp_attempts, otp_verified, created_at, expires_at, last_activity, ip_address, user_agent, is_active, revoked_at, device_info FROM sessions
+WHERE user_id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetSessionByUserID(ctx context.Context, userID uuid.UUID) (Sessions, error) {
+	row := q.db.QueryRowContext(ctx, getSessionByUserID, userID)
 	var i Sessions
 	err := row.Scan(
 		&i.SessionID,
