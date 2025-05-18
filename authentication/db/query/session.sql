@@ -33,9 +33,14 @@ INSERT INTO sessions (
     $14 -- device_info
 ) RETURNING *;
 
--- name: GetSession :one
+-- name: GetSessionByID :one
 SELECT * FROM sessions
-WHERE session_id = $1 OR user_id::text = $1
+WHERE session_id = $1
+LIMIT 1;
+
+-- name: GetSessionByUserID :one
+SELECT * FROM sessions
+WHERE user_id = $1
 LIMIT 1;
 
 -- name: UpdateSessionActivity :exec

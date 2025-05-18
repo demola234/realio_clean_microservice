@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package pb;
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Realio Authentication API";
+    version: "1.0";
+    contact: {
+      name: "Realio-Authentication";
+      url: "https://github.com/demola234/realio_go_microservice";
+      email: "ademolakolawole45@gmail.com";
+    }
+  };
+  
+  // Custom path for file upload
+  paths: {
+    path: {
+      key: "/api/v1/upload-image"
+      value: {
+        post: {
+          summary: "Upload Image"
+          description: "Use this API to upload an image"
+          operation_id: "UploadImage"
+          consumes: ["multipart/form-data"]
+          produces: ["application/json"]
+          parameters: [
+            {
+              name: "user_id"
+              in: IN_FORM
+              description: "User ID"
+              required: true
+              type: TYPE_STRING
+            },
+            {
+              name: "content"
+              in: IN_FORM
+              description: "Image file to upload"
+              required: true
+              type: TYPE_FILE
+            }
+          ]
+          responses: {
+            response: {
+              key: "200"
+              value: {
+                description: "A successful response"
+                schema: {
+                  json_schema: {
+                    ref: "#/definitions/pbUploadImageResponse"
+                  }
+                }
+              }
+            }
+          }
+          tags: ["User"]
+        }
+      }
+    }
+  }
+};

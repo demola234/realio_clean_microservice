@@ -53,7 +53,7 @@ func TestCreateSession(t *testing.T) {
 func TestGetSession(t *testing.T) {
 	session := createRandomSession(t)
 
-	session2, err := testQueries.GetSession(context.Background(), session.SessionID)
+	session2, err := testQueries.GetSessionByID(context.Background(), session.SessionID)
 	require.NoError(t, err)
 	require.NotEmpty(t, session2)
 	require.Equal(t, session.SessionID, session2.SessionID)
@@ -72,7 +72,7 @@ func TestRevokeSession(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify the session is revoked
-	session2, err := testQueries.GetSession(context.Background(), session.SessionID)
+	session2, err := testQueries.GetSessionByID(context.Background(), session.SessionID)
 	require.NoError(t, err)
 	require.False(t, session2.IsActive)
 	require.NotZero(t, session2.RevokedAt)
@@ -92,7 +92,7 @@ func TestUpdateSessionActivity(t *testing.T) {
 	require.NoError(t, err)
 
 	// Retrieve and verify the session's last activity timestamp is updated
-	session2, err := testQueries.GetSession(context.Background(), session.SessionID)
+	session2, err := testQueries.GetSessionByID(context.Background(), session.SessionID)
 	require.NoError(t, err)
 	require.WithinDuration(t, newLastActivity, session2.LastActivity.UTC(), time.Second) // Compare as UTC
 	require.Equal(t, session.IsActive, session2.IsActive)
@@ -105,7 +105,7 @@ func TestDeleteSession(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify the session no longer exists
-	session2, err := testQueries.GetSession(context.Background(), session.SessionID)
+	session2, err := testQueries.GetSessionByID(context.Background(), session.SessionID)
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, session2)
@@ -126,7 +126,7 @@ func TestUpdateOtp(t *testing.T) {
 	_, err := testQueries.UpdateSession(context.Background(), arg)
 
 	require.NoError(t, err)
-	session2, err := testQueries.GetSession(context.Background(), session.SessionID)
+	session2, err := testQueries.GetSessionByID(context.Background(), session.SessionID)
 	require.NoError(t, err)
 	require.Equal(t, newOtp, session2.Otp.String)
 	require.Equal(t, true, session2.OtpVerified.Bool)

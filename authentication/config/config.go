@@ -26,6 +26,8 @@ type Config struct {
 	AppleTeamID       string `mapstructure:"APPLE_TEAM_ID"`
 	AppleKeyID        string `mapstructure:"APPLE_KEY_ID"`
 	ApplePrivateKey   string `mapstructure:"APPLE_PRIVATE_KEY"`
+	
+	CloudinaryUrl string `mapstructure:"CLOUDINARY_URL"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
@@ -56,6 +58,7 @@ func LoadConfig(path string) (config Config, err error) {
 	viper.SetDefault("APPLE_TEAM_ID", "ABCDEFGHIJK")
 	viper.SetDefault("APPLE_KEY_ID", "ABCDEFGHIJK")
 	viper.SetDefault("APPLE_PRIVATE_KEY", "-----BEGIN PRIVATE KEY-----\nabcdefghijklmnopqrstuvwxyz123456\n-----END PRIVATE KEY-----")
+	viper.SetDefault("CLOUDINARY_URL", "abcdefghijklmnopqrstuvwxyz123456")
 
 	viper.AutomaticEnv()
 

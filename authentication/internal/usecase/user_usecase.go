@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"time"
 
 	interfaces "github.com/demola234/authentication/infrastructure/error"
@@ -33,6 +34,7 @@ type UserUsecase interface {
 	VerifyOtp(ctx context.Context, email string, otp string) (bool, error)
 	RegisterWithOAuth(ctx context.Context, provider, token string) (*entity.User, *entity.Session, error)
 	LoginWithOAuth(ctx context.Context, provider, token string) (*entity.User, *entity.Session, error)
+	UppdateProfileImage(ctx context.Context, content io.Reader, username string, userId uuid.UUID) (string, error)
 }
 
 // userUsecase implements the UserUsecase interface.
@@ -121,6 +123,28 @@ func NewUserUsecase(userRepo repository.UserRepository, oauthRepo repository.OAu
 	return &userUsecase{userRepo: userRepo, oauthRepo: oauthRepo}
 }
 
+func (u *userUsecase) UppdateProfileImage(ctx context.Context, content io.Reader, username string, userId uuid.UUID) (string, error) {
+
+	uploadedImageUrl, err := u.userRepo.UploadProfileImage(ctx, content, username)
+	if err != nil {
+		return "", fmt.Errorf("failed to upload profile image: %w", err)
+	}
+
+	user := &entity.User{
+		ID:             userId,
+		UpdatedAt:      time.Now().UTC(),
+		ProfilePicture: uploadedImageUrl,
+	}
+
+	// Update User Info to update image
+	err = u.userRepo.UpdateUser(ctx, user)
+	if err != nil {
+		return "", fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return uploadedImageUrl, nil
+}
+
 // GenerateToken implements UserUsecase.
 func (u *userUsecase) GenerateToken(ctx context.Context, email string, userID string) (string, error) {
 	token, err := u.userRepo.CreateToken(ctx, email, userID)
@@ -203,21 +227,6 @@ func (u *userUsecase) LoginUser(ctx context.Context, password string, email stri
 		return nil, err
 	}
 
-	// session, err := u.repo.GetUserSession(ctx, user.ID)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to retrieve user session: %w", err)
-	// }
-
-	// // Check if the user is active
-	// if !session.IsActive {
-	// 	return nil, fmt.Errorf("user is not active")
-	// }
-
-	// Check if user is verified
-	// if !session.OTPVerified {
-	// 	return nil, fmt.Errorf("user is not verified: %+v", session)
-	// }
-
 	return user, nil
 }
 
@@ -299,6 +308,7 @@ func (u *userUsecase) ResendOtp(ctx context.Context, email string) error {
 	// Retrieve user by email
 	err = u.userRepo.UpdateOtp(ctx, &entity.UpdateOtp{
 		Otp:          utils.RandomOtp(),
+		OtpAttempts:  0,
 		Email:        user.Email,
 		OtpExpiresAt: time.Now().Add(time.Minute * 10),
 	})
@@ -334,18 +344,26 @@ func (u *userUsecase) VerifyOtp(ctx context.Context, email string, otp string) (
 		return false, fmt.Errorf("failed to retrieve user by email %s: %w", email, err)
 	}
 
-	session, err := u.userRepo.GetUserSession(ctx, user.ID)
-	if err != nil {
-		return false, fmt.Errorf("failed to retrieve user session: %w", err)
-	}
-
 	otpUpdate, err := u.userRepo.GetOtp(ctx, user.ID.String())
 	if err != nil {
 		return false, fmt.Errorf("failed to retrieve user session: %w", err)
 	}
 
+	if otpUpdate.OTPVerified {
+		return false, fmt.Errorf("otp already verified")
+	}
+
+	if otpUpdate.OtpAttempts >= 10 {
+		return false, fmt.Errorf("otp attempts exceeded")
+	}
+
 	if otpUpdate.Otp != otp {
 		return false, fmt.Errorf("invalid otp %s: %s", otp, otpUpdate.Otp)
+	}
+
+	session, err := u.userRepo.GetUserSession(ctx, user.ID)
+	if err != nil {
+		return false, fmt.Errorf("failed to retrieve user session: %w", err)
 	}
 
 	if session.OtpExpiresAt.After(time.Now()) {

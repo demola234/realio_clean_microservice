@@ -37,6 +37,8 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   };
 };
 
+
+
 // AuthService defines authentication-related RPCs.
 service AuthService {
   rpc Login (LoginRequest) returns (LoginResponse) {
@@ -77,6 +79,21 @@ service AuthService {
       security: {} // Disable security key
     };
   };
+
+rpc UploadImage (UploadImageRequest) returns (UploadImageResponse) { 
+  option (google.api.http) = {
+    post: "/api/v1/upload-image"
+    body: "*"
+  };
+
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+    description: "Use this API to upload an image";
+    summary: "Upload Image";
+    tags: "User";
+    consumes: ["multipart/form-data"];
+  };
+}
+
   
   rpc ResendOtp (ResendOtpRequest) returns (ResendOtpResponse) {
     option (google.api.http) = {
@@ -149,8 +166,9 @@ message User {
   string password = 4;
   string role = 5;
   string phone = 6;
-  google.protobuf.Timestamp updated_at = 7;
-  google.protobuf.Timestamp created_at = 8;
+  bool is_verified = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp created_at = 9;
 }
 
 // Session entity containing token information.
@@ -240,4 +258,18 @@ message OAuthRegisterRequest {
 message OAuthRegisterResponse {
   User user = 1;
   Session session = 2;
+}
+
+message UploadImageRequest {
+  string user_id = 1;
+  bytes content = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+  description: "The binary content of the image file"
+  format: "binary"
+}];
+}
+
+message UploadImageResponse {
+  string message = 1;
+  string image_url = 2;
+  string user_id = 3;
 }

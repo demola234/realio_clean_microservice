@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"io"
 
 	"github.com/demola234/authentication/internal/domain/entity"
 
@@ -43,5 +44,9 @@ type UserRepository interface {
 	// GetOtp retrieves the OTP for a user session.
 	GetOtp(ctx context.Context, id string) (*entity.UpdateOtp, error)
 
+	// UpdateUser updates a user's information.
 	UpdateUser(ctx context.Context, user *entity.User) error
+
+	// UploadProfileImage uploads a profile image for a user.
+	UploadProfileImage(ctx context.Context, content io.Reader, username string) (string, error)
 }

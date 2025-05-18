@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"io"
 	"testing"
 
 	"github.com/demola234/authentication/internal/domain/entity"
@@ -15,6 +16,16 @@ import (
 // MockUserRepository is a mock implementation of UserRepository
 type MockUserRepository struct {
 	mock.Mock
+}
+
+// UploadProfileImage implements repository.UserRepository.
+func (m *MockUserRepository) UploadProfileImage(ctx context.Context, content io.Reader, username string) (string, error) {
+	args := m.Called(ctx, content, username)
+
+	if args.Get(0) == nil {
+		return "", args.Error(1)
+	}
+	return args.Get(0).(*entity.User).ProfilePicture, args.Error(1)
 }
 
 type MockOauthRepository struct {

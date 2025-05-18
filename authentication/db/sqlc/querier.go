@@ -17,7 +17,8 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (Users, error)
 	DeleteSession(ctx context.Context, sessionID uuid.UUID) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
-	GetSession(ctx context.Context, sessionID uuid.UUID) (Sessions, error)
+	GetSessionByID(ctx context.Context, sessionID uuid.UUID) (Sessions, error)
+	GetSessionByUserID(ctx context.Context, userID uuid.UUID) (Sessions, error)
 	GetUser(ctx context.Context, email string) (Users, error)
 	RevokeSession(ctx context.Context, sessionID uuid.UUID) error
 	UpdateEmailVerification(ctx context.Context, id uuid.UUID) error

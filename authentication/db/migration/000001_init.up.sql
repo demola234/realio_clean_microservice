@@ -20,7 +20,7 @@ CREATE TABLE "users" (
 CREATE TABLE "sessions" (
     "session_id" UUID UNIQUE PRIMARY KEY,
     "user_id" UUID NOT NULL,
-    "token" VARCHAR(255) NOT NULL,
+    "token" VARCHAR(500) NOT NULL,
     "otp" VARCHAR(6),
     "otp_expires_at" TIMESTAMP,
     "otp_attempts" INT DEFAULT 0,
