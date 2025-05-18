@@ -282,3 +282,40 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (Users, 
 	)
 	return i, err
 }
+
+const updateUserProfilePicture = `-- name: UpdateUserProfilePicture :one
+UPDATE users
+SET profile_picture = $2,
+    updated_at = now()
+    WHERE id = $1
+    RETURNING id, name, username, profile_picture, bio, email, password, role, phone, provider, provider_id, email_verified, is_active, last_login, created_at, updated_at
+`
+
+type UpdateUserProfilePictureParams struct {
+	ID             uuid.UUID      `json:"id"`
+	ProfilePicture sql.NullString `json:"profile_picture"`
+}
+
+func (q *Queries) UpdateUserProfilePicture(ctx context.Context, arg UpdateUserProfilePictureParams) (Users, error) {
+	row := q.db.QueryRowContext(ctx, updateUserProfilePicture, arg.ID, arg.ProfilePicture)
+	var i Users
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Username,
+		&i.ProfilePicture,
+		&i.Bio,
+		&i.Email,
+		&i.Password,
+		&i.Role,
+		&i.Phone,
+		&i.Provider,
+		&i.ProviderID,
+		&i.EmailVerified,
+		&i.IsActive,
+		&i.LastLogin,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

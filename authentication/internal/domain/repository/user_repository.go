@@ -48,5 +48,5 @@ type UserRepository interface {
 	UpdateUser(ctx context.Context, user *entity.User) error
 
 	// UploadProfileImage uploads a profile image for a user.
-	UploadProfileImage(ctx context.Context, content io.Reader, username string) (string, error)
+	UploadProfileImage(ctx context.Context, content io.Reader, userId uuid.UUID) (string, error)
 }

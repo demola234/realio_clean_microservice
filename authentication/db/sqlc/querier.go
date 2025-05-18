@@ -26,6 +26,7 @@ type Querier interface {
 	UpdateSession(ctx context.Context, arg UpdateSessionParams) (Sessions, error)
 	UpdateSessionActivity(ctx context.Context, arg UpdateSessionActivityParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (Users, error)
+	UpdateUserProfilePicture(ctx context.Context, arg UpdateUserProfilePictureParams) (Users, error)
 }
 
 var _ Querier = (*Queries)(nil)

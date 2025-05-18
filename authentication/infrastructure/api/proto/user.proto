@@ -209,6 +209,7 @@ message VerifyUserRequest {
 
 message VerifyUserResponse {
   bool valid = 1;
+  Session session = 2;
 }
 
 // ResendOtp RPC messages.

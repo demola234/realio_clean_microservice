@@ -3,7 +3,6 @@ package user_handler
 import (
 	"bytes"
 	"context"
-	"strings"
 	"time"
 
 	pb "github.com/demola234/authentication/infrastructure/api/grpc"
@@ -79,8 +78,6 @@ func (h *UserHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 }
 
 func (h *UserHandler) VerifyUser(ctx context.Context, req *pb.VerifyUserRequest) (*pb.VerifyUserResponse, error) {
-	// Delay for 5 seconds
-	time.Sleep(5 * time.Second)
 	// Check if user is already verified
 	valid, err := h.userUsecase.VerifyOtp(ctx, req.Email, req.Otp)
 	if err != nil {
@@ -93,8 +90,23 @@ func (h *UserHandler) VerifyUser(ctx context.Context, req *pb.VerifyUserRequest)
 		}, status.Errorf(401, "invalid credentials %d", err)
 	}
 
+	// Get User Info and Check if otp is valid
+	user, err := h.userUsecase.GetUser(ctx, req.Email)
+	if err != nil {
+		return nil, status.Errorf(401, "invalid credentials %d", err)
+	}
+
+	token, err := h.userUsecase.GenerateToken(ctx, user.Email, user.ID.String())
+	if err != nil {
+		return nil, status.Errorf(500, "failed to generate token")
+	}
+
 	return &pb.VerifyUserResponse{
 		Valid: valid,
+		Session: &pb.Session{
+			Token:     token,
+			ExpiresAt: timestamppb.New(time.Now().Add(time.Hour * 24)),
+		},
 	}, nil
 
 }
@@ -153,15 +165,10 @@ func (h *UserHandler) UploadImage(ctx context.Context, req *pb.UploadImageReques
 		return nil, status.Errorf(codes.Unauthenticated, "invalid credentials: %v", err)
 	}
 
-	if user.FullName == "" {
-		// Take the first name from the email
-		user.FullName = strings.Split(user.Email, "@")[0]
-	}
-
 	// DO NOT convert binary data to string - use bytes.NewReader directly
 	reader := bytes.NewReader(req.Content)
 
-	imageUrl, err := h.userUsecase.UppdateProfileImage(ctx, reader, user.FullName, user.ID)
+	imageUrl, err := h.userUsecase.UppdateProfileImage(ctx, reader, user.ID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to upload image: %v", err)
 	}

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"io"
 	"net/http"
 
 	errorResponse "github.com/demola234/api_gateway/infrastructure/error_response"
@@ -152,6 +153,52 @@ func (h *AuthHandler) OAuthRegister(c *gin.Context) {
 	}
 
 	res, err := h.AuthClient.Client.OAuthRegister(context.Background(), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+func (h *AuthHandler) UploadImage(c *gin.Context) {
+	// Get userID from authorization payload in context
+	authPayload, exists := c.Get("authorization_payload")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization payload not found"})
+		return
+	}
+
+	userID := authPayload.(*token.Payload).UserID
+
+	// Get the file from form
+	image, err := c.FormFile("content")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to read image file"})
+		return
+	}
+
+	// Open the file
+	imageData, err := image.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to open image file"})
+		return
+	}
+	defer imageData.Close() // This should come after all error checks
+
+	// Read all the file data into a byte slice
+	fileBytes, err := io.ReadAll(imageData)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read image data"})
+		return
+	}
+
+	// Call the gRPC service with the file bytes directly
+	// Since Content is defined as bytes in your proto, just pass fileBytes as is
+	res, err := h.AuthClient.Client.UploadImage(context.Background(), &pb.UploadImageRequest{
+		UserId:  userID,
+		Content: fileBytes, // Use fileBytes directly since Content is []byte
+	})
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

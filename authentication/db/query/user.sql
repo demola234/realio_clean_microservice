@@ -70,6 +70,13 @@ SET
 WHERE id = $9
 RETURNING *;
 
+-- name: UpdateUserProfilePicture :one
+UPDATE users
+SET profile_picture = $2,
+    updated_at = now()
+    WHERE id = $1
+    RETURNING *;
+
 -- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1;
