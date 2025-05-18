@@ -1,12 +1,15 @@
 package user_handler
 
 import (
+	"bytes"
 	"context"
+	"strings"
 	"time"
 
 	pb "github.com/demola234/authentication/infrastructure/api/grpc"
 	"github.com/demola234/authentication/internal/usecase"
 
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -141,5 +144,31 @@ func (h *UserHandler) LogOut(ctx context.Context, req *pb.LogOutRequest) (*pb.Lo
 
 	return &pb.LogOutResponse{
 		Message: "Logged out successfully",
+	}, nil
+}
+
+func (h *UserHandler) UploadImage(ctx context.Context, req *pb.UploadImageRequest) (*pb.UploadImageResponse, error) {
+	user, err := h.userUsecase.GetUser(ctx, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "invalid credentials: %v", err)
+	}
+
+	if user.FullName == "" {
+		// Take the first name from the email
+		user.FullName = strings.Split(user.Email, "@")[0]
+	}
+
+	// DO NOT convert binary data to string - use bytes.NewReader directly
+	reader := bytes.NewReader(req.Content)
+
+	imageUrl, err := h.userUsecase.UppdateProfileImage(ctx, reader, user.FullName, user.ID)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to upload image: %v", err)
+	}
+
+	return &pb.UploadImageResponse{
+		Message:  "Image uploaded successfully",
+		ImageUrl: imageUrl,
+		UserId:   req.UserId,
 	}, nil
 }

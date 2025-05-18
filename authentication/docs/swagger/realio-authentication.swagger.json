@@ -1,31 +1,297 @@
 {
-  "swagger": "2.0",
-  "info": {
-    "title": "Realio-Authentication",
-    "version": "1.0",
-    "contact": {
-      "name": "Realio-Authentication",
-      "url": "https://github.com/demola234/realio_go_microservice",
-      "email": "ademolakolawole45@gmail.com"
-    }
-  },
-  "tags": [
-    {
-      "name": "AuthService"
-    }
-  ],
   "consumes": [
     "application/json"
   ],
-  "produces": [
-    "application/json"
-  ],
+  "definitions": {
+    "pbGetUserResponse": {
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/pbUser"
+        }
+      },
+      "type": "object"
+    },
+    "pbLogOutRequest": {
+      "description": "LogOut RPC messages.",
+      "properties": {
+        "userId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbLogOutResponse": {
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbLoginRequest": {
+      "description": "Login RPC messages.",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbLoginResponse": {
+      "properties": {
+        "session": {
+          "$ref": "#/definitions/pbSession"
+        },
+        "user": {
+          "$ref": "#/definitions/pbUser"
+        }
+      },
+      "type": "object"
+    },
+    "pbOAuthLoginRequest": {
+      "properties": {
+        "provider": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      },
+      "title": "OAuth Login messages",
+      "type": "object"
+    },
+    "pbOAuthLoginResponse": {
+      "properties": {
+        "session": {
+          "$ref": "#/definitions/pbSession"
+        },
+        "user": {
+          "$ref": "#/definitions/pbUser"
+        }
+      },
+      "type": "object"
+    },
+    "pbOAuthRegisterRequest": {
+      "properties": {
+        "provider": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      },
+      "title": "OAuth Register messages (same as Login)",
+      "type": "object"
+    },
+    "pbOAuthRegisterResponse": {
+      "properties": {
+        "session": {
+          "$ref": "#/definitions/pbSession"
+        },
+        "user": {
+          "$ref": "#/definitions/pbUser"
+        }
+      },
+      "type": "object"
+    },
+    "pbRegisterRequest": {
+      "description": "Register RPC messages.",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "fullName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbRegisterResponse": {
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/pbUser"
+        }
+      },
+      "type": "object"
+    },
+    "pbResendOtpRequest": {
+      "description": "ResendOtp RPC messages.",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbResendOtpResponse": {
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbSession": {
+      "description": "Session entity containing token information.",
+      "properties": {
+        "expiresAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbUploadImageRequest": {
+      "properties": {
+        "content": {
+          "description": "The binary content of the image file",
+          "format": "binary",
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbUploadImageResponse": {
+      "properties": {
+        "imageUrl": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbUser": {
+      "description": "User entity with core user details.",
+      "properties": {
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "fullName": {
+          "type": "string"
+        },
+        "isVerified": {
+          "type": "boolean"
+        },
+        "password": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbVerifyUserRequest": {
+      "description": "VerifyUser RPC messages.",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "otp": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbVerifyUserResponse": {
+      "properties": {
+        "valid": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "protobufAny": {
+      "additionalProperties": {},
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "rpcStatus": {
+      "properties": {
+        "code": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "details": {
+          "items": {
+            "$ref": "#/definitions/protobufAny",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "info": {
+    "contact": {
+      "email": "ademolakolawole45@gmail.com",
+      "name": "Realio-Authentication",
+      "url": "https://github.com/demola234/realio_go_microservice"
+    },
+    "title": "Realio-Authentication",
+    "version": "1.0"
+  },
   "paths": {
     "/api/v1/login": {
       "post": {
-        "summary": "Login a user",
         "description": "User this API to login and generate an access token",
         "operationId": "AuthService_Login",
+        "parameters": [
+          {
+            "description": "Login RPC messages.",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbLoginRequest"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -40,28 +306,28 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "description": "Login RPC messages.",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/pbLoginRequest"
-            }
-          }
-        ],
+        "security": [],
+        "summary": "Login a user",
         "tags": [
           "Authentication"
-        ],
-        "security": []
+        ]
       }
     },
     "/api/v1/logout": {
       "post": {
-        "summary": "Logout user",
         "description": "User this API to logout and invalidate the user session",
         "operationId": "AuthService_LogOut",
+        "parameters": [
+          {
+            "description": "LogOut RPC messages.",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbLogOutRequest"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -76,17 +342,7 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "description": "LogOut RPC messages.",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/pbLogOutRequest"
-            }
-          }
-        ],
+        "summary": "Logout user",
         "tags": [
           "Authentication"
         ]
@@ -94,9 +350,18 @@
     },
     "/api/v1/oauth/login": {
       "post": {
-        "summary": "OAuth login",
         "description": "User this API to login using OAuth providers",
         "operationId": "AuthService_OAuthLogin",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbOAuthLoginRequest"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -111,27 +376,27 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/pbOAuthLoginRequest"
-            }
-          }
-        ],
+        "security": [],
+        "summary": "OAuth login",
         "tags": [
           "OAuth"
-        ],
-        "security": []
+        ]
       }
     },
     "/api/v1/oauth/register": {
       "post": {
-        "summary": "OAuth register",
         "description": "User this API to register using OAuth providers",
         "operationId": "AuthService_OAuthRegister",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbOAuthRegisterRequest"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -146,27 +411,28 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/pbOAuthRegisterRequest"
-            }
-          }
-        ],
+        "security": [],
+        "summary": "OAuth register",
         "tags": [
           "OAuth"
-        ],
-        "security": []
+        ]
       }
     },
     "/api/v1/register": {
       "post": {
-        "summary": "Register a new user",
         "description": "User this API to register a new user",
         "operationId": "AuthService_Register",
+        "parameters": [
+          {
+            "description": "Register RPC messages.",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbRegisterRequest"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -181,28 +447,28 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "description": "Register RPC messages.",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/pbRegisterRequest"
-            }
-          }
-        ],
+        "security": [],
+        "summary": "Register a new user",
         "tags": [
           "Authentication"
-        ],
-        "security": []
+        ]
       }
     },
     "/api/v1/resend-otp": {
       "post": {
-        "summary": "Resend OTP",
         "description": "User this API to resend OTP to the user's email",
         "operationId": "AuthService_ResendOtp",
+        "parameters": [
+          {
+            "description": "ResendOtp RPC messages.",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbResendOtpRequest"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -217,28 +483,68 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "description": "ResendOtp RPC messages.",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/pbResendOtpRequest"
-            }
-          }
-        ],
+        "security": [],
+        "summary": "Resend OTP",
         "tags": [
           "Authentication"
+        ]
+      }
+    },
+    "/api/v1/upload-image": {
+      "post": {
+        "consumes": [
+          "multipart/form-data"
         ],
-        "security": []
+        "description": "Use this API to upload an image",
+        "operationId": "AuthService_UploadImage",
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "formData",
+            "name": "userId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Image file to upload",
+            "in": "formData",
+            "name": "content",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUploadImageResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "summary": "Upload Image",
+        "tags": [
+          "User"
+        ]
       }
     },
     "/api/v1/user/{userId}": {
       "get": {
-        "summary": "Get user details",
         "description": "User this API to get user details by user ID",
         "operationId": "AuthService_GetUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -253,14 +559,7 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
+        "summary": "Get user details",
         "tags": [
           "User"
         ]
@@ -268,9 +567,19 @@
     },
     "/api/v1/verify": {
       "post": {
-        "summary": "Verify user with OTP",
         "description": "User this API to verify a user with OTP",
         "operationId": "AuthService_VerifyUser",
+        "parameters": [
+          {
+            "description": "VerifyUser RPC messages.",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbVerifyUserRequest"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -285,273 +594,34 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "description": "VerifyUser RPC messages.",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/pbVerifyUserRequest"
-            }
-          }
-        ],
+        "security": [],
+        "summary": "Verify user with OTP",
         "tags": [
           "Authentication"
-        ],
-        "security": []
+        ]
       }
     }
   },
-  "definitions": {
-    "pbGetUserResponse": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/pbUser"
-        }
-      }
-    },
-    "pbLogOutRequest": {
-      "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string"
-        }
-      },
-      "description": "LogOut RPC messages."
-    },
-    "pbLogOutResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
-    },
-    "pbLoginRequest": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        }
-      },
-      "description": "Login RPC messages."
-    },
-    "pbLoginResponse": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/pbUser"
-        },
-        "session": {
-          "$ref": "#/definitions/pbSession"
-        }
-      }
-    },
-    "pbOAuthLoginRequest": {
-      "type": "object",
-      "properties": {
-        "provider": {
-          "type": "string"
-        },
-        "token": {
-          "type": "string"
-        }
-      },
-      "title": "OAuth Login messages"
-    },
-    "pbOAuthLoginResponse": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/pbUser"
-        },
-        "session": {
-          "$ref": "#/definitions/pbSession"
-        }
-      }
-    },
-    "pbOAuthRegisterRequest": {
-      "type": "object",
-      "properties": {
-        "provider": {
-          "type": "string"
-        },
-        "token": {
-          "type": "string"
-        }
-      },
-      "title": "OAuth Register messages (same as Login)"
-    },
-    "pbOAuthRegisterResponse": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/pbUser"
-        },
-        "session": {
-          "$ref": "#/definitions/pbSession"
-        }
-      }
-    },
-    "pbRegisterRequest": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "fullName": {
-          "type": "string"
-        },
-        "role": {
-          "type": "string"
-        },
-        "phone": {
-          "type": "string"
-        }
-      },
-      "description": "Register RPC messages."
-    },
-    "pbRegisterResponse": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/pbUser"
-        }
-      }
-    },
-    "pbResendOtpRequest": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        }
-      },
-      "description": "ResendOtp RPC messages."
-    },
-    "pbResendOtpResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
-    },
-    "pbSession": {
-      "type": "object",
-      "properties": {
-        "token": {
-          "type": "string"
-        },
-        "expiresAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      },
-      "description": "Session entity containing token information."
-    },
-    "pbUser": {
-      "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "fullName": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "role": {
-          "type": "string"
-        },
-        "phone": {
-          "type": "string"
-        },
-        "isVerified": {
-          "type": "boolean"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      },
-      "description": "User entity with core user details."
-    },
-    "pbVerifyUserRequest": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "otp": {
-          "type": "string"
-        }
-      },
-      "description": "VerifyUser RPC messages."
-    },
-    "pbVerifyUserResponse": {
-      "type": "object",
-      "properties": {
-        "valid": {
-          "type": "boolean"
-        }
-      }
-    },
-    "protobufAny": {
-      "type": "object",
-      "properties": {
-        "@type": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": {}
-    },
-    "rpcStatus": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "message": {
-          "type": "string"
-        },
-        "details": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/protobufAny"
-          }
-        }
-      }
-    }
-  },
-  "securityDefinitions": {
-    "bearer": {
-      "type": "apiKey",
-      "description": "Authentication token, prefixed by Bearer: Bearer \u003ctoken\u003e",
-      "name": "Authorization Bearer",
-      "in": "header"
-    }
-  },
+  "produces": [
+    "application/json"
+  ],
   "security": [
     {
       "bearer": []
+    }
+  ],
+  "securityDefinitions": {
+    "bearer": {
+      "description": "Authentication token, prefixed by Bearer: Bearer \u003ctoken\u003e",
+      "in": "header",
+      "name": "Authorization Bearer",
+      "type": "apiKey"
+    }
+  },
+  "swagger": "2.0",
+  "tags": [
+    {
+      "name": "AuthService"
     }
   ]
 }

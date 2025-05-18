@@ -28,6 +28,7 @@ proto:
 	       --grpc-gateway_out=infrastructure/api/grpc --grpc-gateway_opt=paths=source_relative \
 	       --openapiv2_out=docs/swagger --openapiv2_opt=allow_merge,merge_file_name=realio-authentication \
 	       infrastructure/api/proto/*.proto
+	go run scripts/fix_swagger.go
 	statik -src=./docs/swagger -dest=./docs
 
 .PHONY: proto
@@ -84,7 +85,7 @@ server:
 	go run cmd/authentication/main.go
 
 mock:
-	mockgen -package mockdb -destination db/mock/store.go github.com/demola234/db/sqlc Store
+	mockgen -package mockdb -destination db/mock/store.go github.com/demola234/authentication/db/sqlc Store
 
 evans:
 	evans --host localhost --port 9090 -r repl

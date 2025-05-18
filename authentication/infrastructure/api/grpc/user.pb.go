@@ -986,6 +986,118 @@ func (x *OAuthRegisterResponse) GetSession() *Session {
 	return nil
 }
 
+type UploadImageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Content       []byte                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadImageRequest) Reset() {
+	*x = UploadImageRequest{}
+	mi := &file_user_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadImageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadImageRequest) ProtoMessage() {}
+
+func (x *UploadImageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadImageRequest.ProtoReflect.Descriptor instead.
+func (*UploadImageRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *UploadImageRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UploadImageRequest) GetContent() []byte {
+	if x != nil {
+		return x.Content
+	}
+	return nil
+}
+
+type UploadImageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	ImageUrl      string                 `protobuf:"bytes,2,opt,name=image_url,json=imageUrl,proto3" json:"image_url,omitempty"`
+	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadImageResponse) Reset() {
+	*x = UploadImageResponse{}
+	mi := &file_user_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadImageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadImageResponse) ProtoMessage() {}
+
+func (x *UploadImageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadImageResponse.ProtoReflect.Descriptor instead.
+func (*UploadImageResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *UploadImageResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *UploadImageResponse) GetImageUrl() string {
+	if x != nil {
+		return x.ImageUrl
+	}
+	return ""
+}
+
+func (x *UploadImageResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
 var File_user_proto protoreflect.FileDescriptor
 
 const file_user_proto_rawDesc = "" +
@@ -1051,8 +1163,14 @@ const file_user_proto_rawDesc = "" +
 	"\x05token\x18\x02 \x01(\tR\x05token\"\\\n" +
 	"\x15OAuthRegisterResponse\x12\x1c\n" +
 	"\x04user\x18\x01 \x01(\v2\b.pb.UserR\x04user\x12%\n" +
-	"\asession\x18\x02 \x01(\v2\v.pb.SessionR\asession2\xcc\n" +
-	"\n" +
+	"\asession\x18\x02 \x01(\v2\v.pb.SessionR\asession\"{\n" +
+	"\x12UploadImageRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12L\n" +
+	"\acontent\x18\x02 \x01(\fB2\x92A/2$The binary content of the image file\xa2\x02\x06binaryR\acontent\"e\n" +
+	"\x13UploadImageResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12\x1b\n" +
+	"\timage_url\x18\x02 \x01(\tR\bimageUrl\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId2\xfb\v\n" +
 	"\vAuthService\x12\x9e\x01\n" +
 	"\x05Login\x12\x10.pb.LoginRequest\x1a\x11.pb.LoginResponse\"p\x92AU\n" +
 	"\x0eAuthentication\x12\fLogin a user\x1a3User this API to login and generate an access tokenb\x00\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/login\x12\xa2\x01\n" +
@@ -1060,7 +1178,9 @@ const file_user_proto_rawDesc = "" +
 	"\x0eAuthentication\x12\x13Register a new user\x1a$User this API to register a new userb\x00\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/v1/register\x12\xaa\x01\n" +
 	"\n" +
 	"VerifyUser\x12\x15.pb.VerifyUserRequest\x1a\x16.pb.VerifyUserResponse\"m\x92AQ\n" +
-	"\x0eAuthentication\x12\x14Verify user with OTP\x1a'User this API to verify a user with OTPb\x00\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/api/v1/verify\x12\xa9\x01\n" +
+	"\x0eAuthentication\x12\x14Verify user with OTP\x1a'User this API to verify a user with OTPb\x00\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/api/v1/verify\x12\xac\x01\n" +
+	"\vUploadImage\x12\x16.pb.UploadImageRequest\x1a\x17.pb.UploadImageResponse\"l\x92AJ\n" +
+	"\x04User\x12\fUpload Image\x1a\x1fUse this API to upload an image2\x13multipart/form-data\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/v1/upload-image\x12\xa9\x01\n" +
 	"\tResendOtp\x12\x14.pb.ResendOtpRequest\x1a\x15.pb.ResendOtpResponse\"o\x92AO\n" +
 	"\x0eAuthentication\x12\n" +
 	"Resend OTP\x1a/User this API to resend OTP to the user's emailb\x00\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/v1/resend-otp\x12\x9b\x01\n" +
@@ -1093,7 +1213,7 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_user_proto_goTypes = []any{
 	(*User)(nil),                  // 0: pb.User
 	(*Session)(nil),               // 1: pb.Session
@@ -1113,12 +1233,14 @@ var file_user_proto_goTypes = []any{
 	(*OAuthLoginResponse)(nil),    // 15: pb.OAuthLoginResponse
 	(*OAuthRegisterRequest)(nil),  // 16: pb.OAuthRegisterRequest
 	(*OAuthRegisterResponse)(nil), // 17: pb.OAuthRegisterResponse
-	(*timestamppb.Timestamp)(nil), // 18: google.protobuf.Timestamp
+	(*UploadImageRequest)(nil),    // 18: pb.UploadImageRequest
+	(*UploadImageResponse)(nil),   // 19: pb.UploadImageResponse
+	(*timestamppb.Timestamp)(nil), // 20: google.protobuf.Timestamp
 }
 var file_user_proto_depIdxs = []int32{
-	18, // 0: pb.User.updated_at:type_name -> google.protobuf.Timestamp
-	18, // 1: pb.User.created_at:type_name -> google.protobuf.Timestamp
-	18, // 2: pb.Session.expires_at:type_name -> google.protobuf.Timestamp
+	20, // 0: pb.User.updated_at:type_name -> google.protobuf.Timestamp
+	20, // 1: pb.User.created_at:type_name -> google.protobuf.Timestamp
+	20, // 2: pb.Session.expires_at:type_name -> google.protobuf.Timestamp
 	0,  // 3: pb.LoginResponse.user:type_name -> pb.User
 	1,  // 4: pb.LoginResponse.session:type_name -> pb.Session
 	0,  // 5: pb.RegisterResponse.user:type_name -> pb.User
@@ -1130,21 +1252,23 @@ var file_user_proto_depIdxs = []int32{
 	2,  // 11: pb.AuthService.Login:input_type -> pb.LoginRequest
 	4,  // 12: pb.AuthService.Register:input_type -> pb.RegisterRequest
 	6,  // 13: pb.AuthService.VerifyUser:input_type -> pb.VerifyUserRequest
-	8,  // 14: pb.AuthService.ResendOtp:input_type -> pb.ResendOtpRequest
-	10, // 15: pb.AuthService.GetUser:input_type -> pb.GetUserRequest
-	12, // 16: pb.AuthService.LogOut:input_type -> pb.LogOutRequest
-	14, // 17: pb.AuthService.OAuthLogin:input_type -> pb.OAuthLoginRequest
-	16, // 18: pb.AuthService.OAuthRegister:input_type -> pb.OAuthRegisterRequest
-	3,  // 19: pb.AuthService.Login:output_type -> pb.LoginResponse
-	5,  // 20: pb.AuthService.Register:output_type -> pb.RegisterResponse
-	7,  // 21: pb.AuthService.VerifyUser:output_type -> pb.VerifyUserResponse
-	9,  // 22: pb.AuthService.ResendOtp:output_type -> pb.ResendOtpResponse
-	11, // 23: pb.AuthService.GetUser:output_type -> pb.GetUserResponse
-	13, // 24: pb.AuthService.LogOut:output_type -> pb.LogOutResponse
-	15, // 25: pb.AuthService.OAuthLogin:output_type -> pb.OAuthLoginResponse
-	17, // 26: pb.AuthService.OAuthRegister:output_type -> pb.OAuthRegisterResponse
-	19, // [19:27] is the sub-list for method output_type
-	11, // [11:19] is the sub-list for method input_type
+	18, // 14: pb.AuthService.UploadImage:input_type -> pb.UploadImageRequest
+	8,  // 15: pb.AuthService.ResendOtp:input_type -> pb.ResendOtpRequest
+	10, // 16: pb.AuthService.GetUser:input_type -> pb.GetUserRequest
+	12, // 17: pb.AuthService.LogOut:input_type -> pb.LogOutRequest
+	14, // 18: pb.AuthService.OAuthLogin:input_type -> pb.OAuthLoginRequest
+	16, // 19: pb.AuthService.OAuthRegister:input_type -> pb.OAuthRegisterRequest
+	3,  // 20: pb.AuthService.Login:output_type -> pb.LoginResponse
+	5,  // 21: pb.AuthService.Register:output_type -> pb.RegisterResponse
+	7,  // 22: pb.AuthService.VerifyUser:output_type -> pb.VerifyUserResponse
+	19, // 23: pb.AuthService.UploadImage:output_type -> pb.UploadImageResponse
+	9,  // 24: pb.AuthService.ResendOtp:output_type -> pb.ResendOtpResponse
+	11, // 25: pb.AuthService.GetUser:output_type -> pb.GetUserResponse
+	13, // 26: pb.AuthService.LogOut:output_type -> pb.LogOutResponse
+	15, // 27: pb.AuthService.OAuthLogin:output_type -> pb.OAuthLoginResponse
+	17, // 28: pb.AuthService.OAuthRegister:output_type -> pb.OAuthRegisterResponse
+	20, // [20:29] is the sub-list for method output_type
+	11, // [11:20] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name
 	11, // [11:11] is the sub-list for extension extendee
 	0,  // [0:11] is the sub-list for field type_name
@@ -1161,7 +1285,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_proto_rawDesc), len(file_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

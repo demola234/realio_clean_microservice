@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"log"
 	"strings"
 	"time"
@@ -14,6 +15,8 @@ import (
 	"github.com/demola234/authentication/internal/domain/entity"
 	"github.com/demola234/authentication/pkg/utils"
 
+	"github.com/cloudinary/cloudinary-go"
+	"github.com/cloudinary/cloudinary-go/api/uploader"
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
@@ -22,6 +25,31 @@ import (
 // This struct interacts with the database using SQLC-generated code.
 type UserRepository struct {
 	store db.Store
+}
+
+// UpdateUser implements repository.UserRepository.
+func (r *UserRepository) UploadProfileImage(ctx context.Context, content io.Reader, username string) (string, error) {
+	// Create a new Cloudinary client
+	configs, err := config.LoadConfig(".")
+	if err != nil {
+		log.Fatal("Could not load config", err)
+	}
+	
+	// Upload the image to the cloudinary
+	cld, _ := cloudinary.NewFromURL(configs.CloudinaryUrl)
+
+	// Get the preferred name of the file if its not supplied
+	result, err := cld.Upload.Upload(ctx, content, uploader.UploadParams{
+		PublicID: username,
+		Tags:     strings.Split(",", username),
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return result.SecureURL, nil
+
 }
 
 // UpdateUser implements repository.UserRepository.

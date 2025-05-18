@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"io"
 
 	"github.com/demola234/authentication/internal/domain/entity"
 
@@ -45,4 +46,7 @@ type UserRepository interface {
 
 	// UpdateUser updates a user's information.
 	UpdateUser(ctx context.Context, user *entity.User) error
+
+	// UploadProfileImage uploads a profile image for a user.
+	UploadProfileImage(ctx context.Context, content io.Reader, username string) (string, error)
 }
