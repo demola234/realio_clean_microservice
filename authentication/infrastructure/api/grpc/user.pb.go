@@ -468,6 +468,7 @@ func (x *VerifyUserRequest) GetOtp() string {
 type VerifyUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Valid         bool                   `protobuf:"varint,1,opt,name=valid,proto3" json:"valid,omitempty"`
+	Session       *Session               `protobuf:"bytes,2,opt,name=session,proto3" json:"session,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -507,6 +508,13 @@ func (x *VerifyUserResponse) GetValid() bool {
 		return x.Valid
 	}
 	return false
+}
+
+func (x *VerifyUserResponse) GetSession() *Session {
+	if x != nil {
+		return x.Session
+	}
+	return nil
 }
 
 // ResendOtp RPC messages.
@@ -1137,9 +1145,10 @@ const file_user_proto_rawDesc = "" +
 	"\x04user\x18\x01 \x01(\v2\b.pb.UserR\x04user\";\n" +
 	"\x11VerifyUserRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x10\n" +
-	"\x03otp\x18\x02 \x01(\tR\x03otp\"*\n" +
+	"\x03otp\x18\x02 \x01(\tR\x03otp\"Q\n" +
 	"\x12VerifyUserResponse\x12\x14\n" +
-	"\x05valid\x18\x01 \x01(\bR\x05valid\"(\n" +
+	"\x05valid\x18\x01 \x01(\bR\x05valid\x12%\n" +
+	"\asession\x18\x02 \x01(\v2\v.pb.SessionR\asession\"(\n" +
 	"\x10ResendOtpRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\"-\n" +
 	"\x11ResendOtpResponse\x12\x18\n" +
@@ -1244,34 +1253,35 @@ var file_user_proto_depIdxs = []int32{
 	0,  // 3: pb.LoginResponse.user:type_name -> pb.User
 	1,  // 4: pb.LoginResponse.session:type_name -> pb.Session
 	0,  // 5: pb.RegisterResponse.user:type_name -> pb.User
-	0,  // 6: pb.GetUserResponse.user:type_name -> pb.User
-	0,  // 7: pb.OAuthLoginResponse.user:type_name -> pb.User
-	1,  // 8: pb.OAuthLoginResponse.session:type_name -> pb.Session
-	0,  // 9: pb.OAuthRegisterResponse.user:type_name -> pb.User
-	1,  // 10: pb.OAuthRegisterResponse.session:type_name -> pb.Session
-	2,  // 11: pb.AuthService.Login:input_type -> pb.LoginRequest
-	4,  // 12: pb.AuthService.Register:input_type -> pb.RegisterRequest
-	6,  // 13: pb.AuthService.VerifyUser:input_type -> pb.VerifyUserRequest
-	18, // 14: pb.AuthService.UploadImage:input_type -> pb.UploadImageRequest
-	8,  // 15: pb.AuthService.ResendOtp:input_type -> pb.ResendOtpRequest
-	10, // 16: pb.AuthService.GetUser:input_type -> pb.GetUserRequest
-	12, // 17: pb.AuthService.LogOut:input_type -> pb.LogOutRequest
-	14, // 18: pb.AuthService.OAuthLogin:input_type -> pb.OAuthLoginRequest
-	16, // 19: pb.AuthService.OAuthRegister:input_type -> pb.OAuthRegisterRequest
-	3,  // 20: pb.AuthService.Login:output_type -> pb.LoginResponse
-	5,  // 21: pb.AuthService.Register:output_type -> pb.RegisterResponse
-	7,  // 22: pb.AuthService.VerifyUser:output_type -> pb.VerifyUserResponse
-	19, // 23: pb.AuthService.UploadImage:output_type -> pb.UploadImageResponse
-	9,  // 24: pb.AuthService.ResendOtp:output_type -> pb.ResendOtpResponse
-	11, // 25: pb.AuthService.GetUser:output_type -> pb.GetUserResponse
-	13, // 26: pb.AuthService.LogOut:output_type -> pb.LogOutResponse
-	15, // 27: pb.AuthService.OAuthLogin:output_type -> pb.OAuthLoginResponse
-	17, // 28: pb.AuthService.OAuthRegister:output_type -> pb.OAuthRegisterResponse
-	20, // [20:29] is the sub-list for method output_type
-	11, // [11:20] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	1,  // 6: pb.VerifyUserResponse.session:type_name -> pb.Session
+	0,  // 7: pb.GetUserResponse.user:type_name -> pb.User
+	0,  // 8: pb.OAuthLoginResponse.user:type_name -> pb.User
+	1,  // 9: pb.OAuthLoginResponse.session:type_name -> pb.Session
+	0,  // 10: pb.OAuthRegisterResponse.user:type_name -> pb.User
+	1,  // 11: pb.OAuthRegisterResponse.session:type_name -> pb.Session
+	2,  // 12: pb.AuthService.Login:input_type -> pb.LoginRequest
+	4,  // 13: pb.AuthService.Register:input_type -> pb.RegisterRequest
+	6,  // 14: pb.AuthService.VerifyUser:input_type -> pb.VerifyUserRequest
+	18, // 15: pb.AuthService.UploadImage:input_type -> pb.UploadImageRequest
+	8,  // 16: pb.AuthService.ResendOtp:input_type -> pb.ResendOtpRequest
+	10, // 17: pb.AuthService.GetUser:input_type -> pb.GetUserRequest
+	12, // 18: pb.AuthService.LogOut:input_type -> pb.LogOutRequest
+	14, // 19: pb.AuthService.OAuthLogin:input_type -> pb.OAuthLoginRequest
+	16, // 20: pb.AuthService.OAuthRegister:input_type -> pb.OAuthRegisterRequest
+	3,  // 21: pb.AuthService.Login:output_type -> pb.LoginResponse
+	5,  // 22: pb.AuthService.Register:output_type -> pb.RegisterResponse
+	7,  // 23: pb.AuthService.VerifyUser:output_type -> pb.VerifyUserResponse
+	19, // 24: pb.AuthService.UploadImage:output_type -> pb.UploadImageResponse
+	9,  // 25: pb.AuthService.ResendOtp:output_type -> pb.ResendOtpResponse
+	11, // 26: pb.AuthService.GetUser:output_type -> pb.GetUserResponse
+	13, // 27: pb.AuthService.LogOut:output_type -> pb.LogOutResponse
+	15, // 28: pb.AuthService.OAuthLogin:output_type -> pb.OAuthLoginResponse
+	17, // 29: pb.AuthService.OAuthRegister:output_type -> pb.OAuthRegisterResponse
+	21, // [21:30] is the sub-list for method output_type
+	12, // [12:21] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_user_proto_init() }

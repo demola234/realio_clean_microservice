@@ -34,7 +34,7 @@ type UserUsecase interface {
 	VerifyOtp(ctx context.Context, email string, otp string) (bool, error)
 	RegisterWithOAuth(ctx context.Context, provider, token string) (*entity.User, *entity.Session, error)
 	LoginWithOAuth(ctx context.Context, provider, token string) (*entity.User, *entity.Session, error)
-	UppdateProfileImage(ctx context.Context, content io.Reader, username string, userId uuid.UUID) (string, error)
+	UppdateProfileImage(ctx context.Context, content io.Reader, userId uuid.UUID) (string, error)
 }
 
 // userUsecase implements the UserUsecase interface.
@@ -123,23 +123,11 @@ func NewUserUsecase(userRepo repository.UserRepository, oauthRepo repository.OAu
 	return &userUsecase{userRepo: userRepo, oauthRepo: oauthRepo}
 }
 
-func (u *userUsecase) UppdateProfileImage(ctx context.Context, content io.Reader, username string, userId uuid.UUID) (string, error) {
+func (u *userUsecase) UppdateProfileImage(ctx context.Context, content io.Reader, userId uuid.UUID) (string, error) {
 
-	uploadedImageUrl, err := u.userRepo.UploadProfileImage(ctx, content, username)
+	uploadedImageUrl, err := u.userRepo.UploadProfileImage(ctx, content, userId)
 	if err != nil {
 		return "", fmt.Errorf("failed to upload profile image: %w", err)
-	}
-
-	user := &entity.User{
-		ID:             userId,
-		UpdatedAt:      time.Now().UTC(),
-		ProfilePicture: uploadedImageUrl,
-	}
-
-	// Update User Info to update image
-	err = u.userRepo.UpdateUser(ctx, user)
-	if err != nil {
-		return "", fmt.Errorf("failed to update user: %w", err)
 	}
 
 	return uploadedImageUrl, nil

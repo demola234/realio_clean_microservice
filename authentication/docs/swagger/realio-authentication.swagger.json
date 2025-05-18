@@ -232,6 +232,9 @@
     },
     "pbVerifyUserResponse": {
       "properties": {
+        "session": {
+          "$ref": "#/definitions/pbSession"
+        },
         "valid": {
           "type": "boolean"
         }

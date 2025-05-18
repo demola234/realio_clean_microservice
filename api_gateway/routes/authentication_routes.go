@@ -20,6 +20,7 @@ func RegisterRoutes(rg *gin.RouterGroup, authHandler *handler.AuthHandler, authM
 
 		// Protected routes (require authMiddleware)
 		authRoutes.GET("/user", authMiddleware, authHandler.GetUser)
+		authRoutes.POST("/upload-image", authMiddleware, authHandler.UploadImage)
 		authRoutes.POST("/logout", authMiddleware, authHandler.Logout)
 	}
 }

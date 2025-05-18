@@ -19,8 +19,8 @@ type MockUserRepository struct {
 }
 
 // UploadProfileImage implements repository.UserRepository.
-func (m *MockUserRepository) UploadProfileImage(ctx context.Context, content io.Reader, username string) (string, error) {
-	args := m.Called(ctx, content, username)
+func (m *MockUserRepository) UploadProfileImage(ctx context.Context, content io.Reader, userId uuid.UUID) (string, error) {
+	args := m.Called(ctx, content, userId)
 
 	if args.Get(0) == nil {
 		return "", args.Error(1)
