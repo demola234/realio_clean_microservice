@@ -13,14 +13,22 @@ import (
 type Querier interface {
 	ChangePassword(ctx context.Context, arg ChangePasswordParams) (Users, error)
 	CheckEmailExists(ctx context.Context, email string) (bool, error)
+	CreateLoginHistoryEntry(ctx context.Context, arg CreateLoginHistoryEntryParams) (Sessions, error)
+	CreatePasswordReset(ctx context.Context, arg CreatePasswordResetParams) (PasswordResets, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Sessions, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (Users, error)
+	DeleteExpiredPasswordResets(ctx context.Context) error
+	DeletePasswordResetsByUserId(ctx context.Context, userID uuid.UUID) error
 	DeleteSession(ctx context.Context, sessionID uuid.UUID) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
+	GetLoginHistory(ctx context.Context, arg GetLoginHistoryParams) ([]Sessions, error)
+	GetPasswordResetByToken(ctx context.Context, token string) (PasswordResets, error)
 	GetSessionByID(ctx context.Context, sessionID uuid.UUID) (Sessions, error)
 	GetSessionByUserID(ctx context.Context, userID uuid.UUID) (Sessions, error)
+	GetSessionsByUserID(ctx context.Context, userID uuid.UUID) ([]Sessions, error)
 	GetUser(ctx context.Context, email string) (Users, error)
-	RevokeSession(ctx context.Context, sessionID uuid.UUID) error
+	InvalidatePasswordReset(ctx context.Context, token string) (PasswordResets, error)
+	RevokeSession(ctx context.Context, userID uuid.UUID) error
 	UpdateEmailVerification(ctx context.Context, id uuid.UUID) error
 	UpdateLastLogin(ctx context.Context, id uuid.UUID) error
 	UpdateSession(ctx context.Context, arg UpdateSessionParams) (Sessions, error)

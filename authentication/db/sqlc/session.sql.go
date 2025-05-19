@@ -14,6 +14,49 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
+const createLoginHistoryEntry = `-- name: CreateLoginHistoryEntry :one
+INSERT INTO sessions (
+    session_id, user_id, ip_address, user_agent
+) VALUES (
+    $1, $2, $3, $4
+) RETURNING session_id, user_id, token, otp, otp_expires_at, otp_attempts, otp_verified, created_at, expires_at, last_activity, ip_address, user_agent, is_active, revoked_at, device_info
+`
+
+type CreateLoginHistoryEntryParams struct {
+	SessionID uuid.UUID      `json:"session_id"`
+	UserID    uuid.UUID      `json:"user_id"`
+	IpAddress sql.NullString `json:"ip_address"`
+	UserAgent sql.NullString `json:"user_agent"`
+}
+
+func (q *Queries) CreateLoginHistoryEntry(ctx context.Context, arg CreateLoginHistoryEntryParams) (Sessions, error) {
+	row := q.db.QueryRowContext(ctx, createLoginHistoryEntry,
+		arg.SessionID,
+		arg.UserID,
+		arg.IpAddress,
+		arg.UserAgent,
+	)
+	var i Sessions
+	err := row.Scan(
+		&i.SessionID,
+		&i.UserID,
+		&i.Token,
+		&i.Otp,
+		&i.OtpExpiresAt,
+		&i.OtpAttempts,
+		&i.OtpVerified,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+		&i.LastActivity,
+		&i.IpAddress,
+		&i.UserAgent,
+		&i.IsActive,
+		&i.RevokedAt,
+		&i.DeviceInfo,
+	)
+	return i, err
+}
+
 const createSession = `-- name: CreateSession :one
 INSERT INTO sessions (
     session_id,
@@ -115,9 +158,61 @@ func (q *Queries) DeleteSession(ctx context.Context, sessionID uuid.UUID) error 
 	return err
 }
 
+const getLoginHistory = `-- name: GetLoginHistory :many
+SELECT session_id, user_id, token, otp, otp_expires_at, otp_attempts, otp_verified, created_at, expires_at, last_activity, ip_address, user_agent, is_active, revoked_at, device_info FROM sessions
+WHERE user_id = $1
+ORDER BY created_at DESC
+LIMIT $2
+`
+
+type GetLoginHistoryParams struct {
+	UserID uuid.UUID `json:"user_id"`
+	Limit  int32     `json:"limit"`
+}
+
+func (q *Queries) GetLoginHistory(ctx context.Context, arg GetLoginHistoryParams) ([]Sessions, error) {
+	rows, err := q.db.QueryContext(ctx, getLoginHistory, arg.UserID, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Sessions{}
+	for rows.Next() {
+		var i Sessions
+		if err := rows.Scan(
+			&i.SessionID,
+			&i.UserID,
+			&i.Token,
+			&i.Otp,
+			&i.OtpExpiresAt,
+			&i.OtpAttempts,
+			&i.OtpVerified,
+			&i.CreatedAt,
+			&i.ExpiresAt,
+			&i.LastActivity,
+			&i.IpAddress,
+			&i.UserAgent,
+			&i.IsActive,
+			&i.RevokedAt,
+			&i.DeviceInfo,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSessionByID = `-- name: GetSessionByID :one
 SELECT session_id, user_id, token, otp, otp_expires_at, otp_attempts, otp_verified, created_at, expires_at, last_activity, ip_address, user_agent, is_active, revoked_at, device_info FROM sessions
 WHERE session_id = $1
+ORDER BY created_at DESC
 LIMIT 1
 `
 
@@ -173,16 +268,61 @@ func (q *Queries) GetSessionByUserID(ctx context.Context, userID uuid.UUID) (Ses
 	return i, err
 }
 
+const getSessionsByUserID = `-- name: GetSessionsByUserID :many
+SELECT session_id, user_id, token, otp, otp_expires_at, otp_attempts, otp_verified, created_at, expires_at, last_activity, ip_address, user_agent, is_active, revoked_at, device_info FROM sessions 
+WHERE user_id = $1 
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetSessionsByUserID(ctx context.Context, userID uuid.UUID) ([]Sessions, error) {
+	rows, err := q.db.QueryContext(ctx, getSessionsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Sessions{}
+	for rows.Next() {
+		var i Sessions
+		if err := rows.Scan(
+			&i.SessionID,
+			&i.UserID,
+			&i.Token,
+			&i.Otp,
+			&i.OtpExpiresAt,
+			&i.OtpAttempts,
+			&i.OtpVerified,
+			&i.CreatedAt,
+			&i.ExpiresAt,
+			&i.LastActivity,
+			&i.IpAddress,
+			&i.UserAgent,
+			&i.IsActive,
+			&i.RevokedAt,
+			&i.DeviceInfo,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const revokeSession = `-- name: RevokeSession :exec
 UPDATE sessions
 SET
     is_active = false,
     revoked_at = now()
-WHERE session_id = $1
+WHERE user_id = $1 AND is_active = true
 `
 
-func (q *Queries) RevokeSession(ctx context.Context, sessionID uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, revokeSession, sessionID)
+func (q *Queries) RevokeSession(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, revokeSession, userID)
 	return err
 }
 

@@ -36,6 +36,7 @@ INSERT INTO sessions (
 -- name: GetSessionByID :one
 SELECT * FROM sessions
 WHERE session_id = $1
+ORDER BY created_at DESC
 LIMIT 1;
 
 -- name: GetSessionByUserID :one
@@ -55,7 +56,7 @@ UPDATE sessions
 SET
     is_active = false,
     revoked_at = now()
-WHERE session_id = $1;
+WHERE user_id = $1 AND is_active = true;
 
 -- name: DeleteSession :exec
 DELETE FROM sessions
@@ -78,3 +79,21 @@ SET
     device_info = COALESCE($12, device_info)
 WHERE user_id = $13
 RETURNING *;
+
+-- name: CreateLoginHistoryEntry :one
+INSERT INTO sessions (
+    session_id, user_id, ip_address, user_agent
+) VALUES (
+    $1, $2, $3, $4
+) RETURNING *;
+
+-- name: GetLoginHistory :many
+SELECT * FROM sessions
+WHERE user_id = $1
+ORDER BY created_at DESC
+LIMIT $2;
+
+-- name: GetSessionsByUserID :many
+SELECT * FROM sessions 
+WHERE user_id = $1 
+ORDER BY created_at DESC;

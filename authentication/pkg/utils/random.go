@@ -26,6 +26,22 @@ func RandomOtp() string {
 	return fmt.Sprintf("%06v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000))
 }
 
+func ValidateOTP(otp string) bool {
+	// Check that the OTP is exactly 6 digits
+	if len(otp) != 6 {
+		return false
+	}
+
+	// Check that all characters are digits
+	for _, ch := range otp {
+		if ch < '0' || ch > '9' {
+			return false
+		}
+	}
+
+	return true
+}
+
 // RandomInt generates a random integer between min and max
 func RandomInt(min, max int) int {
 	return rand.Intn(max-min) + min
@@ -82,6 +98,5 @@ func RandomPhoneNumber() string {
 }
 
 // enums -> email, google, facebook
-
 
 // roles -> admin, user, buyer, seller

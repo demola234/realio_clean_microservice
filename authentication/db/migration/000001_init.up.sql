@@ -35,6 +35,37 @@ CREATE TABLE "sessions" (
     "device_info" JSON
 );
 
+CREATE TABLE "password_resets" (
+    "id" UUID PRIMARY KEY,
+    "user_id" UUID NOT NULL,
+    "token" VARCHAR(255) NOT NULL UNIQUE,
+    "expires_at" TIMESTAMP NOT NULL,
+    "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+    "updated_at" TIMESTAMP DEFAULT now(),
+    "used" BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE
+);
+
+-- Add indexes for performance
+CREATE INDEX idx_password_resets_token ON "password_resets"("token");
+CREATE INDEX idx_password_resets_user_id ON "password_resets"("user_id");
+CREATE INDEX idx_password_resets_expires_at ON "password_resets"("expires_at");
+
+-- Add trigger for updating updated_at
+CREATE TRIGGER update_password_resets_updated_at
+    BEFORE UPDATE ON "password_resets"
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Add a function to clean up expired tokens
+CREATE OR REPLACE FUNCTION cleanup_expired_password_resets()
+RETURNS void AS $$
+BEGIN
+    DELETE FROM "password_resets" 
+    WHERE "expires_at" < NOW() - INTERVAL '7 days';
+END;
+$$ LANGUAGE plpgsql;
+
 COMMENT ON COLUMN "users"."id" IS 'Primary key';
 COMMENT ON COLUMN "users"."name" IS 'User''s full name';
 COMMENT ON COLUMN "users"."username" IS 'Unique username';

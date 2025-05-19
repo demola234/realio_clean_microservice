@@ -7,14 +7,12 @@ import (
 	"io"
 	"time"
 
-	interfaces "github.com/demola234/authentication/infrastructure/error"
 	"github.com/demola234/authentication/internal/domain/entity"
 	"github.com/demola234/authentication/internal/domain/repository"
 	"github.com/demola234/authentication/pkg/utils"
 	"github.com/demola234/authentication/pkg/val"
 
 	"github.com/google/uuid"
-	"google.golang.org/genproto/googleapis/rpc/errdetails"
 )
 
 var (
@@ -35,6 +33,16 @@ type UserUsecase interface {
 	RegisterWithOAuth(ctx context.Context, provider, token string) (*entity.User, *entity.Session, error)
 	LoginWithOAuth(ctx context.Context, provider, token string) (*entity.User, *entity.Session, error)
 	UppdateProfileImage(ctx context.Context, content io.Reader, userId uuid.UUID) (string, error)
+	ForgetPassword(ctx context.Context, email string) error
+	ResetPassword(ctx context.Context, token string, newPassword string) error
+	VerifyResetPassword(ctx context.Context, email string, otp string) error
+	GetUserProfile(ctx context.Context, userID string) (*entity.UserProfile, error)
+	UpdateUserProfile(ctx context.Context, profile *entity.UserProfile, userID string) (*entity.UserProfile, error)
+	GetSessions(ctx context.Context, userID string) ([]*entity.Session, error)
+	RevokeSession(ctx context.Context, sessionID string, userID string) error
+	DeactivateAccount(ctx context.Context, password string, userID string) error
+	DeleteAccount(ctx context.Context, password string, userID string) error
+	GetLoginHistory(ctx context.Context, userID string, limit int) ([]*entity.LoginHistoryEntry, error)
 }
 
 // userUsecase implements the UserUsecase interface.
@@ -111,11 +119,6 @@ func (u *userUsecase) RegisterWithOAuth(ctx context.Context, provider string, to
 	}
 
 	return existingUser, session, nil
-}
-
-// LoginWithOAuth implements UserUsecase.
-func (u *userUsecase) LoginWithOAuth(ctx context.Context, provider string, token string) (*entity.User, *entity.Session, error) {
-	panic("unimplemented")
 }
 
 // NewUserUsecase creates a new instance of userUsecase.
@@ -377,19 +380,361 @@ func (u *userUsecase) VerifyOtp(ctx context.Context, email string, otp string) (
 
 }
 
-// validateCreateUser checks if the provided inputs are valid.
-func validateCreateUser(fullName string, password string, email string) (violations []*errdetails.BadRequest_FieldViolation) {
-	if err := val.ValidateEmail(email); err != nil {
-		violations = append(violations, interfaces.FieldViolation("email", fmt.Errorf("invalid email format: %w", err)))
+// ForgetPassword implements UserUsecase with 6-digit OTP
+func (u *userUsecase) ForgetPassword(ctx context.Context, email string) error {
+	// Check if the user exists
+	user, err := u.userRepo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil
 	}
 
-	if err := val.ValidateFullName(fullName); err != nil {
-		violations = append(violations, interfaces.FieldViolation("full_name", fmt.Errorf("invalid full name: %w", err)))
+	// Generate a secure 6-digit OTP
+	otp := utils.RandomOtp()
+	if err != nil {
+		return fmt.Errorf("failed to generate OTP: %w", err)
 	}
 
-	if err := val.ValidatePassword(password); err != nil {
-		violations = append(violations, interfaces.FieldViolation("password", fmt.Errorf("invalid password: %w", err)))
+	// Update the OTP for the user - reusing your existing UpdateOtp method
+	err = u.userRepo.UpdateOtp(ctx, &entity.UpdateOtp{
+		Otp:          otp,
+		OtpAttempts:  0,
+		Email:        user.Email,
+		OTPVerified:  false,
+		OtpExpiresAt: time.Now().Add(10 * time.Minute), // OTP valid for 10 minutes
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to update OTP: %w", err)
 	}
 
-	return violations
+	// Get metadata for logging
+	metaData := utils.ExtractMetaData(ctx)
+
+	// For development, log the OTP
+	fmt.Printf("[Password Reset] User: %s, IP: %s, OTP: %s\n",
+		user.Email, metaData.ClientIP, otp)
+	return nil
+}
+
+// VerifyResetPassword verifies the OTP for password reset
+func (u *userUsecase) VerifyResetPassword(ctx context.Context, email string, otp string) error {
+	// Validate OTP format
+	if !utils.ValidateOTP(otp) {
+		return fmt.Errorf("invalid OTP format")
+	}
+
+	// Check if the user exists
+	user, err := u.userRepo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return fmt.Errorf("user not found")
+	}
+
+	// Get the current OTP details using your existing GetOtp method
+	otpDetails, err := u.userRepo.GetOtp(ctx, user.ID.String())
+	if err != nil {
+		return fmt.Errorf("failed to retrieve OTP details: %w", err)
+	}
+
+	// Check if OTP is already verified
+	if otpDetails.OTPVerified {
+		return fmt.Errorf("OTP already verified")
+	}
+
+	// Check if max attempts exceeded
+	if otpDetails.OtpAttempts >= 10 {
+		return fmt.Errorf("maximum OTP attempts exceeded")
+	}
+
+	// Check if OTP has expired
+	if time.Now().After(otpDetails.OtpExpiresAt) {
+		return fmt.Errorf("OTP has expired")
+	}
+
+	// Check if OTP matches
+	if otpDetails.Otp != otp {
+		// Increment attempts and update
+		err = u.userRepo.UpdateOtp(ctx, &entity.UpdateOtp{
+			Email:       user.Email,
+			OtpAttempts: otpDetails.OtpAttempts + 1,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to update OTP attempts: %w", err)
+		}
+		return fmt.Errorf("invalid OTP")
+	}
+
+	// OTP is valid, mark as verified
+	err = u.userRepo.UpdateOtp(ctx, &entity.UpdateOtp{
+		Email:       user.Email,
+		OTPVerified: true,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to mark OTP as verified: %w", err)
+	}
+
+	return nil
+}
+
+// ResetPassword sets a new password after OTP verification
+func (u *userUsecase) ResetPassword(ctx context.Context, email string, newPassword string) error {
+	// Check if the user exists
+	user, err := u.userRepo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return fmt.Errorf("user not found")
+	}
+
+	// Get the session to check if OTP was verified
+	session, err := u.userRepo.GetUserSession(ctx, user.ID)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve user session: %w", err)
+	}
+
+	// Check if OTP was verified
+	if !session.OTPVerified {
+		return fmt.Errorf("OTP not verified, cannot reset password")
+	}
+
+	// Validate the new password
+	if err := val.ValidatePassword(newPassword); err != nil {
+		return fmt.Errorf("invalid password: %w", err)
+	}
+
+	// Hash the new password
+	hashedPassword, err := utils.HashPassword(newPassword)
+	if err != nil {
+		return fmt.Errorf("failed to hash new password: %w", err)
+	}
+
+	// Update the password
+	err = u.userRepo.UpdatePassword(ctx, email, hashedPassword)
+	if err != nil {
+		return fmt.Errorf("failed to update password: %w", err)
+	}
+
+	// Reset the OTP verification status
+	err = u.userRepo.UpdateOtp(ctx, &entity.UpdateOtp{
+		Email:       user.Email,
+		OTPVerified: false,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to reset OTP verification status: %w", err)
+	}
+
+	// Get metadata for logging
+	metaData := utils.ExtractMetaData(ctx)
+
+	// Log the password change
+	fmt.Printf("[Password Changed] User: %s, IP: %s\n",
+		user.Email, metaData.ClientIP)
+
+	return nil
+}
+
+// UpdateUserProfile updates a user's profile information
+func (u *userUsecase) UpdateUserProfile(ctx context.Context, profile *entity.UserProfile, userID string) (*entity.UserProfile, error) {
+	// Retrieve the user
+	user, err := u.userRepo.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve user: %w", err)
+	}
+
+	// Update user fields
+	user.FullName = profile.User.FullName
+	user.Bio = profile.Bio
+	user.Phone = profile.User.Phone
+	// Add any other fields that should be updated
+
+	// Update user in repository
+	err = u.userRepo.UpdateUser(ctx, user)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update user: %w", err)
+	}
+
+	// Return the updated profile
+	return &entity.UserProfile{
+		User:     user,
+		Bio:      user.Bio,
+		Website:  profile.Website,
+		Location: profile.Location,
+		JoinedAt: user.CreatedAt,
+	}, nil
+}
+
+// GetSessions retrieves all active sessions for a user
+func (u *userUsecase) GetSessions(ctx context.Context, userID string) ([]*entity.Session, error) {
+	// Parse the user ID
+	userId, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID format: %w", err)
+	}
+
+	// Retrieve sessions from repository
+	// Note: You would need to add a method to your repository to get all sessions
+	sessions, err := u.userRepo.GetUserSessions(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve sessions: %w", err)
+	}
+
+	return sessions, nil
+}
+
+// RevokeSession revokes a specific session
+func (u *userUsecase) RevokeSession(ctx context.Context, sessionID string, userID string) error {
+	// Parse the session ID
+	sessID, err := uuid.Parse(sessionID)
+	if err != nil {
+		return fmt.Errorf("invalid session ID format: %w", err)
+	}
+
+	// Check if the session belongs to the user
+	session, err := u.userRepo.GetSessionByID(ctx, sessID)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve session: %w", err)
+	}
+
+	// Verify that the session belongs to the requesting user
+	userId, err := uuid.Parse(userID)
+	if err != nil {
+		return fmt.Errorf("invalid user ID format: %w", err)
+	}
+
+	if session.UserID != userId {
+		return fmt.Errorf("unauthorized: session does not belong to the user")
+	}
+
+	// Revoke the session
+	// This might involve setting it as inactive, setting a revoked time, etc.
+	// We'll add a RevokedAt field and set IsActive to false
+	revokedAt := time.Now().UTC()
+	session.RevokedAt = &revokedAt
+	session.IsActive = false
+
+	// Update the session in the repository
+	err = u.userRepo.UpdateSession(ctx, session)
+	if err != nil {
+		return fmt.Errorf("failed to revoke session: %w", err)
+	}
+
+	return nil
+}
+
+// DeactivateAccount temporarily deactivates a user account
+func (u *userUsecase) DeactivateAccount(ctx context.Context, password string, userID string) error {
+	// Retrieve the user
+	user, err := u.userRepo.GetUserByID(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve user: %w", err)
+	}
+
+	// Verify password
+	err = utils.CheckPassword(password, user.Password)
+	if err != nil {
+		return fmt.Errorf("password is incorrect: %w", err)
+	}
+
+	// Deactivate the account (set IsActive to false)
+	user.IsActive = false
+
+	// Update user in repository
+	err = u.userRepo.UpdateUser(ctx, user)
+	if err != nil {
+		return fmt.Errorf("failed to deactivate account: %w", err)
+	}
+
+	// Revoke all active sessions
+	userId, err := uuid.Parse(userID)
+	if err != nil {
+		return fmt.Errorf("invalid user ID format: %w", err)
+	}
+
+	err = u.userRepo.RevokeAllSessions(ctx, userId)
+	if err != nil {
+		return fmt.Errorf("failed to revoke sessions: %w", err)
+	}
+
+	// Log the account deactivation
+	metaData := utils.ExtractMetaData(ctx)
+	fmt.Printf("Account deactivated for user %s from IP %s at %s\n",
+		user.Email, metaData.ClientIP, time.Now().Format(time.RFC3339))
+
+	return nil
+}
+
+// DeleteAccount permanently deletes a user account
+func (u *userUsecase) DeleteAccount(ctx context.Context, password string, userID string) error {
+	// Retrieve the user
+	user, err := u.userRepo.GetUserByID(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve user: %w", err)
+	}
+
+	// Verify password
+	err = utils.CheckPassword(password, user.Password)
+	if err != nil {
+		return fmt.Errorf("password is incorrect: %w", err)
+	}
+
+	// Parse the user ID
+	userId, err := uuid.Parse(userID)
+	if err != nil {
+		return fmt.Errorf("invalid user ID format: %w", err)
+	}
+
+	// Delete user from repository
+	err = u.userRepo.DeleteUser(ctx, userId)
+	if err != nil {
+		return fmt.Errorf("failed to delete account: %w", err)
+	}
+
+	// Log the account deletion
+	metaData := utils.ExtractMetaData(ctx)
+	fmt.Printf("Account deleted for user %s from IP %s at %s\n",
+		user.Email, metaData.ClientIP, time.Now().Format(time.RFC3339))
+
+	return nil
+}
+
+// GetLoginHistory retrieves the login history for a user
+func (u *userUsecase) GetLoginHistory(ctx context.Context, userID string, limit int) ([]*entity.LoginHistoryEntry, error) {
+	// Parse the user ID
+	userId, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID format: %w", err)
+	}
+
+	// Retrieve login history from repository
+	// Note: You would need to add a method to your repository to get login history
+	history, err := u.userRepo.GetLoginHistory(ctx, userId, limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve login history: %w", err)
+	}
+
+	return history, nil
+}
+
+// GetUserProfile retrieves a user's profile
+func (u *userUsecase) GetUserProfile(ctx context.Context, userID string) (*entity.UserProfile, error) {
+	// Retrieve the user
+	user, err := u.userRepo.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve user: %w", err)
+	}
+
+	// Retrieve additional profile information
+	// In a real implementation, you might have a separate profile repository
+	// For now, we'll create a basic profile from the user entity
+	profile := &entity.UserProfile{
+		User:     user,
+		Bio:      user.Bio,
+		Website:  "",
+		Location: "",
+		JoinedAt: user.CreatedAt,
+	}
+
+	return profile, nil
+}
+
+// LoginWithOAuth implements UserUsecase.
+func (u *userUsecase) LoginWithOAuth(ctx context.Context, provider string, token string) (*entity.User, *entity.Session, error) {
+	panic("unimplemented")
 }

@@ -12,6 +12,16 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
+type PasswordResets struct {
+	ID        uuid.UUID    `json:"id"`
+	UserID    uuid.UUID    `json:"user_id"`
+	Token     string       `json:"token"`
+	ExpiresAt time.Time    `json:"expires_at"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
+	Used      bool         `json:"used"`
+}
+
 type Sessions struct {
 	// Unique identifier for each session.
 	SessionID uuid.UUID `json:"session_id"`
