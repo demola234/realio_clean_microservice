@@ -244,16 +244,30 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *entity.User) erro
 }
 
 // UpdatePassword updates a user's password in the database.
-func (r *UserRepository) UpdatePassword(ctx context.Context, userID string, newPassword string) error {
+func (r *UserRepository) UpdatePassword(ctx context.Context, email string, newPassword string) error {
+	// Get the user first to verify they exist
+	user, err := r.GetUserByEmail(ctx, email)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve user by email %s: %w", email, err)
+	}
 
-	// Hash the new password
-	newPass := sql.NullString{String: newPassword, Valid: true}
+	// Hash the new password - move this to usecase layer for better separation of concerns
+	// Here we assume the password is already hashed in the usecase layer
 
-	_, err := r.store.UpdateUser(ctx, db.UpdateUserParams{
-		Password: newPass,
+	// Update user's password
+	_, err = r.store.UpdateUser(ctx, db.UpdateUserParams{
+		ID: user.ID,
+		Password: sql.NullString{
+			String: newPassword,
+			Valid:  true,
+		},
 	})
 
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to update password: %w", err)
+	}
+
+	return nil
 }
 
 func (r *UserRepository) GetUserByID(ctx context.Context, id string) (*entity.User, error) {
@@ -430,4 +444,183 @@ func (r *UserRepository) GetOtp(ctx context.Context, email string) (*entity.Upda
 		OtpAttempts:  int(otp.OtpAttempts.Int32),
 	}, nil
 
+}
+
+// CreatePasswordReset stores a password reset token
+func (r *UserRepository) CreatePasswordReset(ctx context.Context, userID uuid.UUID, token string, expiresAt time.Time) error {
+	// First, invalidate any existing reset tokens for this user
+	err := r.DeletePasswordResetsByUserId(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("failed to invalidate existing tokens: %w", err)
+	}
+
+	// Create new password reset token
+	_, err = r.store.CreatePasswordReset(ctx, db.CreatePasswordResetParams{
+		ID:        uuid.New(),
+		UserID:    userID,
+		Token:     token,
+		ExpiresAt: expiresAt,
+		CreatedAt: time.Now().UTC(),
+		Used:      false,
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to create password reset token: %w", err)
+	}
+
+	return nil
+}
+
+// GetPasswordResetByToken retrieves a password reset token and validates it
+func (r *UserRepository) GetPasswordResetByToken(ctx context.Context, token string) (uuid.UUID, error) {
+	// Get the token from the database - only valid and non-expired tokens
+	resetToken, err := r.store.GetPasswordResetByToken(ctx, token)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("invalid reset token: %w", err)
+	}
+
+	return resetToken.UserID, nil
+}
+
+// InvalidatePasswordReset marks a reset token as used
+func (r *UserRepository) InvalidatePasswordReset(ctx context.Context, token string) error {
+	_, err := r.store.InvalidatePasswordReset(ctx, token)
+	if err != nil {
+		return fmt.Errorf("failed to invalidate reset token: %w", err)
+	}
+
+	return nil
+}
+
+// DeletePasswordResetsByUserId removes all password reset tokens for a user
+func (r *UserRepository) DeletePasswordResetsByUserId(ctx context.Context, userID uuid.UUID) error {
+	err := r.store.DeletePasswordResetsByUserId(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete user's reset tokens: %w", err)
+	}
+
+	return nil
+}
+
+// GetUserSessions retrieves all sessions for a user
+func (r *UserRepository) GetUserSessions(ctx context.Context, userID uuid.UUID) ([]*entity.Session, error) {
+	// Check the return type of GetSessionsByUserID in your SQLC-generated code
+
+	// If it returns []db.Session (a slice):
+	dbSessions, err := r.store.GetSessionsByUserID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve sessions: %w", err)
+	}
+
+	// Convert database sessions to entity sessions
+	var result []*entity.Session
+	for _, dbSession := range dbSessions {
+		session := &entity.Session{
+			SessionID:    dbSession.SessionID,
+			UserID:       dbSession.UserID,
+			Token:        dbSession.Token,
+			CreatedAt:    dbSession.CreatedAt,
+			ExpiresAt:    dbSession.ExpiresAt,
+			LastActivity: dbSession.LastActivity,
+			IpAddress:    dbSession.IpAddress.String,
+			UserAgent:    dbSession.UserAgent.String,
+			DeviceInfo:   &dbSession.DeviceInfo,
+			IsActive:     dbSession.IsActive,
+			Otp:          dbSession.Otp.String,
+			OtpExpiresAt: dbSession.OtpExpiresAt.Time,
+			OTPVerified:  dbSession.OtpVerified.Bool,
+			OtpAttempts:  int(dbSession.OtpAttempts.Int32),
+		}
+
+		// Add RevokedAt if it exists
+		if dbSession.RevokedAt.Valid {
+			revokedAt := dbSession.RevokedAt.Time
+			session.RevokedAt = &revokedAt
+		}
+
+		result = append(result, session)
+	}
+
+	return result, nil
+}
+
+// GetSessionByID retrieves a specific session by ID
+func (r *UserRepository) GetSessionByID(ctx context.Context, sessionID uuid.UUID) (*entity.Session, error) {
+	// Get session from database
+	session, err := r.store.GetSessionByID(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve session: %w", err)
+	}
+
+	// Map database session to entity session
+	var revokedAt *time.Time
+	if session.RevokedAt.Valid {
+		revokedAt = &session.RevokedAt.Time
+	}
+
+	return &entity.Session{
+		SessionID:    session.SessionID,
+		UserID:       session.UserID,
+		Token:        session.Token,
+		CreatedAt:    session.CreatedAt,
+		ExpiresAt:    session.ExpiresAt,
+		LastActivity: session.LastActivity,
+		IpAddress:    session.IpAddress.String,
+		UserAgent:    session.UserAgent.String,
+		DeviceInfo:   &session.DeviceInfo,
+		IsActive:     session.IsActive,
+		RevokedAt:    revokedAt,
+		Otp:          session.Otp.String,
+		OtpExpiresAt: session.OtpExpiresAt.Time,
+		OTPVerified:  session.OtpVerified.Bool,
+		OtpAttempts:  int(session.OtpAttempts.Int32),
+	}, nil
+}
+
+// RevokeAllSessions revokes all active sessions for a user
+func (r *UserRepository) RevokeAllSessions(ctx context.Context, userID uuid.UUID) error {
+
+	// Call store method to revoke all sessions
+	err := r.store.RevokeSession(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("failed to revoke sessions: %w", err)
+	}
+
+	return nil
+}
+
+// DeleteUser permanently deletes a user and all associated data
+func (r *UserRepository) DeleteUser(ctx context.Context, userID uuid.UUID) error {
+	// Delete user from database
+	err := r.store.DeleteUser(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+
+	return nil
+}
+
+// GetLoginHistory retrieves login history for a user
+func (r *UserRepository) GetLoginHistory(ctx context.Context, userID uuid.UUID, limit int) ([]*entity.LoginHistoryEntry, error) {
+	// Get login history from database
+	history, err := r.store.GetLoginHistory(ctx, db.GetLoginHistoryParams{
+		UserID: userID,
+		Limit:  int32(limit),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve login history: %w", err)
+	}
+
+	// Map database login history to entity login history
+	var result []*entity.LoginHistoryEntry
+	for _, entry := range history {
+		result = append(result, &entity.LoginHistoryEntry{
+			ID:        entry.UserID,
+			UserID:    entry.UserID,
+			IpAddress: entry.IpAddress.String,
+			UserAgent: entry.UserAgent.String,
+		})
+	}
+
+	return result, nil
 }

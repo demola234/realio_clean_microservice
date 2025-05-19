@@ -19,6 +19,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
       email: "ademolakolawole45@gmail.com";
     };
   };
+  
   security_definitions: {
     security: {
       key: "bearer"
@@ -35,6 +36,20 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
       key: "bearer"
     }
   };
+  tags: [
+    {
+      name: "Authentication"
+      description: "APIs related to user authentication"
+    },
+    {
+      name: "User"
+      description: "APIs related to user management"
+    },
+    {
+      name: "OAuth"
+      description: "APIs related to OAuth authentication"
+    }
+  ];
 };
 
 
@@ -156,6 +171,138 @@ rpc UploadImage (UploadImageRequest) returns (UploadImageResponse) {
       security: {} // Disable security key
     };
   };
+
+rpc ForgotPassword (ForgotPasswordRequest) returns (ForgotPasswordResponse) {
+  option (google.api.http) = {
+    post: "/api/v1/forgot-password"
+    body: "*"
+  };
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+    description: "Use this API to request a password reset OTP";
+    summary: "Request password reset OTP";
+    tags: "Authentication";
+    security: {} // Disable security key
+  };
+};
+
+rpc VerifyResetPassword (VerifyResetPasswordRequest) returns (VerifyResetPasswordResponse) {
+  option (google.api.http) = {
+    post: "/api/v1/verify-reset"
+    body: "*"
+  };
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+    description: "Use this API to verify the OTP for password reset";
+    summary: "Verify password reset OTP";
+    tags: "Authentication";
+    security: {} // Disable security key
+  };
+};
+
+rpc ResetPassword (ResetPasswordRequest) returns (ResetPasswordResponse) {
+  option (google.api.http) = {
+    post: "/api/v1/reset-password"
+    body: "*"
+  };
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+    description: "Use this API to set a new password after OTP verification";
+    summary: "Reset password";
+    tags: "Authentication";
+    security: {} // Disable security key
+  };
+};
+
+// New account management endpoints
+  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/change-password"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to change the user's password";
+      summary: "Change password";
+      tags: "User";
+    };
+  };
+  
+  rpc GetProfile (GetProfileRequest) returns (GetProfileResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/profile"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to get the user's profile information";
+      summary: "Get user profile";
+      tags: "User";
+    };
+  };
+  
+  rpc UpdateProfile (UpdateProfileRequest) returns (UpdateProfileResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/profile"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to update the user's profile information";
+      summary: "Update user profile";
+      tags: "User";
+    };
+  };
+  
+  rpc GetSessions (GetSessionsRequest) returns (GetSessionsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/sessions"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to list all active sessions for the user";
+      summary: "Get active sessions";
+      tags: "Authentication";
+    };
+  };
+  
+  rpc RevokeSession (RevokeSessionRequest) returns (RevokeSessionResponse) {
+    option (google.api.http) = {
+      delete: "/api/v1/sessions/{session_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to revoke a specific session";
+      summary: "Revoke session";
+      tags: "Authentication";
+    };
+  };
+  
+  rpc DeactivateAccount (DeactivateAccountRequest) returns (DeactivateAccountResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/account/deactivate"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to temporarily deactivate a user account";
+      summary: "Deactivate account";
+      tags: "User";
+    };
+  };
+  
+rpc DeleteAccount (DeleteAccountRequest) returns (DeleteAccountResponse) {
+  option (google.api.http) = {
+    post: "/api/v1/account/delete"  // Changed from delete to post
+    body: "*"
+  };
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+    description: "Use this API to permanently delete a user account";
+    summary: "Delete account";
+    tags: "User";
+  };
+};
+  
+  rpc GetLoginHistory (GetLoginHistoryRequest) returns (GetLoginHistoryResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/account/login-history"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to get the login history for the user's account";
+      summary: "Get login history";
+      tags: "User";
+    };
+  };
 }
 
 // User entity with core user details.
@@ -273,4 +420,197 @@ message UploadImageResponse {
   string message = 1;
   string image_url = 2;
   string user_id = 3;
+}
+
+message ForgotPasswordRequest {
+  string email = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "Email address associated with the account"
+    example: "\"user@example.com\""
+  }];
+}
+
+message ForgotPasswordResponse {
+  string message = 1;
+}
+
+message VerifyResetPasswordRequest {
+  string email = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "Email address associated with the account"
+    example: "\"user@example.com\""
+  }];
+  string otp = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "6-digit OTP received via email or SMS"
+    example: "\"123456\""
+  }];
+}
+
+message VerifyResetPasswordResponse {
+  string message = 1;
+  bool valid = 2;
+}
+
+message ResetPasswordRequest {
+  string email = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "Email address associated with the account"
+    example: "\"user@example.com\""
+  }];
+  string new_password = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "New password that meets password requirements"
+    example: "\"NewSecureP@ssw0rd\""
+  }];
+}
+
+message ResetPasswordResponse {
+  string message = 1;
+}
+
+
+// ChangePassword RPC messages.
+message ChangePasswordRequest {
+  string current_password = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's current password"
+  }];
+  string new_password = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The new password to set"
+  }];
+  string user_id = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's ID"   
+  }];
+}
+
+message ChangePasswordResponse {
+  string message = 1;
+}
+
+// GetProfile RPC messages.
+message GetProfileRequest {
+  string user_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's ID"   
+  }];
+}
+
+message ProfileDetails {
+  string bio = 1;
+  string location = 2;
+  string website = 3;
+  google.protobuf.Timestamp joined_at = 4;
+  map<string, string> preferences = 5;
+  string user_id = 6 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's ID"   
+  }];
+}
+
+message GetProfileResponse {
+  User user = 1;
+  ProfileDetails profile_details = 2;
+}
+
+// UpdateProfile RPC messages.
+message UpdateProfileRequest {
+  string full_name = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's full name"
+  }];
+  string bio = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's bio"
+  }];
+  string phone = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's phone number"
+  }];
+  string location = 4 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's location"
+  }];
+  string website = 5 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's website"
+  }];
+   string user_id = 6 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's ID"   
+  }];
+}
+
+message UpdateProfileResponse {
+  User user = 1;
+  ProfileDetails profile_details = 2;
+}
+
+// GetSessions RPC messages.
+message GetSessionsRequest {
+  string user_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's ID"   
+  }];
+}
+
+message SessionInfo {
+  string session_id = 1;
+  string device_info = 2;
+  string ip_address = 3;
+  string user_agent = 4;
+  google.protobuf.Timestamp last_activity = 5;
+  bool is_current = 6;
+}
+
+message GetSessionsResponse {
+  repeated SessionInfo sessions = 1;
+}
+
+// RevokeSession RPC messages.
+message RevokeSessionRequest {
+  string session_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The ID of the session to revoke"
+  }];
+  string user_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's ID"   
+  }];
+}
+
+message RevokeSessionResponse {
+  string message = 1;
+}
+
+// DeactivateAccount RPC messages.
+message DeactivateAccountRequest {
+  string password = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's password to confirm deactivation"
+  }];
+    string user_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's ID"   
+  }];
+}
+
+message DeactivateAccountResponse {
+  string message = 1;
+}
+
+// DeleteAccount RPC messages.
+message DeleteAccountRequest {
+  string password = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's password to confirm deletion"
+  }];
+  string user_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's ID"   
+  }];
+}
+
+message DeleteAccountResponse {
+  string message = 1;
+}
+
+
+// GetLoginHistory RPC messages.
+message LoginHistoryEntry {
+  string ip_address = 1;
+  string user_agent = 2;
+  string location = 3;
+}
+
+message GetLoginHistoryRequest {
+  int32 limit = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "Number of login history entries to return (default: 10)"
+  }];
+  string user_id = 6 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "The user's ID"   
+  }];
+}
+
+message GetLoginHistoryResponse {
+  repeated LoginHistoryEntry history = 1;
 }

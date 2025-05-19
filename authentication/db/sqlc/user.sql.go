@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -63,6 +64,45 @@ func (q *Queries) CheckEmailExists(ctx context.Context, email string) (bool, err
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const createPasswordReset = `-- name: CreatePasswordReset :one
+INSERT INTO password_resets (
+    id, user_id, token, expires_at, created_at, used
+) VALUES (
+    $1, $2, $3, $4, $5, $6
+) RETURNING id, user_id, token, expires_at, created_at, updated_at, used
+`
+
+type CreatePasswordResetParams struct {
+	ID        uuid.UUID `json:"id"`
+	UserID    uuid.UUID `json:"user_id"`
+	Token     string    `json:"token"`
+	ExpiresAt time.Time `json:"expires_at"`
+	CreatedAt time.Time `json:"created_at"`
+	Used      bool      `json:"used"`
+}
+
+func (q *Queries) CreatePasswordReset(ctx context.Context, arg CreatePasswordResetParams) (PasswordResets, error) {
+	row := q.db.QueryRowContext(ctx, createPasswordReset,
+		arg.ID,
+		arg.UserID,
+		arg.Token,
+		arg.ExpiresAt,
+		arg.CreatedAt,
+		arg.Used,
+	)
+	var i PasswordResets
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Used,
+	)
+	return i, err
 }
 
 const createUser = `-- name: CreateUser :one
@@ -159,6 +199,26 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Users, 
 	return i, err
 }
 
+const deleteExpiredPasswordResets = `-- name: DeleteExpiredPasswordResets :exec
+DELETE FROM password_resets
+WHERE expires_at < now() - INTERVAL '7 days'
+`
+
+func (q *Queries) DeleteExpiredPasswordResets(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteExpiredPasswordResets)
+	return err
+}
+
+const deletePasswordResetsByUserId = `-- name: DeletePasswordResetsByUserId :exec
+DELETE FROM password_resets
+WHERE user_id = $1
+`
+
+func (q *Queries) DeletePasswordResetsByUserId(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deletePasswordResetsByUserId, userID)
+	return err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1
@@ -167,6 +227,27 @@ WHERE id = $1
 func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteUser, id)
 	return err
+}
+
+const getPasswordResetByToken = `-- name: GetPasswordResetByToken :one
+SELECT id, user_id, token, expires_at, created_at, updated_at, used FROM password_resets
+WHERE token = $1 AND used = false AND expires_at > now()
+LIMIT 1
+`
+
+func (q *Queries) GetPasswordResetByToken(ctx context.Context, token string) (PasswordResets, error) {
+	row := q.db.QueryRowContext(ctx, getPasswordResetByToken, token)
+	var i PasswordResets
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Used,
+	)
+	return i, err
 }
 
 const getUser = `-- name: GetUser :one
@@ -195,6 +276,28 @@ func (q *Queries) GetUser(ctx context.Context, email string) (Users, error) {
 		&i.LastLogin,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const invalidatePasswordReset = `-- name: InvalidatePasswordReset :one
+UPDATE password_resets
+SET used = true, updated_at = now()
+WHERE token = $1 AND used = false
+RETURNING id, user_id, token, expires_at, created_at, updated_at, used
+`
+
+func (q *Queries) InvalidatePasswordReset(ctx context.Context, token string) (PasswordResets, error) {
+	row := q.db.QueryRowContext(ctx, invalidatePasswordReset, token)
+	var i PasswordResets
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Used,
 	)
 	return i, err
 }

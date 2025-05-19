@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/demola234/authentication/internal/domain/entity"
 
@@ -49,4 +50,31 @@ type UserRepository interface {
 
 	// UploadProfileImage uploads a profile image for a user.
 	UploadProfileImage(ctx context.Context, content io.Reader, userId uuid.UUID) (string, error)
+
+	//CreatePasswordReset creates a password reset token for a user.
+	CreatePasswordReset(ctx context.Context, userID uuid.UUID, token string, expiresAt time.Time) error
+
+	// GetPasswordResetByToken retrieves a password reset token by its token.
+	GetPasswordResetByToken(ctx context.Context, token string) (uuid.UUID, error)
+
+	// InvalidatePasswordReset invalidates a password reset token.
+	InvalidatePasswordReset(ctx context.Context, token string) error
+
+	// DeletePasswordReset deletes a password reset token by its ID.
+	DeletePasswordResetsByUserId(ctx context.Context, userID uuid.UUID) error
+
+	// GetUserByProviderID retrieves a user by their provider ID.
+	GetUserSessions(ctx context.Context, userID uuid.UUID) ([]*entity.Session, error)
+
+	// GetSessionByID retrieves a session by its ID.
+	GetSessionByID(ctx context.Context, sessionID uuid.UUID) (*entity.Session, error)
+
+	// GetUserByProviderID retrieves a user by their provider ID.
+	RevokeAllSessions(ctx context.Context, userID uuid.UUID) error
+
+	// GetUserByProviderID retrieves a user by their provider ID.
+	DeleteUser(ctx context.Context, userID uuid.UUID) error
+
+	// GetUserByProviderID retrieves a user by their provider ID.
+	GetLoginHistory(ctx context.Context, userID uuid.UUID, limit int) ([]*entity.LoginHistoryEntry, error)
 }

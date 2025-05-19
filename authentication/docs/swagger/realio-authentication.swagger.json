@@ -3,6 +3,129 @@
     "application/json"
   ],
   "definitions": {
+    "pbChangePasswordRequest": {
+      "description": "ChangePassword RPC messages.",
+      "properties": {
+        "currentPassword": {
+          "description": "The user's current password",
+          "type": "string"
+        },
+        "newPassword": {
+          "description": "The new password to set",
+          "type": "string"
+        },
+        "userId": {
+          "description": "The user's ID",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbChangePasswordResponse": {
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbDeactivateAccountRequest": {
+      "description": "DeactivateAccount RPC messages.",
+      "properties": {
+        "password": {
+          "description": "The user's password to confirm deactivation",
+          "type": "string"
+        },
+        "userId": {
+          "description": "The user's ID",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbDeactivateAccountResponse": {
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbDeleteAccountRequest": {
+      "description": "DeleteAccount RPC messages.",
+      "properties": {
+        "password": {
+          "description": "The user's password to confirm deletion",
+          "type": "string"
+        },
+        "userId": {
+          "description": "The user's ID",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbDeleteAccountResponse": {
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbForgotPasswordRequest": {
+      "properties": {
+        "email": {
+          "description": "Email address associated with the account",
+          "example": "user@example.com",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbForgotPasswordResponse": {
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbGetLoginHistoryResponse": {
+      "properties": {
+        "history": {
+          "items": {
+            "$ref": "#/definitions/pbLoginHistoryEntry",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "pbGetProfileResponse": {
+      "properties": {
+        "profileDetails": {
+          "$ref": "#/definitions/pbProfileDetails"
+        },
+        "user": {
+          "$ref": "#/definitions/pbUser"
+        }
+      },
+      "type": "object"
+    },
+    "pbGetSessionsResponse": {
+      "properties": {
+        "sessions": {
+          "items": {
+            "$ref": "#/definitions/pbSessionInfo",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
     "pbGetUserResponse": {
       "properties": {
         "user": {
@@ -23,6 +146,21 @@
     "pbLogOutResponse": {
       "properties": {
         "message": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbLoginHistoryEntry": {
+      "description": "GetLoginHistory RPC messages.",
+      "properties": {
+        "ipAddress": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "userAgent": {
           "type": "string"
         }
       },
@@ -97,6 +235,34 @@
       },
       "type": "object"
     },
+    "pbProfileDetails": {
+      "properties": {
+        "bio": {
+          "type": "string"
+        },
+        "joinedAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "preferences": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "userId": {
+          "description": "The user's ID",
+          "type": "string"
+        },
+        "website": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "pbRegisterRequest": {
       "description": "Register RPC messages.",
       "properties": {
@@ -143,6 +309,37 @@
       },
       "type": "object"
     },
+    "pbResetPasswordRequest": {
+      "properties": {
+        "email": {
+          "description": "Email address associated with the account",
+          "example": "user@example.com",
+          "type": "string"
+        },
+        "newPassword": {
+          "description": "New password that meets password requirements",
+          "example": "NewSecureP@ssw0rd",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbResetPasswordResponse": {
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbRevokeSessionResponse": {
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "pbSession": {
       "description": "Session entity containing token information.",
       "properties": {
@@ -152,6 +349,71 @@
         },
         "token": {
           "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbSessionInfo": {
+      "properties": {
+        "deviceInfo": {
+          "type": "string"
+        },
+        "ipAddress": {
+          "type": "string"
+        },
+        "isCurrent": {
+          "type": "boolean"
+        },
+        "lastActivity": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "userAgent": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbUpdateProfileRequest": {
+      "description": "UpdateProfile RPC messages.",
+      "properties": {
+        "bio": {
+          "description": "The user's bio",
+          "type": "string"
+        },
+        "fullName": {
+          "description": "The user's full name",
+          "type": "string"
+        },
+        "location": {
+          "description": "The user's location",
+          "type": "string"
+        },
+        "phone": {
+          "description": "The user's phone number",
+          "type": "string"
+        },
+        "userId": {
+          "description": "The user's ID",
+          "type": "string"
+        },
+        "website": {
+          "description": "The user's website",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbUpdateProfileResponse": {
+      "properties": {
+        "profileDetails": {
+          "$ref": "#/definitions/pbProfileDetails"
+        },
+        "user": {
+          "$ref": "#/definitions/pbUser"
         }
       },
       "type": "object"
@@ -218,6 +480,32 @@
       },
       "type": "object"
     },
+    "pbVerifyResetPasswordRequest": {
+      "properties": {
+        "email": {
+          "description": "Email address associated with the account",
+          "example": "user@example.com",
+          "type": "string"
+        },
+        "otp": {
+          "description": "6-digit OTP received via email or SMS",
+          "example": "123456",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "pbVerifyResetPasswordResponse": {
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "valid": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
     "pbVerifyUserRequest": {
       "description": "VerifyUser RPC messages.",
       "properties": {
@@ -280,6 +568,187 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/v1/account/deactivate": {
+      "post": {
+        "description": "Use this API to temporarily deactivate a user account",
+        "operationId": "AuthService_DeactivateAccount",
+        "parameters": [
+          {
+            "description": "DeactivateAccount RPC messages.",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbDeactivateAccountRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbDeactivateAccountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "summary": "Deactivate account",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v1/account/delete": {
+      "post": {
+        "description": "Use this API to permanently delete a user account",
+        "operationId": "AuthService_DeleteAccount",
+        "parameters": [
+          {
+            "description": "DeleteAccount RPC messages.",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbDeleteAccountRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbDeleteAccountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "summary": "Delete account",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v1/account/login-history": {
+      "get": {
+        "description": "Use this API to get the login history for the user's account",
+        "operationId": "AuthService_GetLoginHistory",
+        "parameters": [
+          {
+            "description": "Number of login history entries to return (default: 10)",
+            "format": "int32",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "The user's ID",
+            "in": "query",
+            "name": "userId",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetLoginHistoryResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "summary": "Get login history",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v1/change-password": {
+      "post": {
+        "description": "Use this API to change the user's password",
+        "operationId": "AuthService_ChangePassword",
+        "parameters": [
+          {
+            "description": "ChangePassword RPC messages.",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbChangePasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbChangePasswordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "summary": "Change password",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v1/forgot-password": {
+      "post": {
+        "description": "Use this API to request a password reset OTP",
+        "operationId": "AuthService_ForgotPassword",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbForgotPasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbForgotPasswordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "security": [],
+        "summary": "Request password reset OTP",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
     "/api/v1/login": {
       "post": {
         "description": "User this API to login and generate an access token",
@@ -421,6 +890,72 @@
         ]
       }
     },
+    "/api/v1/profile": {
+      "get": {
+        "description": "Use this API to get the user's profile information",
+        "operationId": "AuthService_GetProfile",
+        "parameters": [
+          {
+            "description": "The user's ID",
+            "in": "query",
+            "name": "userId",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetProfileResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "summary": "Get user profile",
+        "tags": [
+          "User"
+        ]
+      },
+      "put": {
+        "description": "Use this API to update the user's profile information",
+        "operationId": "AuthService_UpdateProfile",
+        "parameters": [
+          {
+            "description": "UpdateProfile RPC messages.",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbUpdateProfileRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUpdateProfileResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "summary": "Update user profile",
+        "tags": [
+          "User"
+        ]
+      }
+    },
     "/api/v1/register": {
       "post": {
         "description": "User this API to register a new user",
@@ -488,6 +1023,114 @@
         },
         "security": [],
         "summary": "Resend OTP",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/reset-password": {
+      "post": {
+        "description": "Use this API to set a new password after OTP verification",
+        "operationId": "AuthService_ResetPassword",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbResetPasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbResetPasswordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "security": [],
+        "summary": "Reset password",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/sessions": {
+      "get": {
+        "description": "Use this API to list all active sessions for the user",
+        "operationId": "AuthService_GetSessions",
+        "parameters": [
+          {
+            "description": "The user's ID",
+            "in": "query",
+            "name": "userId",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetSessionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "summary": "Get active sessions",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/sessions/{sessionId}": {
+      "delete": {
+        "description": "Use this API to revoke a specific session",
+        "operationId": "AuthService_RevokeSession",
+        "parameters": [
+          {
+            "description": "The ID of the session to revoke",
+            "in": "path",
+            "name": "sessionId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "The user's ID",
+            "in": "query",
+            "name": "userId",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbRevokeSessionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "summary": "Revoke session",
         "tags": [
           "Authentication"
         ]
@@ -603,6 +1246,41 @@
           "Authentication"
         ]
       }
+    },
+    "/api/v1/verify-reset": {
+      "post": {
+        "description": "Use this API to verify the OTP for password reset",
+        "operationId": "AuthService_VerifyResetPassword",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbVerifyResetPasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbVerifyResetPasswordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "security": [],
+        "summary": "Verify password reset OTP",
+        "tags": [
+          "Authentication"
+        ]
+      }
     }
   },
   "produces": [
@@ -623,6 +1301,18 @@
   },
   "swagger": "2.0",
   "tags": [
+    {
+      "description": "APIs related to user authentication",
+      "name": "Authentication"
+    },
+    {
+      "description": "APIs related to user management",
+      "name": "User"
+    },
+    {
+      "description": "APIs related to OAuth authentication",
+      "name": "OAuth"
+    },
     {
       "name": "AuthService"
     }

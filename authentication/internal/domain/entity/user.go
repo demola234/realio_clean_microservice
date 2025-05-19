@@ -26,3 +26,23 @@ type User struct {
 	CreatedAt      time.Time          `json:"created_at"`
 	UpdatedAt      time.Time          `json:"updated_at"`
 }
+
+// UserProfile represents a user profile with additional details
+type UserProfile struct {
+	User     *User
+	Bio      string
+	Website  string
+	Location string
+	JoinedAt time.Time
+}
+
+// LoginHistoryEntry represents a single login history entry
+type LoginHistoryEntry struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Timestamp time.Time
+	IpAddress string
+	UserAgent string
+	Location  string
+	Success   bool
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"testing"
+	"time"
 
 	"github.com/demola234/authentication/internal/domain/entity"
 	"github.com/demola234/authentication/pkg/utils"
@@ -16,6 +17,69 @@ import (
 // MockUserRepository is a mock implementation of UserRepository
 type MockUserRepository struct {
 	mock.Mock
+}
+
+// DeleteUser implements repository.UserRepository.
+func (m *MockUserRepository) DeleteUser(ctx context.Context, userID uuid.UUID) error {
+	args := m.Called(ctx, userID)
+	return args.Error(0)
+}
+
+// GetLoginHistory implements repository.UserRepository.
+func (m *MockUserRepository) GetLoginHistory(ctx context.Context, userID uuid.UUID, limit int) ([]*entity.LoginHistoryEntry, error) {
+	args := m.Called(ctx, userID, limit)
+	return args.Get(0).([]*entity.LoginHistoryEntry), args.Error(1)
+}
+
+// GetSessionByID implements repository.UserRepository.
+func (m *MockUserRepository) GetSessionByID(ctx context.Context, sessionID uuid.UUID) (*entity.Session, error) {
+	args := m.Called(ctx, sessionID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*entity.Session), args.Error(1)
+}
+
+// GetUserSessions implements repository.UserRepository.
+func (m *MockUserRepository) GetUserSessions(ctx context.Context, userID uuid.UUID) ([]*entity.Session, error) {
+	args := m.Called(ctx, userID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*entity.Session), args.Error(1)
+}
+
+// RevokeAllSessions implements repository.UserRepository.
+func (m *MockUserRepository) RevokeAllSessions(ctx context.Context, userID uuid.UUID) error {
+	args := m.Called(ctx, userID)
+	return args.Error(0)
+}
+
+// CreatePasswordReset implements repository.UserRepository.
+func (m *MockUserRepository) CreatePasswordReset(ctx context.Context, userID uuid.UUID, token string, expiresAt time.Time) error {
+	args := m.Called(ctx, userID, token, expiresAt)
+	return args.Error(0)
+}
+
+// DeletePasswordResetsByUserId implements repository.UserRepository.
+func (m *MockUserRepository) DeletePasswordResetsByUserId(ctx context.Context, userID uuid.UUID) error {
+	args := m.Called(ctx, userID)
+	return args.Error(0)
+}
+
+// GetPasswordResetByToken implements repository.UserRepository.
+func (m *MockUserRepository) GetPasswordResetByToken(ctx context.Context, token string) (uuid.UUID, error) {
+	args := m.Called(ctx, token)
+	if args.Get(0) == nil {
+		return uuid.Nil, args.Error(1)
+	}
+	return args.Get(0).(uuid.UUID), args.Error(1)
+}
+
+// InvalidatePasswordReset implements repository.UserRepository.
+func (m *MockUserRepository) InvalidatePasswordReset(ctx context.Context, token string) error {
+	args := m.Called(ctx, token)
+	return args.Error(0)
 }
 
 // UploadProfileImage implements repository.UserRepository.
