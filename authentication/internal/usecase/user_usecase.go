@@ -390,9 +390,6 @@ func (u *userUsecase) ForgetPassword(ctx context.Context, email string) error {
 
 	// Generate a secure 6-digit OTP
 	otp := utils.RandomOtp()
-	if err != nil {
-		return fmt.Errorf("failed to generate OTP: %w", err)
-	}
 
 	// Update the OTP for the user - reusing your existing UpdateOtp method
 	err = u.userRepo.UpdateOtp(ctx, &entity.UpdateOtp{
@@ -415,7 +412,6 @@ func (u *userUsecase) ForgetPassword(ctx context.Context, email string) error {
 		user.Email, metaData.ClientIP, otp)
 	return nil
 }
-
 // VerifyResetPassword verifies the OTP for password reset
 func (u *userUsecase) VerifyResetPassword(ctx context.Context, email string, otp string) error {
 	// Validate OTP format

@@ -20,8 +20,8 @@ func createRandomSession(t *testing.T) Sessions {
 		SessionID:    uuid.New(),
 		UserID:       user.ID, // Use the ID of the created user
 		Token:        utils.RandomString(32),
-		ExpiresAt:    time.Now().Add(24 * time.Hour).UTC(), // Set to UTC
-		LastActivity: time.Now().UTC(),                     // Set to UTC
+		ExpiresAt:    time.Now().Add(24 * time.Hour).UTC(),
+		LastActivity: time.Now().UTC(),                   
 		IpAddress:    sql.NullString{String: "127.0.0.1", Valid: true},
 		UserAgent:    sql.NullString{String: "Mozilla/5.0", Valid: true},
 		IsActive:     true,
@@ -35,8 +35,8 @@ func createRandomSession(t *testing.T) Sessions {
 	require.Equal(t, user.ID, session.UserID)
 	require.Equal(t, arg.Token, session.Token)
 	require.True(t, session.IsActive)
-	require.WithinDuration(t, arg.ExpiresAt, session.ExpiresAt.UTC(), time.Second)       // Compare as UTC
-	require.WithinDuration(t, arg.LastActivity, session.LastActivity.UTC(), time.Second) // Compare as UTC
+	require.WithinDuration(t, arg.ExpiresAt, session.ExpiresAt.UTC(), time.Second)     
+	require.WithinDuration(t, arg.LastActivity, session.LastActivity.UTC(), time.Second)
 
 	return session
 }

@@ -3,7 +3,6 @@ package user_handler
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -438,7 +437,7 @@ func (h *UserHandler) GetSessions(ctx context.Context, req *pb.GetSessionsReques
 		isCurrent := session.SessionID.String() == currentSessionID
 		sessionInfos = append(sessionInfos, &pb.SessionInfo{
 			SessionId:    session.SessionID.String(),
-			DeviceInfo:   fmt.Sprintf("%s", session.DeviceInfo),
+			DeviceInfo:   string(session.DeviceInfo.RawMessage),
 			IpAddress:    session.IpAddress,
 			UserAgent:    session.UserAgent,
 			LastActivity: timestamppb.New(session.LastActivity),
