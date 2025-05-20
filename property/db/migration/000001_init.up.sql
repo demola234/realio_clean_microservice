@@ -8,17 +8,17 @@ CREATE TABLE "Property" (
   "title" VARCHAR NOT NULL,
   "description" TEXT,
   "price" NUMERIC NOT NULL,
-  "type" property_type, -- Enum for property type
+  "type" property_type,
   "address" VARCHAR NOT NULL,
   "zip_code" VARCHAR,
   "city" VARCHAR,
-  "owner_id" UUID, -- Reference to external user microservice
-  "images" TEXT[], -- Array of image URLs (Optional)
+  "owner_id" UUID, 
+  "images" TEXT[], 
   "no_of_bed_rooms" INT,
   "no_of_bath_rooms" INT,
   "no_of_toilets" INT,
   "geo_location" JSON, 
-  "status" property_status, -- Enum for property status
+  "status" property_status,
   "created_at" TIMESTAMP DEFAULT now(),
   "updated_at" TIMESTAMP DEFAULT now()
 );

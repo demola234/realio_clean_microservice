@@ -16,13 +16,35 @@ type Config struct {
 }
 
 func LoadConfig(path string) (config Config, err error) {
+	viper.SetConfigName(".env")
+
+	// Set the path to look for the configuration file
 	viper.AddConfigPath(path)
-	viper.SetConfigName("app")
-	viper.SetConfigType("env")
+
+	// Set the file type to .env
+	viper.SetDefault("DB_DRIVER", "postgres")
+	viper.SetDefault("DB_SOURCE", "postgres://root:secret@localhost:5433/defi?sslmode=disable")
+	viper.SetDefault("GRPC_SERVER_ADDRESS", ":50051")
+	viper.SetDefault("HTTP_SERVER_ADDRESS", ":8080")
+	viper.SetDefault("TOKEN_SYMMETRIC_KEY", "12345678901234567890123456789012")
+	viper.SetDefault("KAFKA_BROKERS", []string{"localhost:9092"})
+	viper.SetDefault("KAFKA_TOPIC", "property_topic")
+	viper.SetDefault("KAFKA_GROUP_ID", "property_group")
+	viper.SetDefault("Environment", "development")
 
 	viper.AutomaticEnv()
 
+	// Set the type of the configuration file
+	viper.SetConfigType("env")
+
+	// Read the configuration file
 	err = viper.ReadInConfig()
+	if err != nil {
+		return
+	}
+
+	// Unmarshal the configuration into the Config struct
+	err = viper.Unmarshal(&config)
 	if err != nil {
 		return
 	}
