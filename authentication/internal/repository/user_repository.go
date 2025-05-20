@@ -22,7 +22,6 @@ import (
 )
 
 // UserRepository implements the AuthRepository interface.
-// This struct interacts with the database using SQLC-generated code.
 type UserRepository struct {
 	store db.Store
 }
@@ -54,6 +53,11 @@ func (r *UserRepository) UploadProfileImage(ctx context.Context, content io.Read
 			String: result.SecureURL,
 			Valid:  true,
 		},
+	}
+
+	_, err = r.store.UpdateUserProfilePicture(ctx, updateUser)
+	if err != nil {
+		return "", err
 	}
 
 	return updateUser.ProfilePicture.String, nil
@@ -346,11 +350,22 @@ func (r *UserRepository) CreateSession(ctx context.Context, session *entity.Sess
 		UserAgent:    sql.NullString{String: session.UserAgent, Valid: session.UserAgent != ""},
 		IsActive:     session.IsActive,
 		RevokedAt:    revokedAt,
-		OtpVerified:  sql.NullBool{Bool: session.OTPVerified, Valid: true},
-		OtpExpiresAt: sql.NullTime{Time: session.OtpExpiresAt, Valid: true},
-		Otp:          sql.NullString{String: session.Otp, Valid: session.Otp != ""},
-		OtpAttempts:  sql.NullInt32{Int32: int32(session.OtpAttempts), Valid: true},
 	})
+	if err != nil {
+		return err
+	}
+
+	_, err = r.store.CreateEmailVerification(
+		ctx,
+		db.CreateEmailVerificationParams{
+			UserID:       session.UserID,
+			OtpVerified:  sql.NullBool{Bool: session.OTPVerified, Valid: true},
+			OtpExpiresAt: sql.NullTime{Time: session.OtpExpiresAt, Valid: true},
+			Otp:          sql.NullString{String: session.Otp, Valid: session.Otp != ""},
+			OtpAttempts:  sql.NullInt32{Int32: int32(session.OtpAttempts), Valid: true},
+		},
+	)
+
 	if err != nil {
 		return err
 	}
@@ -403,13 +418,14 @@ func (r *UserRepository) UpdateOtp(ctx context.Context, userOtp *entity.UpdateOt
 	}
 
 	// Call UpdateOtp with the mapped parameters
-	_, err = r.store.UpdateSession(ctx, db.UpdateSessionParams{
+	_, err = r.store.CreateEmailVerification(ctx, db.CreateEmailVerificationParams{
 		UserID:       user.ID,
 		Otp:          sql.NullString{String: userOtp.Otp, Valid: true},
 		OtpExpiresAt: sql.NullTime{Time: userOtp.OtpExpiresAt, Valid: true},
 		OtpAttempts:  sql.NullInt32{Int32: int32(userOtp.OtpAttempts), Valid: true},
 		OtpVerified:  sql.NullBool{Bool: userOtp.OTPVerified, Valid: true},
 	})
+
 	if err != nil {
 		return err
 	}
@@ -432,7 +448,7 @@ func (r *UserRepository) GetOtp(ctx context.Context, email string) (*entity.Upda
 	}
 
 	// Call GetOtp with the mapped parameters
-	otp, err := r.store.GetSessionByUserID(ctx, userUUID)
+	otp, err := r.store.GetEmailVerification(ctx, userUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -441,6 +457,8 @@ func (r *UserRepository) GetOtp(ctx context.Context, email string) (*entity.Upda
 	return &entity.UpdateOtp{
 		Otp:          otp.Otp.String,
 		OtpExpiresAt: otp.OtpExpiresAt.Time,
+		Email:        email,
+		OTPVerified:  otp.OtpVerified.Bool,
 		OtpAttempts:  int(otp.OtpAttempts.Int32),
 	}, nil
 
@@ -460,8 +478,6 @@ func (r *UserRepository) CreatePasswordReset(ctx context.Context, userID uuid.UU
 		UserID:    userID,
 		Token:     token,
 		ExpiresAt: expiresAt,
-		CreatedAt: time.Now().UTC(),
-		Used:      false,
 	})
 
 	if err != nil {
@@ -494,7 +510,7 @@ func (r *UserRepository) InvalidatePasswordReset(ctx context.Context, token stri
 
 // DeletePasswordResetsByUserId removes all password reset tokens for a user
 func (r *UserRepository) DeletePasswordResetsByUserId(ctx context.Context, userID uuid.UUID) error {
-	err := r.store.DeletePasswordResetsByUserId(ctx, userID)
+	err := r.store.DeleteExpiredPasswordResets(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete user's reset tokens: %w", err)
 	}
@@ -526,10 +542,6 @@ func (r *UserRepository) GetUserSessions(ctx context.Context, userID uuid.UUID) 
 			UserAgent:    dbSession.UserAgent.String,
 			DeviceInfo:   &dbSession.DeviceInfo,
 			IsActive:     dbSession.IsActive,
-			Otp:          dbSession.Otp.String,
-			OtpExpiresAt: dbSession.OtpExpiresAt.Time,
-			OTPVerified:  dbSession.OtpVerified.Bool,
-			OtpAttempts:  int(dbSession.OtpAttempts.Int32),
 		}
 
 		// Add RevokedAt if it exists
@@ -570,10 +582,6 @@ func (r *UserRepository) GetSessionByID(ctx context.Context, sessionID uuid.UUID
 		DeviceInfo:   &session.DeviceInfo,
 		IsActive:     session.IsActive,
 		RevokedAt:    revokedAt,
-		Otp:          session.Otp.String,
-		OtpExpiresAt: session.OtpExpiresAt.Time,
-		OTPVerified:  session.OtpVerified.Bool,
-		OtpAttempts:  int(session.OtpAttempts.Int32),
 	}, nil
 }
 
@@ -617,8 +625,8 @@ func (r *UserRepository) GetLoginHistory(ctx context.Context, userID uuid.UUID, 
 		result = append(result, &entity.LoginHistoryEntry{
 			ID:        entry.UserID,
 			UserID:    entry.UserID,
-			IpAddress: entry.IpAddress.String,
-			UserAgent: entry.UserAgent.String,
+			IpAddress: entry.IpAddress,
+			UserAgent: entry.UserAgent,
 		})
 	}
 

@@ -12,6 +12,26 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
+type EmailVerification struct {
+	ID           uuid.UUID      `json:"id"`
+	UserID       uuid.UUID      `json:"user_id"`
+	OtpExpiresAt sql.NullTime   `json:"otp_expires_at"`
+	Otp          sql.NullString `json:"otp"`
+	OtpAttempts  sql.NullInt32  `json:"otp_attempts"`
+	OtpVerified  sql.NullBool   `json:"otp_verified"`
+	CreatedAt    time.Time      `json:"created_at"`
+	ExpiresAt    time.Time      `json:"expires_at"`
+	UpdatedAt    sql.NullTime   `json:"updated_at"`
+}
+
+type LoginHistory struct {
+	ID        uuid.UUID `json:"id"`
+	UserID    uuid.UUID `json:"user_id"`
+	IpAddress string    `json:"ip_address"`
+	UserAgent string    `json:"user_agent"`
+	LoginTime time.Time `json:"login_time"`
+}
+
 type PasswordResets struct {
 	ID        uuid.UUID    `json:"id"`
 	UserID    uuid.UUID    `json:"user_id"`
@@ -29,14 +49,6 @@ type Sessions struct {
 	UserID uuid.UUID `json:"user_id"`
 	// The session token (JWT or other).
 	Token string `json:"token"`
-	// One-time password (for MFA)
-	Otp sql.NullString `json:"otp"`
-	// Expiry time for OTP
-	OtpExpiresAt sql.NullTime `json:"otp_expires_at"`
-	// Number of OTP attempts made
-	OtpAttempts sql.NullInt32 `json:"otp_attempts"`
-	// Indicates if OTP was verified
-	OtpVerified sql.NullBool `json:"otp_verified"`
 	// Timestamp of when the session was created.
 	CreatedAt time.Time `json:"created_at"`
 	// Timestamp of when the session expires.

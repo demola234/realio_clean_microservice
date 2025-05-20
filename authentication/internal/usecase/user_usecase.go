@@ -720,9 +720,6 @@ func (u *userUsecase) GetUserProfile(ctx context.Context, userID string) (*entit
 		return nil, fmt.Errorf("failed to retrieve user: %w", err)
 	}
 
-	// Retrieve additional profile information
-	// In a real implementation, you might have a separate profile repository
-	// For now, we'll create a basic profile from the user entity
 	profile := &entity.UserProfile{
 		User:     user,
 		Bio:      user.Bio,

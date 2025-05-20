@@ -66,6 +66,36 @@ func (mr *MockStoreMockRecorder) CheckEmailExists(arg0, arg1 interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckEmailExists", reflect.TypeOf((*MockStore)(nil).CheckEmailExists), arg0, arg1)
 }
 
+// CreateEmailVerification mocks base method.
+func (m *MockStore) CreateEmailVerification(arg0 context.Context, arg1 db.CreateEmailVerificationParams) (db.EmailVerification, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateEmailVerification", arg0, arg1)
+	ret0, _ := ret[0].(db.EmailVerification)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateEmailVerification indicates an expected call of CreateEmailVerification.
+func (mr *MockStoreMockRecorder) CreateEmailVerification(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateEmailVerification", reflect.TypeOf((*MockStore)(nil).CreateEmailVerification), arg0, arg1)
+}
+
+// CreateLoginHistory mocks base method.
+func (m *MockStore) CreateLoginHistory(arg0 context.Context, arg1 db.CreateLoginHistoryParams) (db.LoginHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateLoginHistory", arg0, arg1)
+	ret0, _ := ret[0].(db.LoginHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateLoginHistory indicates an expected call of CreateLoginHistory.
+func (mr *MockStoreMockRecorder) CreateLoginHistory(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLoginHistory", reflect.TypeOf((*MockStore)(nil).CreateLoginHistory), arg0, arg1)
+}
+
 // CreateLoginHistoryEntry mocks base method.
 func (m *MockStore) CreateLoginHistoryEntry(arg0 context.Context, arg1 db.CreateLoginHistoryEntryParams) (db.Sessions, error) {
 	m.ctrl.T.Helper()
@@ -126,6 +156,20 @@ func (mr *MockStoreMockRecorder) CreateUser(arg0, arg1 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockStore)(nil).CreateUser), arg0, arg1)
 }
 
+// DeleteExpiredEmailVerifications mocks base method.
+func (m *MockStore) DeleteExpiredEmailVerifications(arg0 context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteExpiredEmailVerifications", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteExpiredEmailVerifications indicates an expected call of DeleteExpiredEmailVerifications.
+func (mr *MockStoreMockRecorder) DeleteExpiredEmailVerifications(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteExpiredEmailVerifications", reflect.TypeOf((*MockStore)(nil).DeleteExpiredEmailVerifications), arg0)
+}
+
 // DeleteExpiredPasswordResets mocks base method.
 func (m *MockStore) DeleteExpiredPasswordResets(arg0 context.Context) error {
 	m.ctrl.T.Helper()
@@ -182,11 +226,26 @@ func (mr *MockStoreMockRecorder) DeleteUser(arg0, arg1 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockStore)(nil).DeleteUser), arg0, arg1)
 }
 
+// GetEmailVerification mocks base method.
+func (m *MockStore) GetEmailVerification(arg0 context.Context, arg1 uuid.UUID) (db.EmailVerification, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetEmailVerification", arg0, arg1)
+	ret0, _ := ret[0].(db.EmailVerification)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEmailVerification indicates an expected call of GetEmailVerification.
+func (mr *MockStoreMockRecorder) GetEmailVerification(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEmailVerification", reflect.TypeOf((*MockStore)(nil).GetEmailVerification), arg0, arg1)
+}
+
 // GetLoginHistory mocks base method.
-func (m *MockStore) GetLoginHistory(arg0 context.Context, arg1 db.GetLoginHistoryParams) ([]db.Sessions, error) {
+func (m *MockStore) GetLoginHistory(arg0 context.Context, arg1 db.GetLoginHistoryParams) ([]db.LoginHistory, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLoginHistory", arg0, arg1)
-	ret0, _ := ret[0].([]db.Sessions)
+	ret0, _ := ret[0].([]db.LoginHistory)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -272,6 +331,20 @@ func (mr *MockStoreMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockStore)(nil).GetUser), arg0, arg1)
 }
 
+// IncrementOTPAttempts mocks base method.
+func (m *MockStore) IncrementOTPAttempts(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IncrementOTPAttempts", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// IncrementOTPAttempts indicates an expected call of IncrementOTPAttempts.
+func (mr *MockStoreMockRecorder) IncrementOTPAttempts(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncrementOTPAttempts", reflect.TypeOf((*MockStore)(nil).IncrementOTPAttempts), arg0, arg1)
+}
+
 // InvalidatePasswordReset mocks base method.
 func (m *MockStore) InvalidatePasswordReset(arg0 context.Context, arg1 string) (db.PasswordResets, error) {
 	m.ctrl.T.Helper()
@@ -285,6 +358,20 @@ func (m *MockStore) InvalidatePasswordReset(arg0 context.Context, arg1 string) (
 func (mr *MockStoreMockRecorder) InvalidatePasswordReset(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InvalidatePasswordReset", reflect.TypeOf((*MockStore)(nil).InvalidatePasswordReset), arg0, arg1)
+}
+
+// MarkEmailVerified mocks base method.
+func (m *MockStore) MarkEmailVerified(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MarkEmailVerified", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MarkEmailVerified indicates an expected call of MarkEmailVerified.
+func (mr *MockStoreMockRecorder) MarkEmailVerified(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkEmailVerified", reflect.TypeOf((*MockStore)(nil).MarkEmailVerified), arg0, arg1)
 }
 
 // RevokeSession mocks base method.

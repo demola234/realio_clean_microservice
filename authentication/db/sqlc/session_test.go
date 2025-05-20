@@ -24,10 +24,6 @@ func createRandomSession(t *testing.T) Sessions {
 		LastActivity: time.Now().UTC(),                     // Set to UTC
 		IpAddress:    sql.NullString{String: "127.0.0.1", Valid: true},
 		UserAgent:    sql.NullString{String: "Mozilla/5.0", Valid: true},
-		Otp:          sql.NullString{String: "123456", Valid: true},
-		OtpVerified:  sql.NullBool{Bool: false, Valid: true},
-		OtpExpiresAt: sql.NullTime{Time: time.Now().Add(5 * time.Minute), Valid: true},
-		OtpAttempts:  sql.NullInt32{Int32: 0, Valid: true},
 		IsActive:     true,
 		DeviceInfo:   pqtype.NullRawMessage{RawMessage: []byte(`{"device": "laptop"}`), Valid: true},
 	}
@@ -109,28 +105,4 @@ func TestDeleteSession(t *testing.T) {
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, session2)
-}
-
-func TestUpdateOtp(t *testing.T) {
-	session := createRandomSession(t)
-	newOtp := "789012"
-
-	arg := UpdateSessionParams{
-		UserID:       session.UserID,
-		Otp:          sql.NullString{String: newOtp, Valid: true},
-		OtpVerified:  sql.NullBool{Bool: true, Valid: true},
-		OtpExpiresAt: sql.NullTime{Time: time.Now().Add(5 * time.Minute), Valid: true},
-		OtpAttempts:  sql.NullInt32{Int32: 0, Valid: true},
-	}
-
-	_, err := testQueries.UpdateSession(context.Background(), arg)
-
-	require.NoError(t, err)
-	session2, err := testQueries.GetSessionByID(context.Background(), session.SessionID)
-	require.NoError(t, err)
-	require.Equal(t, newOtp, session2.Otp.String)
-	require.Equal(t, true, session2.OtpVerified.Bool)
-	require.Equal(t, int32(0), session2.OtpAttempts.Int32)
-	require.Equal(t, session.SessionID, session2.SessionID)
-	require.Equal(t, session.UserID, session2.UserID)
 }
