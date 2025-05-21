@@ -55,7 +55,7 @@ docker-restart:
 
 # Database commands
 postgres:
-	docker run --name $(DB_NAME) -p $(DB_PORT):5443 -e POSTGRES_USER=$(DB_USER) -e POSTGRES_PASSWORD=$(DB_PASSWORD) -d postgres:15-alpine
+	docker run --name $(DB_NAME) -p $(DB_PORT):5444 -e POSTGRES_USER=$(DB_USER) -e POSTGRES_PASSWORD=$(DB_PASSWORD) -d postgres:15-alpine
 
 createdb:
 	docker exec -it $(DB_NAME) createdb --username=$(DB_USER) --owner=$(DB_USER) $(DB_NAME)
@@ -82,7 +82,7 @@ sqlc:
 	sqlc generate
 
 server:
-	go run cmd/authentication/main.go
+	go run cmd/property/main.go
 
 mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/demola234/property/db/sqlc Store
