@@ -13,6 +13,7 @@ type Config struct {
 	KafkaBrokers      []string `mapstructure:"KAFKA_BROKERS"`
 	KafkaTopic        string   `mapstructure:"KAFKA_TOPIC"`
 	KafkaGroupID      string   `mapstructure:"KAFKA_GROUP_ID"`
+	Environment       string   `mapstructure:"Environment"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

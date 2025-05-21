@@ -27,13 +27,13 @@ func main() {
 	}
 
 	// Initialize gRPC client with dynamic address
-	authClient, err := grpc_clients.NewAuthenticationClient("127.0.0.1:9091", 20*time.Second)
+	authClient, err := grpc_clients.NewAuthenticationClient(configs.AuthenticationGRPCAddress, 20*time.Second)
 	if err != nil {
 		log.Fatalf("Failed to connect to Authentication service: %v", err)
 	}
 	defer authClient.Close() // Ensure gRPC connection is closed on shutdown
 
-	propertyClient, err := grpc_clients.NewPropertyClient("127.0.0.1:9092", 20*time.Second)
+	propertyClient, err := grpc_clients.NewPropertyClient(configs.PropertyGRPCAddress, 20*time.Second)
 	if err != nil {
 		log.Fatalf("Failed to connect to Property service: %v", err)
 	}

@@ -78,6 +78,10 @@ migratedown1:
 migrateversion:
 	migrate -database "$(DB_URL)" -path db/migration version
 
+migrate-create:
+	@read -p "Enter migration name: " name; \
+	migrate create -ext sql -dir db/migration -seq $${name}
+
 sqlc:
 	sqlc generate
 

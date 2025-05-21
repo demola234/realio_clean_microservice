@@ -6,9 +6,9 @@ package mockdb
 
 import (
 	context "context"
-	db "github.com/demola234/property/db/sqlc"
 	reflect "reflect"
 
+	db "github.com/demola234/property/db/sqlc"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 )
@@ -36,6 +36,167 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// AddPropertyAmenity mocks base method.
+func (m *MockStore) AddPropertyAmenity(arg0 context.Context, arg1 db.AddPropertyAmenityParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddPropertyAmenity", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddPropertyAmenity indicates an expected call of AddPropertyAmenity.
+func (mr *MockStoreMockRecorder) AddPropertyAmenity(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPropertyAmenity", reflect.TypeOf((*MockStore)(nil).AddPropertyAmenity), arg0, arg1)
+}
+
+// AddPropertyImage mocks base method.
+func (m *MockStore) AddPropertyImage(arg0 context.Context, arg1 db.AddPropertyImageParams) (db.PropertyImage, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddPropertyImage", arg0, arg1)
+	ret0, _ := ret[0].(db.PropertyImage)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddPropertyImage indicates an expected call of AddPropertyImage.
+func (mr *MockStoreMockRecorder) AddPropertyImage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPropertyImage", reflect.TypeOf((*MockStore)(nil).AddPropertyImage), arg0, arg1)
+}
+
+// BulkSetPropertyAvailabilityStatus mocks base method.
+func (m *MockStore) BulkSetPropertyAvailabilityStatus(arg0 context.Context, arg1 db.BulkSetPropertyAvailabilityStatusParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BulkSetPropertyAvailabilityStatus", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BulkSetPropertyAvailabilityStatus indicates an expected call of BulkSetPropertyAvailabilityStatus.
+func (mr *MockStoreMockRecorder) BulkSetPropertyAvailabilityStatus(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BulkSetPropertyAvailabilityStatus", reflect.TypeOf((*MockStore)(nil).BulkSetPropertyAvailabilityStatus), arg0, arg1)
+}
+
+// ClearUserSearchHistory mocks base method.
+func (m *MockStore) ClearUserSearchHistory(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ClearUserSearchHistory", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ClearUserSearchHistory indicates an expected call of ClearUserSearchHistory.
+func (mr *MockStoreMockRecorder) ClearUserSearchHistory(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearUserSearchHistory", reflect.TypeOf((*MockStore)(nil).ClearUserSearchHistory), arg0, arg1)
+}
+
+// CountProperties mocks base method.
+func (m *MockStore) CountProperties(arg0 context.Context, arg1 db.CountPropertiesParams) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CountProperties", arg0, arg1)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CountProperties indicates an expected call of CountProperties.
+func (mr *MockStoreMockRecorder) CountProperties(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountProperties", reflect.TypeOf((*MockStore)(nil).CountProperties), arg0, arg1)
+}
+
+// CreateAmenity mocks base method.
+func (m *MockStore) CreateAmenity(arg0 context.Context, arg1 db.CreateAmenityParams) (db.Amenity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateAmenity", arg0, arg1)
+	ret0, _ := ret[0].(db.Amenity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateAmenity indicates an expected call of CreateAmenity.
+func (mr *MockStoreMockRecorder) CreateAmenity(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAmenity", reflect.TypeOf((*MockStore)(nil).CreateAmenity), arg0, arg1)
+}
+
+// CreateProperty mocks base method.
+func (m *MockStore) CreateProperty(arg0 context.Context, arg1 db.CreatePropertyParams) (db.Property, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateProperty", arg0, arg1)
+	ret0, _ := ret[0].(db.Property)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateProperty indicates an expected call of CreateProperty.
+func (mr *MockStoreMockRecorder) CreateProperty(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProperty", reflect.TypeOf((*MockStore)(nil).CreateProperty), arg0, arg1)
+}
+
+// CreatePropertyDetail mocks base method.
+func (m *MockStore) CreatePropertyDetail(arg0 context.Context, arg1 db.CreatePropertyDetailParams) (db.PropertyDetail, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreatePropertyDetail", arg0, arg1)
+	ret0, _ := ret[0].(db.PropertyDetail)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreatePropertyDetail indicates an expected call of CreatePropertyDetail.
+func (mr *MockStoreMockRecorder) CreatePropertyDetail(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePropertyDetail", reflect.TypeOf((*MockStore)(nil).CreatePropertyDetail), arg0, arg1)
+}
+
+// CreatePropertyNeighborhood mocks base method.
+func (m *MockStore) CreatePropertyNeighborhood(arg0 context.Context, arg1 db.CreatePropertyNeighborhoodParams) (db.PropertyNeighborhood, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreatePropertyNeighborhood", arg0, arg1)
+	ret0, _ := ret[0].(db.PropertyNeighborhood)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreatePropertyNeighborhood indicates an expected call of CreatePropertyNeighborhood.
+func (mr *MockStoreMockRecorder) CreatePropertyNeighborhood(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePropertyNeighborhood", reflect.TypeOf((*MockStore)(nil).CreatePropertyNeighborhood), arg0, arg1)
+}
+
+// CreateReview mocks base method.
+func (m *MockStore) CreateReview(arg0 context.Context, arg1 db.CreateReviewParams) (db.Review, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateReview", arg0, arg1)
+	ret0, _ := ret[0].(db.Review)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateReview indicates an expected call of CreateReview.
+func (mr *MockStoreMockRecorder) CreateReview(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateReview", reflect.TypeOf((*MockStore)(nil).CreateReview), arg0, arg1)
+}
+
+// DeleteAmenity mocks base method.
+func (m *MockStore) DeleteAmenity(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAmenity", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAmenity indicates an expected call of DeleteAmenity.
+func (mr *MockStoreMockRecorder) DeleteAmenity(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAmenity", reflect.TypeOf((*MockStore)(nil).DeleteAmenity), arg0, arg1)
+}
+
 // DeleteProperty mocks base method.
 func (m *MockStore) DeleteProperty(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()
@@ -50,19 +211,136 @@ func (mr *MockStoreMockRecorder) DeleteProperty(arg0, arg1 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProperty", reflect.TypeOf((*MockStore)(nil).DeleteProperty), arg0, arg1)
 }
 
-// GetPropertiesByOwnerID mocks base method.
-func (m *MockStore) GetPropertiesByOwnerID(arg0 context.Context, arg1 db.GetPropertiesByOwnerIDParams) ([]db.Property, error) {
+// DeletePropertyImage mocks base method.
+func (m *MockStore) DeletePropertyImage(arg0 context.Context, arg1 uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPropertiesByOwnerID", arg0, arg1)
+	ret := m.ctrl.Call(m, "DeletePropertyImage", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeletePropertyImage indicates an expected call of DeletePropertyImage.
+func (mr *MockStoreMockRecorder) DeletePropertyImage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePropertyImage", reflect.TypeOf((*MockStore)(nil).DeletePropertyImage), arg0, arg1)
+}
+
+// DeleteReview mocks base method.
+func (m *MockStore) DeleteReview(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteReview", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteReview indicates an expected call of DeleteReview.
+func (mr *MockStoreMockRecorder) DeleteReview(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteReview", reflect.TypeOf((*MockStore)(nil).DeleteReview), arg0, arg1)
+}
+
+// DeleteSearchHistory mocks base method.
+func (m *MockStore) DeleteSearchHistory(arg0 context.Context, arg1 db.DeleteSearchHistoryParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSearchHistory", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSearchHistory indicates an expected call of DeleteSearchHistory.
+func (mr *MockStoreMockRecorder) DeleteSearchHistory(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSearchHistory", reflect.TypeOf((*MockStore)(nil).DeleteSearchHistory), arg0, arg1)
+}
+
+// GetAmenityByID mocks base method.
+func (m *MockStore) GetAmenityByID(arg0 context.Context, arg1 uuid.UUID) (db.Amenity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAmenityByID", arg0, arg1)
+	ret0, _ := ret[0].(db.Amenity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAmenityByID indicates an expected call of GetAmenityByID.
+func (mr *MockStoreMockRecorder) GetAmenityByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAmenityByID", reflect.TypeOf((*MockStore)(nil).GetAmenityByID), arg0, arg1)
+}
+
+// GetPropertiesByAmenity mocks base method.
+func (m *MockStore) GetPropertiesByAmenity(arg0 context.Context, arg1 db.GetPropertiesByAmenityParams) ([]db.Property, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPropertiesByAmenity", arg0, arg1)
 	ret0, _ := ret[0].([]db.Property)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetPropertiesByOwnerID indicates an expected call of GetPropertiesByOwnerID.
-func (mr *MockStoreMockRecorder) GetPropertiesByOwnerID(arg0, arg1 interface{}) *gomock.Call {
+// GetPropertiesByAmenity indicates an expected call of GetPropertiesByAmenity.
+func (mr *MockStoreMockRecorder) GetPropertiesByAmenity(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertiesByOwnerID", reflect.TypeOf((*MockStore)(nil).GetPropertiesByOwnerID), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertiesByAmenity", reflect.TypeOf((*MockStore)(nil).GetPropertiesByAmenity), arg0, arg1)
+}
+
+// GetPropertiesByMultipleAmenities mocks base method.
+func (m *MockStore) GetPropertiesByMultipleAmenities(arg0 context.Context, arg1 db.GetPropertiesByMultipleAmenitiesParams) ([]db.GetPropertiesByMultipleAmenitiesRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPropertiesByMultipleAmenities", arg0, arg1)
+	ret0, _ := ret[0].([]db.GetPropertiesByMultipleAmenitiesRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPropertiesByMultipleAmenities indicates an expected call of GetPropertiesByMultipleAmenities.
+func (mr *MockStoreMockRecorder) GetPropertiesByMultipleAmenities(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertiesByMultipleAmenities", reflect.TypeOf((*MockStore)(nil).GetPropertiesByMultipleAmenities), arg0, arg1)
+}
+
+// GetPropertiesByOwner mocks base method.
+func (m *MockStore) GetPropertiesByOwner(arg0 context.Context, arg1 db.GetPropertiesByOwnerParams) ([]db.Property, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPropertiesByOwner", arg0, arg1)
+	ret0, _ := ret[0].([]db.Property)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPropertiesByOwner indicates an expected call of GetPropertiesByOwner.
+func (mr *MockStoreMockRecorder) GetPropertiesByOwner(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertiesByOwner", reflect.TypeOf((*MockStore)(nil).GetPropertiesByOwner), arg0, arg1)
+}
+
+// GetPropertyAmenities mocks base method.
+func (m *MockStore) GetPropertyAmenities(arg0 context.Context, arg1 uuid.UUID) ([]db.GetPropertyAmenitiesRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPropertyAmenities", arg0, arg1)
+	ret0, _ := ret[0].([]db.GetPropertyAmenitiesRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPropertyAmenities indicates an expected call of GetPropertyAmenities.
+func (mr *MockStoreMockRecorder) GetPropertyAmenities(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertyAmenities", reflect.TypeOf((*MockStore)(nil).GetPropertyAmenities), arg0, arg1)
+}
+
+// GetPropertyAvailability mocks base method.
+func (m *MockStore) GetPropertyAvailability(arg0 context.Context, arg1 db.GetPropertyAvailabilityParams) ([]db.PropertyAvailability, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPropertyAvailability", arg0, arg1)
+	ret0, _ := ret[0].([]db.PropertyAvailability)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPropertyAvailability indicates an expected call of GetPropertyAvailability.
+func (mr *MockStoreMockRecorder) GetPropertyAvailability(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertyAvailability", reflect.TypeOf((*MockStore)(nil).GetPropertyAvailability), arg0, arg1)
 }
 
 // GetPropertyByID mocks base method.
@@ -80,26 +358,146 @@ func (mr *MockStoreMockRecorder) GetPropertyByID(arg0, arg1 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertyByID", reflect.TypeOf((*MockStore)(nil).GetPropertyByID), arg0, arg1)
 }
 
-// InsertProperty mocks base method.
-func (m *MockStore) InsertProperty(arg0 context.Context, arg1 db.InsertPropertyParams) (db.Property, error) {
+// GetPropertyDetailByPropertyID mocks base method.
+func (m *MockStore) GetPropertyDetailByPropertyID(arg0 context.Context, arg1 uuid.UUID) (db.PropertyDetail, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InsertProperty", arg0, arg1)
-	ret0, _ := ret[0].(db.Property)
+	ret := m.ctrl.Call(m, "GetPropertyDetailByPropertyID", arg0, arg1)
+	ret0, _ := ret[0].(db.PropertyDetail)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// InsertProperty indicates an expected call of InsertProperty.
-func (mr *MockStoreMockRecorder) InsertProperty(arg0, arg1 interface{}) *gomock.Call {
+// GetPropertyDetailByPropertyID indicates an expected call of GetPropertyDetailByPropertyID.
+func (mr *MockStoreMockRecorder) GetPropertyDetailByPropertyID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertProperty", reflect.TypeOf((*MockStore)(nil).InsertProperty), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertyDetailByPropertyID", reflect.TypeOf((*MockStore)(nil).GetPropertyDetailByPropertyID), arg0, arg1)
+}
+
+// GetPropertyNeighborhood mocks base method.
+func (m *MockStore) GetPropertyNeighborhood(arg0 context.Context, arg1 uuid.UUID) (db.PropertyNeighborhood, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPropertyNeighborhood", arg0, arg1)
+	ret0, _ := ret[0].(db.PropertyNeighborhood)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPropertyNeighborhood indicates an expected call of GetPropertyNeighborhood.
+func (mr *MockStoreMockRecorder) GetPropertyNeighborhood(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertyNeighborhood", reflect.TypeOf((*MockStore)(nil).GetPropertyNeighborhood), arg0, arg1)
+}
+
+// GetPropertyReviewStats mocks base method.
+func (m *MockStore) GetPropertyReviewStats(arg0 context.Context, arg1 uuid.UUID) (db.GetPropertyReviewStatsRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPropertyReviewStats", arg0, arg1)
+	ret0, _ := ret[0].(db.GetPropertyReviewStatsRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPropertyReviewStats indicates an expected call of GetPropertyReviewStats.
+func (mr *MockStoreMockRecorder) GetPropertyReviewStats(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertyReviewStats", reflect.TypeOf((*MockStore)(nil).GetPropertyReviewStats), arg0, arg1)
+}
+
+// GetPropertyReviews mocks base method.
+func (m *MockStore) GetPropertyReviews(arg0 context.Context, arg1 db.GetPropertyReviewsParams) ([]db.Review, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPropertyReviews", arg0, arg1)
+	ret0, _ := ret[0].([]db.Review)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPropertyReviews indicates an expected call of GetPropertyReviews.
+func (mr *MockStoreMockRecorder) GetPropertyReviews(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertyReviews", reflect.TypeOf((*MockStore)(nil).GetPropertyReviews), arg0, arg1)
+}
+
+// GetPropertyViewStats mocks base method.
+func (m *MockStore) GetPropertyViewStats(arg0 context.Context, arg1 uuid.UUID) (db.GetPropertyViewStatsRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPropertyViewStats", arg0, arg1)
+	ret0, _ := ret[0].(db.GetPropertyViewStatsRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPropertyViewStats indicates an expected call of GetPropertyViewStats.
+func (mr *MockStoreMockRecorder) GetPropertyViewStats(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertyViewStats", reflect.TypeOf((*MockStore)(nil).GetPropertyViewStats), arg0, arg1)
+}
+
+// GetPropertyWithAllDetails mocks base method.
+func (m *MockStore) GetPropertyWithAllDetails(arg0 context.Context, arg1 uuid.UUID) (db.GetPropertyWithAllDetailsRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPropertyWithAllDetails", arg0, arg1)
+	ret0, _ := ret[0].(db.GetPropertyWithAllDetailsRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPropertyWithAllDetails indicates an expected call of GetPropertyWithAllDetails.
+func (mr *MockStoreMockRecorder) GetPropertyWithAllDetails(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPropertyWithAllDetails", reflect.TypeOf((*MockStore)(nil).GetPropertyWithAllDetails), arg0, arg1)
+}
+
+// GetRecentlyViewedProperties mocks base method.
+func (m *MockStore) GetRecentlyViewedProperties(arg0 context.Context, arg1 db.GetRecentlyViewedPropertiesParams) ([]db.GetRecentlyViewedPropertiesRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRecentlyViewedProperties", arg0, arg1)
+	ret0, _ := ret[0].([]db.GetRecentlyViewedPropertiesRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRecentlyViewedProperties indicates an expected call of GetRecentlyViewedProperties.
+func (mr *MockStoreMockRecorder) GetRecentlyViewedProperties(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRecentlyViewedProperties", reflect.TypeOf((*MockStore)(nil).GetRecentlyViewedProperties), arg0, arg1)
+}
+
+// GetUserSearchHistory mocks base method.
+func (m *MockStore) GetUserSearchHistory(arg0 context.Context, arg1 db.GetUserSearchHistoryParams) ([]db.SearchHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserSearchHistory", arg0, arg1)
+	ret0, _ := ret[0].([]db.SearchHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserSearchHistory indicates an expected call of GetUserSearchHistory.
+func (mr *MockStoreMockRecorder) GetUserSearchHistory(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserSearchHistory", reflect.TypeOf((*MockStore)(nil).GetUserSearchHistory), arg0, arg1)
+}
+
+// ListAmenities mocks base method.
+func (m *MockStore) ListAmenities(arg0 context.Context, arg1 db.AmenityCategory) ([]db.Amenity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListAmenities", arg0, arg1)
+	ret0, _ := ret[0].([]db.Amenity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListAmenities indicates an expected call of ListAmenities.
+func (mr *MockStoreMockRecorder) ListAmenities(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAmenities", reflect.TypeOf((*MockStore)(nil).ListAmenities), arg0, arg1)
 }
 
 // ListProperties mocks base method.
-func (m *MockStore) ListProperties(arg0 context.Context, arg1 db.ListPropertiesParams) ([]db.Property, error) {
+func (m *MockStore) ListProperties(arg0 context.Context, arg1 db.ListPropertiesParams) ([]db.ListPropertiesRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListProperties", arg0, arg1)
-	ret0, _ := ret[0].([]db.Property)
+	ret0, _ := ret[0].([]db.ListPropertiesRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -110,16 +508,209 @@ func (mr *MockStoreMockRecorder) ListProperties(arg0, arg1 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListProperties", reflect.TypeOf((*MockStore)(nil).ListProperties), arg0, arg1)
 }
 
-// UpdateProperty mocks base method.
-func (m *MockStore) UpdateProperty(arg0 context.Context, arg1 db.UpdatePropertyParams) error {
+// ListPropertyImages mocks base method.
+func (m *MockStore) ListPropertyImages(arg0 context.Context, arg1 uuid.UUID) ([]db.PropertyImage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateProperty", arg0, arg1)
+	ret := m.ctrl.Call(m, "ListPropertyImages", arg0, arg1)
+	ret0, _ := ret[0].([]db.PropertyImage)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListPropertyImages indicates an expected call of ListPropertyImages.
+func (mr *MockStoreMockRecorder) ListPropertyImages(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPropertyImages", reflect.TypeOf((*MockStore)(nil).ListPropertyImages), arg0, arg1)
+}
+
+// RecordPropertyView mocks base method.
+func (m *MockStore) RecordPropertyView(arg0 context.Context, arg1 db.RecordPropertyViewParams) (db.PropertyView, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RecordPropertyView", arg0, arg1)
+	ret0, _ := ret[0].(db.PropertyView)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RecordPropertyView indicates an expected call of RecordPropertyView.
+func (mr *MockStoreMockRecorder) RecordPropertyView(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RecordPropertyView", reflect.TypeOf((*MockStore)(nil).RecordPropertyView), arg0, arg1)
+}
+
+// RemoveAllPropertyAmenities mocks base method.
+func (m *MockStore) RemoveAllPropertyAmenities(arg0 context.Context, arg1 uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveAllPropertyAmenities", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
+}
+
+// RemoveAllPropertyAmenities indicates an expected call of RemoveAllPropertyAmenities.
+func (mr *MockStoreMockRecorder) RemoveAllPropertyAmenities(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAllPropertyAmenities", reflect.TypeOf((*MockStore)(nil).RemoveAllPropertyAmenities), arg0, arg1)
+}
+
+// RemovePropertyAmenity mocks base method.
+func (m *MockStore) RemovePropertyAmenity(arg0 context.Context, arg1 db.RemovePropertyAmenityParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemovePropertyAmenity", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemovePropertyAmenity indicates an expected call of RemovePropertyAmenity.
+func (mr *MockStoreMockRecorder) RemovePropertyAmenity(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemovePropertyAmenity", reflect.TypeOf((*MockStore)(nil).RemovePropertyAmenity), arg0, arg1)
+}
+
+// SaveSearchHistory mocks base method.
+func (m *MockStore) SaveSearchHistory(arg0 context.Context, arg1 db.SaveSearchHistoryParams) (db.SearchHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveSearchHistory", arg0, arg1)
+	ret0, _ := ret[0].(db.SearchHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SaveSearchHistory indicates an expected call of SaveSearchHistory.
+func (mr *MockStoreMockRecorder) SaveSearchHistory(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveSearchHistory", reflect.TypeOf((*MockStore)(nil).SaveSearchHistory), arg0, arg1)
+}
+
+// SearchPropertiesWithDetails mocks base method.
+func (m *MockStore) SearchPropertiesWithDetails(arg0 context.Context, arg1 db.SearchPropertiesWithDetailsParams) ([]db.SearchPropertiesWithDetailsRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchPropertiesWithDetails", arg0, arg1)
+	ret0, _ := ret[0].([]db.SearchPropertiesWithDetailsRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchPropertiesWithDetails indicates an expected call of SearchPropertiesWithDetails.
+func (mr *MockStoreMockRecorder) SearchPropertiesWithDetails(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchPropertiesWithDetails", reflect.TypeOf((*MockStore)(nil).SearchPropertiesWithDetails), arg0, arg1)
+}
+
+// SetPrimaryPropertyImage mocks base method.
+func (m *MockStore) SetPrimaryPropertyImage(arg0 context.Context, arg1 db.SetPrimaryPropertyImageParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetPrimaryPropertyImage", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetPrimaryPropertyImage indicates an expected call of SetPrimaryPropertyImage.
+func (mr *MockStoreMockRecorder) SetPrimaryPropertyImage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetPrimaryPropertyImage", reflect.TypeOf((*MockStore)(nil).SetPrimaryPropertyImage), arg0, arg1)
+}
+
+// SetPropertyAvailability mocks base method.
+func (m *MockStore) SetPropertyAvailability(arg0 context.Context, arg1 db.SetPropertyAvailabilityParams) (db.PropertyAvailability, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetPropertyAvailability", arg0, arg1)
+	ret0, _ := ret[0].(db.PropertyAvailability)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SetPropertyAvailability indicates an expected call of SetPropertyAvailability.
+func (mr *MockStoreMockRecorder) SetPropertyAvailability(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetPropertyAvailability", reflect.TypeOf((*MockStore)(nil).SetPropertyAvailability), arg0, arg1)
+}
+
+// UpdateAmenity mocks base method.
+func (m *MockStore) UpdateAmenity(arg0 context.Context, arg1 db.UpdateAmenityParams) (db.Amenity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAmenity", arg0, arg1)
+	ret0, _ := ret[0].(db.Amenity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateAmenity indicates an expected call of UpdateAmenity.
+func (mr *MockStoreMockRecorder) UpdateAmenity(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAmenity", reflect.TypeOf((*MockStore)(nil).UpdateAmenity), arg0, arg1)
+}
+
+// UpdateProperty mocks base method.
+func (m *MockStore) UpdateProperty(arg0 context.Context, arg1 db.UpdatePropertyParams) (db.Property, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateProperty", arg0, arg1)
+	ret0, _ := ret[0].(db.Property)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // UpdateProperty indicates an expected call of UpdateProperty.
 func (mr *MockStoreMockRecorder) UpdateProperty(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateProperty", reflect.TypeOf((*MockStore)(nil).UpdateProperty), arg0, arg1)
+}
+
+// UpdatePropertyDetail mocks base method.
+func (m *MockStore) UpdatePropertyDetail(arg0 context.Context, arg1 db.UpdatePropertyDetailParams) (db.PropertyDetail, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePropertyDetail", arg0, arg1)
+	ret0, _ := ret[0].(db.PropertyDetail)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdatePropertyDetail indicates an expected call of UpdatePropertyDetail.
+func (mr *MockStoreMockRecorder) UpdatePropertyDetail(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePropertyDetail", reflect.TypeOf((*MockStore)(nil).UpdatePropertyDetail), arg0, arg1)
+}
+
+// UpdatePropertyImage mocks base method.
+func (m *MockStore) UpdatePropertyImage(arg0 context.Context, arg1 db.UpdatePropertyImageParams) (db.PropertyImage, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePropertyImage", arg0, arg1)
+	ret0, _ := ret[0].(db.PropertyImage)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdatePropertyImage indicates an expected call of UpdatePropertyImage.
+func (mr *MockStoreMockRecorder) UpdatePropertyImage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePropertyImage", reflect.TypeOf((*MockStore)(nil).UpdatePropertyImage), arg0, arg1)
+}
+
+// UpdatePropertyNeighborhood mocks base method.
+func (m *MockStore) UpdatePropertyNeighborhood(arg0 context.Context, arg1 db.UpdatePropertyNeighborhoodParams) (db.PropertyNeighborhood, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePropertyNeighborhood", arg0, arg1)
+	ret0, _ := ret[0].(db.PropertyNeighborhood)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdatePropertyNeighborhood indicates an expected call of UpdatePropertyNeighborhood.
+func (mr *MockStoreMockRecorder) UpdatePropertyNeighborhood(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePropertyNeighborhood", reflect.TypeOf((*MockStore)(nil).UpdatePropertyNeighborhood), arg0, arg1)
+}
+
+// UpdatePropertyStatus mocks base method.
+func (m *MockStore) UpdatePropertyStatus(arg0 context.Context, arg1 db.UpdatePropertyStatusParams) (db.Property, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePropertyStatus", arg0, arg1)
+	ret0, _ := ret[0].(db.Property)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdatePropertyStatus indicates an expected call of UpdatePropertyStatus.
+func (mr *MockStoreMockRecorder) UpdatePropertyStatus(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePropertyStatus", reflect.TypeOf((*MockStore)(nil).UpdatePropertyStatus), arg0, arg1)
 }
