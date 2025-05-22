@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"github.com/shopspring/decimal"
 	"github.com/sqlc-dev/pqtype"
 )
 
@@ -107,7 +108,7 @@ type GetPropertiesByMultipleAmenitiesRow struct {
 	ID               uuid.UUID        `json:"id"`
 	Title            string           `json:"title"`
 	Description      sql.NullString   `json:"description"`
-	Price            string           `json:"price"`
+	Price            decimal.Decimal  `json:"price"`
 	Category         PropertyCategory `json:"category"`
 	Type             PropertyType     `json:"type"`
 	Address          string           `json:"address"`
@@ -193,7 +194,7 @@ type GetPropertyWithAllDetailsRow struct {
 	ID               uuid.UUID             `json:"id"`
 	Title            string                `json:"title"`
 	Description      sql.NullString        `json:"description"`
-	Price            string                `json:"price"`
+	Price            decimal.Decimal       `json:"price"`
 	Category         PropertyCategory      `json:"category"`
 	Type             PropertyType          `json:"type"`
 	Address          string                `json:"address"`
@@ -367,8 +368,8 @@ type SearchPropertiesWithDetailsParams struct {
 	Column4  string           `json:"column_4"`
 	Column5  string           `json:"column_5"`
 	Column6  string           `json:"column_6"`
-	Column7  string           `json:"column_7"`
-	Column8  string           `json:"column_8"`
+	Column7  decimal.Decimal  `json:"column_7"`
+	Column8  decimal.Decimal  `json:"column_8"`
 	Column9  int32            `json:"column_9"`
 	Column10 int32            `json:"column_10"`
 	Column11 int32            `json:"column_11"`
@@ -387,7 +388,7 @@ type SearchPropertiesWithDetailsRow struct {
 	ID            uuid.UUID        `json:"id"`
 	Title         string           `json:"title"`
 	Description   sql.NullString   `json:"description"`
-	Price         string           `json:"price"`
+	Price         decimal.Decimal  `json:"price"`
 	Category      PropertyCategory `json:"category"`
 	Type          PropertyType     `json:"type"`
 	Address       string           `json:"address"`

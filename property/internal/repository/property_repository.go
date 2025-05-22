@@ -3,8 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"strconv"
 
 	db "github.com/demola234/property/db/sqlc"
 	"github.com/demola234/property/internal/domain/entity"
@@ -12,8 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// UserRepository implements the AuthRepository interface.
-// This struct interacts with the database using SQLC-generated code.
 type PropertyRepository struct {
 	store db.Store
 }
@@ -24,176 +20,249 @@ func NewPropertyRepository(store db.Store) *PropertyRepository {
 	}
 }
 
-func (r *PropertyRepository) CreateProperty(property *entity.Property) error {
+func (r *PropertyRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.Property, error) {
+	property, err := r.store.GetPropertyByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return r.mapSQLCPropertyToEntity(property), nil
+}
 
-	NoOfBedRoom, err := strconv.Atoi(property.NoOfBedRooms)
+func (r *PropertyRepository) GetWithAllDetails(ctx context.Context, id uuid.UUID) (*entity.PropertyWithDetails, error) {
+	result, err := r.store.GetPropertyWithAllDetails(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return r.mapSQLCPropertyWithDetailsToEntity(result), nil
+}
+
+func (r *PropertyRepository) Create(ctx context.Context, property *entity.Property) error {
+	params := db.CreatePropertyParams{
+		Title:       property.Title,
+		Description: sql.NullString{String: *property.Description, Valid: property.Description != nil},
+		Price:       property.Price.String(),
+		Category:    db.PropertyCategory(property.Category),
+		Type:        db.PropertyType(property.Type),
+		Address:     property.Address,
+		City:        property.City,
+		State:       property.State,
+		Country:     property.Country,
+		ZipCode:     sql.NullString{String: *property.ZipCode, Valid: property.ZipCode != nil},
+		OwnerID:     toNullUUID(property.OwnerID),
+		Status:      db.PropertyStatus(property.Status),
+	}
+
+	created, err := r.store.CreateProperty(ctx, params)
 	if err != nil {
 		return err
 	}
 
-	NoOfBathRooms, err := strconv.Atoi(property.NoOfBathRooms)
+	property.ID = created.ID
+	property.CreatedAt = toTime(created.CreatedAt)
+	property.UpdatedAt = toTime(created.UpdatedAt)
+	return nil
+}
+
+func (r *PropertyRepository) Update(ctx context.Context, property *entity.Property) error {
+	params := db.UpdatePropertyParams{
+		ID:          property.ID,
+		Title:       property.Title,
+		Description: sql.NullString{String: *property.Description, Valid: property.Description != nil},
+		Category:    db.PropertyCategory(property.Category),
+		Type:        db.PropertyType(property.Type),
+		Address:     property.Address,
+		City:        property.City,
+		State:       property.State,
+		Country:     property.Country,
+		ZipCode:     sql.NullString{String: *property.ZipCode, Valid: property.ZipCode != nil},
+		Status:      db.PropertyStatus(property.Status),
+	}
+
+	_, err := r.store.UpdateProperty(ctx, params)
 	if err != nil {
 		return err
 	}
 
-	NoOfToilets, err := strconv.Atoi(property.NoOfToilets)
+	property.UpdatedAt = sql.NullTime{Time: property.UpdatedAt, Valid: true}.Time
+	return nil
+}
+
+func (r *PropertyRepository) UpdateStatus(ctx context.Context, id uuid.UUID, status entity.PropertyStatus) error {
+	_, err := r.store.UpdatePropertyStatus(ctx, db.UpdatePropertyStatusParams{
+		ID:     id,
+		Status: db.PropertyStatus(status),
+	})
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
-	arg := db.InsertPropertyParams{
-		ID:            uuid.New(),
-		Title:         property.Title,
-		Description:   sql.NullString{String: property.Description, Valid: true},
-		Price:         property.Price,
-		Type:          db.NullPropertyType{PropertyType: db.PropertyType(property.Type), Valid: true},
-		Address:       property.Address,
-		ZipCode:       sql.NullString{String: property.ZipCode, Valid: true},
-		OwnerID:       property.OwnerID,
-		Images:        property.Images,
-		NoOfBedRooms:  sql.NullInt32{Int32: int32(NoOfBedRoom), Valid: true},
-		NoOfBathRooms: sql.NullInt32{Int32: int32(NoOfBathRooms), Valid: true},
-		NoOfToilets:   sql.NullInt32{Int32: int32(NoOfToilets), Valid: true},
-		GeoLocation:   property.GeoLocation,
-		Status:        db.NullPropertyStatus{PropertyStatus: db.PropertyStatus(property.Status), Valid: true},
-	}
-
-	_, err = r.store.InsertProperty(context.Background(), arg)
+func (r *PropertyRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	err := r.store.DeleteProperty(ctx, id)
 	return err
 }
 
-func (r *PropertyRepository) UpdateProperty(property *entity.Property) error {
-	NoOfBedRoom, err := strconv.Atoi(property.NoOfBedRooms)
-	if err != nil {
-		return err
+func (r *PropertyRepository) List(ctx context.Context, filter entity.PropertySearchFilter) ([]*entity.Property, error) {
+	params := db.ListPropertiesParams{
+		Category:     (*db.PropertyCategory)(filter.Category),
+		Type:         (*db.PropertyType)(filter.Type),
+		Status:       (*db.PropertyStatus)(filter.Status),
+		City:         sql.NullString{String: *filter.City, Valid: filter.City != nil},
+		State:        sql.NullString{String: *filter.State, Valid: filter.State != nil},
+		Country:      sql.NullString{String: *filter.Country, Valid: filter.Country != nil},
+		MinPrice:     sql.NullString{String: filter.MinPrice, Valid: filter.MinPrice != nil},
+		MaxPrice:     sql.NullString{String: filter.MaxPrice, Valid: filter.MaxPrice != nil},
+		MinBedrooms:  sql.NullInt32{Int32: *filter.MinBedrooms, Valid: filter.MinBedrooms != nil},
+		MinBathrooms: sql.NullInt32{Int32: *filter.MinBathrooms, Valid: filter.MinBathrooms != nil},
+		Limit:        filter.Limit,
+		Offset:       filter.Offset,
 	}
 
-	NoOfBathRooms, err := strconv.Atoi(property.NoOfBathRooms)
-	if err != nil {
-		return err
-	}
-
-	NoOfToilets, err := strconv.Atoi(property.NoOfToilets)
-	if err != nil {
-		return err
-	}
-
-	arg := db.UpdatePropertyParams{
-		ID:            property.ID,
-		Title:         property.Title,
-		Description:   sql.NullString{String: property.Description, Valid: true},
-		Price:         property.Price,
-		Type:          db.NullPropertyType{PropertyType: db.PropertyType(property.Type), Valid: true},
-		Address:       property.Address,
-		ZipCode:       sql.NullString{String: property.ZipCode, Valid: true},
-		Images:        property.Images,
-		NoOfBedRooms:  sql.NullInt32{Int32: int32(NoOfBedRoom), Valid: true},
-		NoOfBathRooms: sql.NullInt32{Int32: int32(NoOfBathRooms), Valid: true},
-		NoOfToilets:   sql.NullInt32{Int32: int32(NoOfToilets), Valid: true},
-		GeoLocation:   property.GeoLocation,
-		Status:        db.NullPropertyStatus{PropertyStatus: db.PropertyStatusAvailable, Valid: true},
-	}
-
-	return r.store.UpdateProperty(context.Background(), arg)
-}
-
-func (r *PropertyRepository) GetPropertyByID(id uuid.UUID) (*entity.Property, error) {
-
-	property, err := r.store.GetPropertyByID(context.Background(), id)
+	properties, err := r.store.ListProperties(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
+	result := make([]*entity.Property, len(properties))
+	for i, p := range properties {
+		result[i] = r.mapSQLCListPropertyToEntity(p)
+	}
+
+	return result, nil
+}
+
+// GetWithAllDetails(ctx context.Context, id uuid.UUID) (*entity.PropertyWithDetails, error)
+// Create(ctx context.Context, property *entity.Property) error
+// Update(ctx context.Context, property *entity.Property) error
+// UpdateStatus(ctx context.Context, id uuid.UUID, status entity.PropertyStatus) error
+// Delete(ctx context.Context, id uuid.UUID) error
+
+// // Property Listing and Search
+// List(ctx context.Context, filter entity.PropertySearchFilter) ([]*entity.Property, error)
+// SearchWithDetails(ctx context.Context, filter entity.PropertySearchFilter) ([]*entity.PropertyWithDetails, error)
+// Count(ctx context.Context, filter entity.PropertySearchFilter) (int64, error)
+// GetByOwner(ctx context.Context, ownerID uuid.UUID, limit, offset int32) ([]*entity.Property, error)
+
+// // Property with amenities
+// GetByAmenity(ctx context.Context, amenityID uuid.UUID, status *entity.PropertyStatus, limit, offset int32) ([]*entity.Property, error)
+// GetByMultipleAmenities(ctx context.Context, amenityIDs []uuid.UUID, status *entity.PropertyStatus, limit, offset int32) ([]*entity.Property, error)
+
+func (r *PropertyRepository) mapSQLCPropertyToEntity(p db.Property) *entity.Property {
 	return &entity.Property{
-		ID:            property.ID,
-		Title:         property.Title,
-		Description:   property.Description.String,
-		Price:         property.Price,
-		Type:          string(property.Type.PropertyType),
-		Address:       property.Address,
-		ZipCode:       property.ZipCode.String,
-		OwnerID:       property.OwnerID,
-		Images:        property.Images,
-		NoOfBedRooms:  strconv.Itoa(int(property.NoOfBedRooms.Int32)),
-		NoOfBathRooms: strconv.Itoa(int(property.NoOfBathRooms.Int32)),
-		NoOfToilets:   strconv.Itoa(int(property.NoOfToilets.Int32)),
-		GeoLocation:   property.GeoLocation,
-		Status:        string(property.Status.PropertyStatus),
-		CreatedAt:     property.CreatedAt.Time,
-		UpdatedAt:     property.UpdatedAt.Time,
-	}, nil
-
+		ID:          p.ID,
+		Title:       p.Title,
+		Description: toNullStringPtr(p.Description),
+		Category:    entity.PropertyCategory(p.Category),
+		Type:        entity.PropertyType(p.Type),
+		Address:     p.Address,
+		City:        p.City,
+		State:       p.State,
+		Country:     p.Country,
+		ZipCode:     toNullStringPtr(p.ZipCode),
+		OwnerID:     toNullUUIDPtr(p.OwnerID),
+		Status:      entity.PropertyStatus(p.Status),
+		CreatedAt:   toTime(p.CreatedAt),
+		UpdatedAt:   toTime(p.UpdatedAt),
+	}
 }
 
-func (r *PropertyRepository) GetProperties(limit, offset int32) ([]*entity.Property, error) {
-	properties, err := r.store.ListProperties(context.Background(), db.ListPropertiesParams{
-		Limit:  limit,
-		Offset: offset,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to Get Properties: %w", err)
+func (r *PropertyRepository) mapSQLCListPropertyToEntity(p db.ListPropertiesRow) *entity.Property {
+	return &entity.Property{
+		ID:          p.ID,
+		Title:       p.Title,
+		Description: toNullStringPtr(p.Description),
+		Category:    entity.PropertyCategory(p.Category),
+		Type:        entity.PropertyType(p.Type),
+		Address:     p.Address,
+		City:        p.City,
+		State:       p.State,
+		Country:     p.Country,
+		ZipCode:     toNullStringPtr(p.ZipCode),
+		OwnerID:     toNullUUIDPtr(p.OwnerID),
+		Status:      entity.PropertyStatus(p.Status),
+		CreatedAt:   toTime(p.CreatedAt),
+		UpdatedAt:   toTime(p.UpdatedAt),
 	}
-
-	result := make([]*entity.Property, len(properties))
-	for i, property := range properties {
-		result[i] = &entity.Property{
-			ID:            property.ID,
-			Title:         property.Title,
-			Description:   property.Description.String,
-			Price:         property.Price,
-			Type:          string(property.Type.PropertyType),
-			Address:       property.Address,
-			ZipCode:       property.ZipCode.String,
-			OwnerID:       property.OwnerID,
-			Images:        property.Images,
-			NoOfBedRooms:  strconv.Itoa(int(property.NoOfBedRooms.Int32)),
-			NoOfBathRooms: strconv.Itoa(int(property.NoOfBathRooms.Int32)),
-			NoOfToilets:   strconv.Itoa(int(property.NoOfToilets.Int32)),
-			GeoLocation:   property.GeoLocation,
-			Status:        string(property.Status.PropertyStatus),
-			CreatedAt:     property.CreatedAt.Time,
-			UpdatedAt:     property.UpdatedAt.Time,
-		}
-	}
-
-	return result, nil
 }
 
-func (r *PropertyRepository) GetPropertiesByOwner(ownerID uuid.NullUUID, limit, offset int32) ([]*entity.Property, error) {
-	properties, err := r.store.GetPropertiesByOwnerID(context.Background(), db.GetPropertiesByOwnerIDParams{
-		OwnerID: ownerID,
-		Limit:   limit,
-		Offset:  offset,
-	})
-	if err != nil {
-		return nil, err
+func (r *PropertyRepository) mapSQLCPropertyWithDetailsToEntity(p db.GetPropertyWithAllDetailsRow) *entity.PropertyWithDetails {
+	return &entity.PropertyWithDetails{
+		Property: entity.Property{
+			ID:          p.ID,
+			Title:       p.Title,
+			Description: toNullStringPtr(p.Description),
+			Category:    entity.PropertyCategory(p.Category),
+			Type:        entity.PropertyType(p.Type),
+			Address:     p.Address,
+			City:        p.City,
+			State:       p.State,
+			Country:     p.Country,
+			ZipCode:     toNullStringPtr(p.ZipCode),
+			OwnerID:     toNullUUIDPtr(p.OwnerID),
+			Status:      entity.PropertyStatus(p.Status),
+			CreatedAt:   toTime(p.CreatedAt),
+			UpdatedAt:   toTime(p.UpdatedAt),
+		},
+		PropertyDetail: &entity.PropertyDetail{
+			ID:               p.ID_2.UUID,
+			PropertyID:       p.PropertyID.UUID,
+			Bedrooms:         toNullInt32Ptr(p.Bedrooms),
+			Bathrooms:        toNullInt32Ptr(p.Bathrooms),
+			Toilets:          toNullInt32Ptr(p.Toilets),
+			SquareFootage:    toProtoDecimal(p.SquareFootage),
+			LotSize:          toProtoDecimal(p.LotSize),
+			YearBuilt:        toNullInt32Ptr(p.YearBuilt),
+			Stories:          toNullInt32Ptr(p.Stories),
+			GarageCount:      toNullInt32Ptr(p.GarageCount),
+			HasBasement:      p.HasBasement.Bool,
+			HasAttic:         p.HasAttic.Bool,
+			HeatingSystem:    toNullStringPtr(p.HeatingSystem),
+			CoolingSystem:    toNullStringPtr(p.CoolingSystem),
+			WaterSource:      toNullStringPtr(p.WaterSource),
+			SewerType:        toNullStringPtr(p.SewerType),
+			RoofType:         toNullStringPtr(p.RoofType),
+			ExteriorMaterial: toNullStringPtr(p.ExteriorMaterial),
+			FoundationType:   toNullStringPtr(p.FoundationType),
+			PoolType:         toNullStringPtr(p.PoolType),
+			CreatedAt:        p.CreatedAt_2.Time,
+			UpdatedAt:        p.UpdatedAt_2.Time,
+		},
+		AvgRating:   *float64ToProtoDecimal(p.AvgRating),
+		ReviewCount: p.ReviewCount,
 	}
-
-	result := make([]*entity.Property, len(properties))
-	for i, property := range properties {
-		result[i] = &entity.Property{
-			ID:            property.ID,
-			Title:         property.Title,
-			Description:   property.Description.String,
-			Price:         property.Price,
-			Type:          string(property.Type.PropertyType),
-			Address:       property.Address,
-			ZipCode:       property.ZipCode.String,
-			OwnerID:       property.OwnerID,
-			Images:        property.Images,
-			NoOfBedRooms:  strconv.Itoa(int(property.NoOfBedRooms.Int32)),
-			NoOfBathRooms: strconv.Itoa(int(property.NoOfBathRooms.Int32)),
-			NoOfToilets:   strconv.Itoa(int(property.NoOfToilets.Int32)),
-			GeoLocation:   property.GeoLocation,
-			Status:        string(property.Status.PropertyStatus),
-			CreatedAt:     property.CreatedAt.Time,
-			UpdatedAt:     property.UpdatedAt.Time,
-		}
-	}
-
-	return result, nil
 }
 
-func (r *PropertyRepository) DeleteProperty(id uuid.UUID) error {
-	return r.store.DeleteProperty(context.Background(), id)
+func (r *PropertyRepository) mapSQLCSearchResultToEntity(p db.SearchPropertiesWithDetailsRow) *entity.PropertyWithDetails {
+	return &entity.PropertyWithDetails{
+		Property: entity.Property{
+			ID:          p.ID,
+			Title:       p.Title,
+			Description: toNullStringPtr(p.Description),
+			Category:    entity.PropertyCategory(p.Category),
+			Type:        entity.PropertyType(p.Type),
+			Address:     p.Address,
+			City:        p.City,
+			State:       p.State,
+			Country:     p.Country,
+			ZipCode:     toNullStringPtr(p.ZipCode),
+			OwnerID:     toNullUUIDPtr(p.OwnerID),
+			Status:      entity.PropertyStatus(p.Status),
+			CreatedAt:   toTime(p.CreatedAt),
+			UpdatedAt:   toTime(p.UpdatedAt),
+		},
+		PropertyDetail: &entity.PropertyDetail{
+			Bedrooms:      toNullInt32Ptr(p.Bedrooms),
+			Bathrooms:     toNullInt32Ptr(p.Bathrooms),
+			SquareFootage: toProtoDecimal(p.SquareFootage),
+			LotSize:       toProtoDecimal(p.LotSize),
+			YearBuilt:     toNullInt32Ptr(p.YearBuilt),
+			Stories:       toNullInt32Ptr(p.Stories),
+			GarageCount:   toNullInt32Ptr(p.GarageCount),
+			HasBasement:   p.HasBasement.Bool,
+			HasAttic:      p.HasAttic.Bool,
+		},
+		AvgRating:   *float64ToProtoDecimal(p.AvgRating),
+		ReviewCount: p.ReviewCount,
+	}
 }

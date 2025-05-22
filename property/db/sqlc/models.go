@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/sqlc-dev/pqtype"
 )
 
@@ -264,7 +265,7 @@ type Property struct {
 	// Detailed description
 	Description sql.NullString `json:"description"`
 	// Price of the property
-	Price string `json:"price"`
+	Price decimal.Decimal `json:"price"`
 	// Rent, Sale, Buy, Lease, Land, Mortgage, etc.
 	Category PropertyCategory `json:"category"`
 	// House, Apartment, Land, etc.
@@ -411,7 +412,7 @@ type Review struct {
 	// User being reviewed, if applicable (host/guest)
 	ReviewedID uuid.NullUUID `json:"reviewed_id"`
 	// Overall rating score
-	OverallRating string `json:"overall_rating"`
+	OverallRating decimal.Decimal `json:"overall_rating"`
 	// Rating for location
 	LocationRating sql.NullString `json:"location_rating"`
 	// Rating for value

@@ -6,26 +6,26 @@ LIMIT 1;
 
 -- name: ListProperties :many
 SELECT 
-  p.*,
+  p.id, p.title, p.description, p.price, p.category, p.type, p.address, p.city, p.state, p.country, p.zip_code, p.owner_id, p.status, p.created_at, p.updated_at,
   pd.bedrooms,
   pd.bathrooms,
   pd.square_footage
 FROM "Property" p
 LEFT JOIN "PropertyDetail" pd ON p.id = pd.property_id
 WHERE 
-  ($1::property_category IS NULL OR p.category = $1) AND
-  ($2::property_type IS NULL OR p.type = $2) AND
-  ($3::property_status IS NULL OR p.status = $3) AND
-  ($4::VARCHAR IS NULL OR p.city = $4) AND
-  ($5::VARCHAR IS NULL OR p.state = $5) AND
-  ($6::VARCHAR IS NULL OR p.country = $6) AND
-  ($7::NUMERIC IS NULL OR p.price >= $7) AND
-  ($8::NUMERIC IS NULL OR p.price <= $8) AND
-  ($9::INT IS NULL OR pd.bedrooms >= $9) AND
-  ($10::INT IS NULL OR pd.bathrooms >= $10)
+  (sqlc.narg('category')::property_category IS NULL OR p.category = sqlc.narg('category')) AND
+  (sqlc.narg('type')::property_type IS NULL OR p.type = sqlc.narg('type')) AND
+  (sqlc.narg('status')::property_status IS NULL OR p.status = sqlc.narg('status')) AND
+  (sqlc.narg('city')::VARCHAR IS NULL OR p.city = sqlc.narg('city')) AND
+  (sqlc.narg('state')::VARCHAR IS NULL OR p.state = sqlc.narg('state')) AND
+  (sqlc.narg('country')::VARCHAR IS NULL OR p.country = sqlc.narg('country')) AND
+  (sqlc.narg('min_price')::NUMERIC IS NULL OR p.price >= sqlc.narg('min_price')) AND
+  (sqlc.narg('max_price')::NUMERIC IS NULL OR p.price <= sqlc.narg('max_price')) AND
+  (sqlc.narg('min_bedrooms')::INT IS NULL OR pd.bedrooms >= sqlc.narg('min_bedrooms')) AND
+  (sqlc.narg('min_bathrooms')::INT IS NULL OR pd.bathrooms >= sqlc.narg('min_bathrooms'))
 ORDER BY p.created_at DESC
-LIMIT $11
-OFFSET $12;
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
 -- name: CreateProperty :one
 INSERT INTO "Property" (

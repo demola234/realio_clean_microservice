@@ -10,6 +10,7 @@ import (
 	"database/sql"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 const getPropertyViewStats = `-- name: GetPropertyViewStats :one
@@ -52,7 +53,7 @@ type GetRecentlyViewedPropertiesRow struct {
 	ID          uuid.UUID        `json:"id"`
 	Title       string           `json:"title"`
 	Description sql.NullString   `json:"description"`
-	Price       string           `json:"price"`
+	Price       decimal.Decimal  `json:"price"`
 	Category    PropertyCategory `json:"category"`
 	Type        PropertyType     `json:"type"`
 	Address     string           `json:"address"`

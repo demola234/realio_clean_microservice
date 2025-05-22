@@ -10,6 +10,7 @@ import (
 	"database/sql"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 const countProperties = `-- name: CountProperties :one
@@ -32,8 +33,8 @@ type CountPropertiesParams struct {
 	Column4 string           `json:"column_4"`
 	Column5 string           `json:"column_5"`
 	Column6 string           `json:"column_6"`
-	Column7 string           `json:"column_7"`
-	Column8 string           `json:"column_8"`
+	Column7 decimal.Decimal  `json:"column_7"`
+	Column8 decimal.Decimal  `json:"column_8"`
 }
 
 func (q *Queries) CountProperties(ctx context.Context, arg CountPropertiesParams) (int64, error) {
@@ -77,7 +78,7 @@ RETURNING id, title, description, price, category, type, address, city, state, c
 type CreatePropertyParams struct {
 	Title       string           `json:"title"`
 	Description sql.NullString   `json:"description"`
-	Price       string           `json:"price"`
+	Price       decimal.Decimal  `json:"price"`
 	Category    PropertyCategory `json:"category"`
 	Type        PropertyType     `json:"type"`
 	Address     string           `json:"address"`
@@ -237,30 +238,30 @@ WHERE
   ($9::INT IS NULL OR pd.bedrooms >= $9) AND
   ($10::INT IS NULL OR pd.bathrooms >= $10)
 ORDER BY p.created_at DESC
-LIMIT $11
-OFFSET $12
+LIMIT $12
+OFFSET $11
 `
 
 type ListPropertiesParams struct {
-	Column1  PropertyCategory `json:"column_1"`
-	Column2  PropertyType     `json:"column_2"`
-	Column3  PropertyStatus   `json:"column_3"`
-	Column4  string           `json:"column_4"`
-	Column5  string           `json:"column_5"`
-	Column6  string           `json:"column_6"`
-	Column7  string           `json:"column_7"`
-	Column8  string           `json:"column_8"`
-	Column9  int32            `json:"column_9"`
-	Column10 int32            `json:"column_10"`
-	Limit    int32            `json:"limit"`
-	Offset   int32            `json:"offset"`
+	Category     NullPropertyCategory `json:"category"`
+	Type         NullPropertyType     `json:"type"`
+	Status       NullPropertyStatus   `json:"status"`
+	City         sql.NullString       `json:"city"`
+	State        sql.NullString       `json:"state"`
+	Country      sql.NullString       `json:"country"`
+	MinPrice     sql.NullString       `json:"min_price"`
+	MaxPrice     sql.NullString       `json:"max_price"`
+	MinBedrooms  sql.NullInt32        `json:"min_bedrooms"`
+	MinBathrooms sql.NullInt32        `json:"min_bathrooms"`
+	Offset       int32                `json:"offset"`
+	Limit        int32                `json:"limit"`
 }
 
 type ListPropertiesRow struct {
 	ID            uuid.UUID        `json:"id"`
 	Title         string           `json:"title"`
 	Description   sql.NullString   `json:"description"`
-	Price         string           `json:"price"`
+	Price         decimal.Decimal  `json:"price"`
 	Category      PropertyCategory `json:"category"`
 	Type          PropertyType     `json:"type"`
 	Address       string           `json:"address"`
@@ -279,18 +280,18 @@ type ListPropertiesRow struct {
 
 func (q *Queries) ListProperties(ctx context.Context, arg ListPropertiesParams) ([]ListPropertiesRow, error) {
 	rows, err := q.db.QueryContext(ctx, listProperties,
-		arg.Column1,
-		arg.Column2,
-		arg.Column3,
-		arg.Column4,
-		arg.Column5,
-		arg.Column6,
-		arg.Column7,
-		arg.Column8,
-		arg.Column9,
-		arg.Column10,
-		arg.Limit,
+		arg.Category,
+		arg.Type,
+		arg.Status,
+		arg.City,
+		arg.State,
+		arg.Country,
+		arg.MinPrice,
+		arg.MaxPrice,
+		arg.MinBedrooms,
+		arg.MinBathrooms,
 		arg.Offset,
+		arg.Limit,
 	)
 	if err != nil {
 		return nil, err
@@ -355,7 +356,7 @@ type UpdatePropertyParams struct {
 	ID          uuid.UUID        `json:"id"`
 	Title       string           `json:"title"`
 	Description sql.NullString   `json:"description"`
-	Price       string           `json:"price"`
+	Price       decimal.Decimal  `json:"price"`
 	Category    PropertyCategory `json:"category"`
 	Type        PropertyType     `json:"type"`
 	Address     string           `json:"address"`

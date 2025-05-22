@@ -20,11 +20,9 @@ type Querier interface {
 	CreateProperty(ctx context.Context, arg CreatePropertyParams) (Property, error)
 	CreatePropertyDetail(ctx context.Context, arg CreatePropertyDetailParams) (PropertyDetail, error)
 	CreatePropertyNeighborhood(ctx context.Context, arg CreatePropertyNeighborhoodParams) (PropertyNeighborhood, error)
-	CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error)
 	DeleteAmenity(ctx context.Context, id uuid.UUID) error
 	DeleteProperty(ctx context.Context, id uuid.UUID) error
 	DeletePropertyImage(ctx context.Context, id uuid.UUID) error
-	DeleteReview(ctx context.Context, id uuid.UUID) error
 	DeleteSearchHistory(ctx context.Context, arg DeleteSearchHistoryParams) error
 	GetAmenityByID(ctx context.Context, id uuid.UUID) (Amenity, error)
 	GetPropertiesByAmenity(ctx context.Context, arg GetPropertiesByAmenityParams) ([]Property, error)
@@ -35,8 +33,6 @@ type Querier interface {
 	GetPropertyByID(ctx context.Context, id uuid.UUID) (Property, error)
 	GetPropertyDetailByPropertyID(ctx context.Context, propertyID uuid.UUID) (PropertyDetail, error)
 	GetPropertyNeighborhood(ctx context.Context, propertyID uuid.UUID) (PropertyNeighborhood, error)
-	GetPropertyReviewStats(ctx context.Context, propertyID uuid.UUID) (GetPropertyReviewStatsRow, error)
-	GetPropertyReviews(ctx context.Context, arg GetPropertyReviewsParams) ([]Review, error)
 	GetPropertyViewStats(ctx context.Context, propertyID uuid.UUID) (GetPropertyViewStatsRow, error)
 	GetPropertyWithAllDetails(ctx context.Context, id uuid.UUID) (GetPropertyWithAllDetailsRow, error)
 	GetRecentlyViewedProperties(ctx context.Context, arg GetRecentlyViewedPropertiesParams) ([]GetRecentlyViewedPropertiesRow, error)
